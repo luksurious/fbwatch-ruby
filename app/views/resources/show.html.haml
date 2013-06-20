@@ -1,0 +1,18 @@
+%p#notice= notice
+
+%p
+  %b Name:
+  = @resource.name
+%p
+  %b Facebook:
+  = @resource.facebook_id
+%p
+  %b Last synced:
+  = @resource.last_synced
+%p
+  %b Active:
+  = @resource.active
+
+= link_to 'Edit', edit_resource_path(@resource)
+\|
+= link_to 'Back', resources_path

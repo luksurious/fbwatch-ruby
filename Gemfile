@@ -28,6 +28,8 @@ gem 'haml-rails', '>= 0.3.4', :group => :development
 
 gem 'simple_form'
 
+gem 'debugger', group: [:development, :test]
+
 # To use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'
 

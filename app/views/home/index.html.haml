@@ -1,2 +1,29 @@
-%h1 Home#index
-%p Find me in app/views/home/index.html.erb
+%h1 FBWatch Status
+%h2 Add new resource to observe
+= simple_form_for(@resource) do |f|
+  = f.error_notification
+  = f.input :name, label: "Facebook URL"
+  = f.button :submit, 'Add'
+
+%h2 Current Resources
+%a{href: ""}
+  %button.btn{type: "submit"} Sync All
+
+%table.table
+  %tr
+    %th Name
+    %th Facebook ID
+    %th Active
+    %th Last Synced
+    %th &nbsp;
+
+  - @resources.each do |res|
+    %tr
+      %td= res["name"]
+      %td= res["facebook_id"]
+      %td= res["active"]
+      %td= res["last_synced"]
+      %td
+        %a{href: ""} Stop Syncing
+        %br
+        %a{href: ""} Sync now
