@@ -16,3 +16,5 @@
 
 # Ignore Netbeans project files
 /nbproject
+# Ignore application configuration
+/config/application.yml
