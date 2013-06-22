@@ -16,14 +16,14 @@ class UserDataGatherer
         return
     end
 
-    init_data_folder_for(basic_data['id']);
-
+    #init_data_folder_for(basic_data['id']);
+    
     data = {
       basic_data: basic_data,
-      feed: fetch_data('feed')
+      #feed: fetch_data('feed')
     }
 
-    save_data(data)
+    #save_data(data)
 
     return data
   end
@@ -68,9 +68,8 @@ class UserDataGatherer
       previous_link: previous_link
     }
   end
-    
+  
   def save_data(data)
-    debugger
     filepath = "#{@savePath}combined.json"
     File.open(filepath, 'w+') do |f|
       f.write(JSON.generate(data))
