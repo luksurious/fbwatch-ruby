@@ -6,8 +6,8 @@ class UserDataGatherer
     @username = username
     @facebook = facebook
   end
-  @save_path
-    
+  attr_writer :prev_feed_link
+  
   def start_fetch
     basic_data = @facebook.get_object(@username)
 
@@ -18,7 +18,7 @@ class UserDataGatherer
 
     data = {
       basic_data: basic_data,
-      #feed: fetch_data('feed')
+      feed: fetch_data('feed')
     }
     
     return data
@@ -29,7 +29,7 @@ class UserDataGatherer
     data = []
     call_history = []
     previous_link = ''
-    fb_graph_call = "/#{@username}/#{connection}"
+    fb_graph_call = create_next_query(@prev_feed_link, connection)
 
     while true
       # TODO possibly make more robust
@@ -50,10 +50,10 @@ class UserDataGatherer
         previous_link = result['paging']['previous']
       end
 
-      data.push(result)
+      data.concat(result['data'])
 
       fb_graph_call = create_next_query(
-        result['paging']['next'], 
+        @prev_feed_link ? result['paging']['previous'] : result['paging']['next'], 
         connection
       )
     end
@@ -70,12 +70,17 @@ class UserDataGatherer
     # presumably empty
     return !result.has_key?('paging')
   end
-    
+ 
   def create_next_query(next_link, connection)
-    next_query = next_link[ next_link.index('?') + 1..-1 ]
-    uri = CGI.parse(next_query)
+    if !next_link.nil?
+      startindex = next_link.index('?') ? next_link.index('?') + 1 : 0
+      next_query = next_link[ startindex..-1 ]
+      uri = CGI.parse(next_query)
+    else
+      uri = CGI.parse("")
+    end
 
-    result = "/#{@username}/#{connection}?" + (uri.has_key?('limit') ? 'limit=' + uri['limit'][0] + '&' : '') + (uri.has_key?('until') ? 'until=' + uri['until'][0] : '')
+    result = "/#{@username}/#{connection}?" + (uri.has_key?('limit') ? 'limit=' + uri['limit'][0] + '&' : '') + (uri.has_key?('until') ? 'until=' + uri['until'][0] : '') + (uri.has_key?('since') ? 'since=' + uri['since'][0] : '')
     return result
   end
 end

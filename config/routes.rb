@@ -7,6 +7,8 @@ Fbwatch::Application.routes.draw do
 
   resources :resources
   
+  get 'resource/:username', to: 'resources#details'
+  
   get "home/index"
   
   get "login", to: 'home#login'

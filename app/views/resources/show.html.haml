@@ -1,7 +1,5 @@
-%h1 Details for Resource
 %p#notice= notice
 
-%h2 Basic Data
 %p
   %b Name:
   = @resource.name
@@ -13,7 +11,7 @@
   = @resource.facebook_id
 %p
   %b Link:
-  =link_to @resource.link, @resource.link
+  = link_to @resource.link, @resource.link
 %p
   %b Last synced:
   = @resource.last_synced
@@ -21,12 +19,6 @@
   %b Active:
   = @resource.active
 
-%h2 Additional Data
-- @basicdata.each do |item|
-  %p
-    %b= item['key']
-    = item['value']
-
 = link_to 'Edit', edit_resource_path(@resource)
 \|
-= link_to 'Back', root_path
+= link_to 'Back', resources_path

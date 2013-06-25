@@ -16,7 +16,19 @@ class ResourcesController < ApplicationController
   # GET /resources/1.json
   def show
     @resource = Resource.find(params[:id])
-    @basicdata = Basicdata.find_all_by_resource_id(params[:id])
+
+    respond_to do |format|
+      format.html # show.html.erb
+      format.json { render json: @resource }
+    end
+  end
+  
+  # GET /resources/1
+  # GET /resources/1.json
+  def details
+    @resource = Resource.find_by_username(params[:username])
+    @basicdata = Basicdata.find_all_by_resource_id(@resource.id)
+    @feeds = Feed.find_all_by_resource_id(@resource.id)
 
     respond_to do |format|
       format.html # show.html.erb

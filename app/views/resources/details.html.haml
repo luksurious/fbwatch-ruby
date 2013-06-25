@@ -1,0 +1,50 @@
+%h1 Details for Resource
+%p#notice= notice
+
+%h2 Basic Data
+%p
+  %b Name:
+  = @resource.name
+%p
+  %b Username:
+  = @resource.username
+%p
+  %b Facebook ID:
+  = @resource.facebook_id
+%p
+  %b Link:
+  =link_to @resource.link, @resource.link
+%p
+  %b Last synced:
+  = @resource.last_synced
+%p
+  %b Active:
+  = @resource.active
+
+%h2 Additional Data
+- @basicdata.each do |item|
+  %p
+    %b= item['key']
+    = item['value']
+
+%h2 Feed
+Total: 
+= @feeds.length
+%table.table
+  %tr
+    %th Date
+    %th Data
+    %th Type
+    %th From
+    %th To
+  - @feeds.each do |item|
+    %tr
+      %td= item['updated_time']
+      %td= item['data']
+      %td= item['feed_type']
+      %td= item.from.username
+      %td= item.to.nil? ? '' : item.to.username
+
+= link_to 'Edit', edit_resource_path(@resource)
+\|
+= link_to 'Back', root_path

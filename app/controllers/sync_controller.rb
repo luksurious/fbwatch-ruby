@@ -1,16 +1,23 @@
 require 'active_support'
 
 class SyncController < ApplicationController
+  @@feed_prev_link_key = 'feed_previous_link'
+  
   def index
     @username = params[:name]
-    gatherer = UserDataGatherer.new(@username, session[:facebook])
-    @result = gatherer.start_fetch
     @resource = Resource.find_by_username(@username)
+    prev_feed_link = Basicdata.where({ resource_id: @resource, key: @@feed_prev_link_key }).first
+    
+    gatherer = UserDataGatherer.new(@username, session[:facebook])
+    gatherer.prev_feed_link = prev_feed_link.value if !prev_feed_link.nil?
+    
+    @result = gatherer.start_fetch
     
     save_basic_data
+    save_feed
     update_resource
     
-    redirect_to controller: 'resources', action: 'show', id: @resource.id
+   redirect_to controller: 'resources', action: 'details', username: @resource.username
   end
 
   def syncall
@@ -30,6 +37,7 @@ class SyncController < ApplicationController
   def save_basic_data
     new_data = @result[:basic_data].clone
     existing_data = Basicdata.find_all_by_resource_id(@resource.id)
+    feed_prev_link = nil
     
     # overwrite existing values
     existing_data.each do |item|
@@ -39,6 +47,8 @@ class SyncController < ApplicationController
           flash[:alert] = 'Failed saving data for ' + item.key
         end
         new_data.delete(item.key)
+      elsif item.key == @@feed_prev_link_key
+        feed_prev_link = item
       end
     end
     
@@ -56,5 +66,57 @@ class SyncController < ApplicationController
         flash[:alert] = 'Failed saving data for ' + basic_data.key
       end
     end
+    
+    # save special field
+    if feed_prev_link.nil?
+      feed_prev_link = Basicdata.new
+      feed_prev_link.key = @@feed_prev_link_key
+      feed_prev_link.resource = @resource
+    end
+    feed_prev_link.value = @result[:feed][:previous_link][ @result[:feed][:previous_link].index('&')+1..-1 ] if @result[:feed][:previous_link] != ""
+    feed_prev_link.save
+  end
+  
+  def save_feed
+    feeds = @result[:feed]
+    
+    feeds[:data].each do |item|
+      feed = Feed.find_by_facebook_id(item['id'])
+      
+      if feed.nil?
+        feed = Feed.new
+      end
+      
+      feed.resource = @resource
+      feed.facebook_id = item['id']
+      feed.from = get_or_make_resource(item['from'])
+      feed.data_type = item.has_key?('message') ? 'message' : 'story'
+      feed.data = item.has_key?('message') ? item['message'] : item['story']
+      feed.feed_type = item['type']
+      feed.created_time = item['created_time']
+      feed.updated_time = item['updated_time']
+      
+      if item.has_key?('to') and item['to']['data'].length > 0
+        feed.to = get_or_make_resource(item['to']['data'][0])
+      end
+      
+      feed.save
+    end
+    
+  end
+  
+  def get_or_make_resource(resource)
+    res = Resource.find_by_facebook_id resource['id']
+    
+    if res.nil?
+      res = Resource.new
+      res.active = false
+      res.facebook_id = resource['id']
+      res.username = resource['id']
+      res.name = resource['name']
+      res.save
+    end
+    
+    return res
   end
 end

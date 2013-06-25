@@ -8,10 +8,13 @@
 %h2 Current Resources
 %a{href: ""}
   %button.btn{type: "submit"} Sync All
+Total:
+= @resources.length
 
 %table.table
   %tr
     %th Name
+    %th Username
     %th Facebook ID
     %th Active
     %th Last Synced
@@ -19,7 +22,8 @@
 
   - @resources.each do |res|
     %tr
-      %td=link_to res["username"], res
+      %td= res["name"]
+      %td= link_to res["username"], { controller: 'resources', action: 'details', username: res['username'] }
       %td= res["facebook_id"]
       %td= res["active"]
       %td= res["last_synced"]

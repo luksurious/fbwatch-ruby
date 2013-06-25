@@ -3,5 +3,6 @@ class Resource < ActiveRecord::Base
   
   validates :username, :presence => true
   
-  has_one :basicdata
+  has_many :basicdata
+  has_many :feed
 end
