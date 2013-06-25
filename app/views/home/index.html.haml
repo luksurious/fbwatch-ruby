@@ -2,7 +2,7 @@
 %h2 Add new resource to observe
 = simple_form_for(@resource) do |f|
   = f.error_notification
-  = f.input :name, label: "Facebook URL"
+  = f.input :username, label: "Facebook URL"
   = f.button :submit, 'Add'
 
 %h2 Current Resources
@@ -19,11 +19,11 @@
 
   - @resources.each do |res|
     %tr
-      %td= res["name"]
+      %td=link_to res["username"], res
       %td= res["facebook_id"]
       %td= res["active"]
       %td= res["last_synced"]
       %td
         %a{href: ''} Stop Syncing
         %br
-        %a{href: sync_path(res['name'])} Sync now
+        %a{href: sync_path(res['username'])} Sync now

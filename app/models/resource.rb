@@ -1,7 +1,7 @@
 class Resource < ActiveRecord::Base
-  attr_accessible :active, :facebook_id, :last_synced, :name
+  attr_accessible :active, :facebook_id, :last_synced, :name, :username, :link
   
-  validates :name, :presence => true
+  validates :username, :presence => true
   
   has_one :basicdata
 end

@@ -16,10 +16,11 @@ class ResourcesController < ApplicationController
   # GET /resources/1.json
   def show
     @resource = Resource.find(params[:id])
+    @basicdata = Basicdata.find_all_by_resource_id(params[:id])
 
     respond_to do |format|
       format.html # show.html.erb
-      format.json { render json: @resource }
+      format.json { render json: [ @resource, @basicdata ] }
     end
   end
 
@@ -43,7 +44,7 @@ class ResourcesController < ApplicationController
   # POST /resources.json
   def create
     #
-    params[:resource][:name] = parse_facebook_url(params[:resource][:name])
+    params[:resource][:username] = parse_facebook_url(params[:resource][:username])
     @resource = Resource.new(params[:resource])
     @resource.active = true
 

@@ -16,15 +16,11 @@ class UserDataGatherer
         return
     end
 
-    #init_data_folder_for(basic_data['id']);
-    
     data = {
       basic_data: basic_data,
       #feed: fetch_data('feed')
     }
-
-    #save_data(data)
-
+    
     return data
   end
   
@@ -68,13 +64,6 @@ class UserDataGatherer
       previous_link: previous_link
     }
   end
-  
-  def save_data(data)
-    filepath = "#{@savePath}combined.json"
-    File.open(filepath, 'w+') do |f|
-      f.write(JSON.generate(data))
-    end
-  end
     
   def result_is_empty(result) 
     # if no paging array is present the return object is 
@@ -88,22 +77,5 @@ class UserDataGatherer
 
     result = "/#{@username}/#{connection}?" + (uri.has_key?('limit') ? 'limit=' + uri['limit'][0] + '&' : '') + (uri.has_key?('until') ? 'until=' + uri['until'][0] : '')
     return result
-  end
-
-  def init_data_folder_for(user_id)
-    user = @facebook.get_object('me')
-    save_path = 'db/json/' + user['id'] + '/'
-
-    if !File.exists?(save_path)
-      Dir.mkdir(save_path)
-    end
-
-    save_path += "#{user_id}/"
-
-    if !File.exists?(save_path)
-      Dir.mkdir(save_path)
-    end
-
-    @save_path = save_path
   end
 end

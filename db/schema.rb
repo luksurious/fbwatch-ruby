@@ -11,27 +11,14 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130622111526) do
+ActiveRecord::Schema.define(:version => 20130625200500) do
 
   create_table "basicdata", :force => true do |t|
-    t.string   "name"
-    t.string   "first_name"
-    t.string   "last_name"
-    t.string   "link"
-    t.string   "username"
-    t.integer  "hometown_id"
-    t.string   "hometown"
-    t.integer  "location_id"
-    t.string   "location"
-    t.string   "gender"
-    t.string   "email"
-    t.integer  "timezone"
-    t.string   "locale"
-    t.boolean  "verified"
-    t.datetime "updated_time"
     t.integer  "resource_id"
-    t.datetime "created_at",   :null => false
-    t.datetime "updated_at",   :null => false
+    t.datetime "created_at",  :null => false
+    t.datetime "updated_at",  :null => false
+    t.string   "key"
+    t.string   "value"
   end
 
   create_table "resources", :force => true do |t|
@@ -41,6 +28,8 @@ ActiveRecord::Schema.define(:version => 20130622111526) do
     t.boolean  "active"
     t.datetime "created_at",  :null => false
     t.datetime "updated_at",  :null => false
+    t.string   "username"
+    t.string   "link"
   end
 
   add_index "resources", ["name"], :name => "index_resources_on_name", :unique => true
