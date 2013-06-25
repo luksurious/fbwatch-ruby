@@ -42,8 +42,8 @@ Total:
       %td= item['updated_time']
       %td= item['data']
       %td= item['feed_type']
-      %td= item.from.username
-      %td= item.to.nil? ? '' : item.to.username
+      %td= item.from.name
+      %td= item.to.nil? ? '' : item.to.name
 
 = link_to 'Edit', edit_resource_path(@resource)
 \|
