@@ -10,7 +10,7 @@ Fbwatch::Application.routes.draw do
 
   resources :resources
   
-  get 'resource/:username', to: 'resources#details'
+  get 'resource/:username', to: 'resources#details', :constraints => { :username => /[^\/]+/ }
   
   get "home/index"
   

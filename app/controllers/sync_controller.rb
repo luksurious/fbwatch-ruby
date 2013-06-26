@@ -73,6 +73,7 @@ class SyncController < ApplicationController
     resource.facebook_id = result[:basic_data]['id']
     resource.last_synced = DateTime.now
     resource.name = result[:basic_data]['name']
+    resource.username = result[:basic_data]['username']
     resource.link = result[:basic_data]['link']
     if !resource.save
       flash[:alert] = 'Failed updating the resource'

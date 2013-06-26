@@ -27,8 +27,8 @@ Total:
       %td= time_ago_in_words(res.last_synced) + " ago" if res.last_synced.is_a?(Time)
       %td
         - if res.active
-          = link_to "Stop Syncing", sync_disable_path(res.username)
+          = link_to "Stop Syncing", sync_disable_path(res.username), class: "btn btn-small"
         - else
-          = link_to "Enable Syncing", sync_enable_path(res.username)
+          = link_to "Enable Syncing", sync_enable_path(res.username), class: "btn btn-small"
         %br
-        = link_to "Sync now", sync_path(res.username)
+        = link_to "Sync now", sync_path(res.username), class: "btn btn-primary"
