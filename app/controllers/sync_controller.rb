@@ -13,9 +13,9 @@ class SyncController < ApplicationController
     
     @result = gatherer.start_fetch
     
+    update_resource
     save_basic_data
     save_feed
-    update_resource
     
    redirect_to controller: 'resources', action: 'details', username: @resource.username
   end
