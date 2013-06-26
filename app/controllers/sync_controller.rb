@@ -13,7 +13,7 @@ class SyncController < ApplicationController
     
     @result = sync_resource(@resource)
     
-    redirect_to controller: 'resources', action: 'details', username: @resource.username
+    redirect_to resource_details_path(@resource.username)
   end
 
   def syncall
