@@ -6,7 +6,7 @@ class HomeController < ApplicationController
       return
     end
     
-    @resources = Resource.all
+    @resources = Resource.order('active DESC, last_synced DESC').all
     @resource = Resource.new
 
     respond_to do |format|
