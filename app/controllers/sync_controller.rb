@@ -6,37 +6,82 @@ class SyncController < ApplicationController
   def index
     @username = params[:name]
     @resource = Resource.find_by_username(@username)
-    prev_feed_link = Basicdata.where({ resource_id: @resource, key: @@feed_prev_link_key }).first
     
-    gatherer = UserDataGatherer.new(@username, session[:facebook])
-    gatherer.prev_feed_link = prev_feed_link.value if !prev_feed_link.nil?
+    if @resource.nil?
+      redirect_to root_path, :notice => "Username not found"
+    end
     
-    @result = gatherer.start_fetch
+    @result = sync_resource(@resource)
     
-    update_resource
-    save_basic_data
-    save_feed
-    
-   redirect_to controller: 'resources', action: 'details', username: @resource.username
+    redirect_to controller: 'resources', action: 'details', username: @resource.username
   end
 
   def syncall
+    resources = Resource.where({ :active => true }).all
+    resource_names = []
+    
+    resources.each do |resource|
+      sync_resource(resource)
+      
+      resource_names << resource.name
+    end
+    
+    redirect_to root_path, :notice => "Synced all active resources: " + resource_names.join(", ")
+  end
+  
+  def disable
+    set_active_for(false, params[:name])
+    
+    redirect_to root_path, :notice => "Disabled " + params[:name]
+  end
+  
+  def enable
+    set_active_for(true, params[:name])
+    
+    redirect_to root_path, :notice => "Enabled " + params[:name]
   end
   
   private
-  def update_resource
-    @resource.facebook_id = @result[:basic_data]['id']
-    @resource.last_synced = DateTime.now
-    @resource.name = @result[:basic_data]['name']
-    @resource.link = @result[:basic_data]['link']
-    if !@resource.save
+  def set_active_for(active, username)
+    resource = Resource.find_by_username(username)
+    
+    if resource.nil?
+      redirect_to root_path, :notice => "Resource " + username + " not found"
+      return
+    end
+    
+    resource.active = active
+    resource.save
+  end
+  
+  def sync_resource(resource)
+    gatherer = UserDataGatherer.new(resource.username, session[:facebook])
+    
+    prev_feed_link = Basicdata.where({ resource_id: resource, key: @@feed_prev_link_key }).first
+    gatherer.prev_feed_link = prev_feed_link.value if !prev_feed_link.nil?
+    
+    result = gatherer.start_fetch
+    
+    update_resource(resource, result)
+    save_basic_data(resource, result)
+    save_feed(resource, result)
+    
+    return result
+  end
+  
+  def update_resource(resource, result)
+    resource.facebook_id = result[:basic_data]['id']
+    resource.last_synced = DateTime.now
+    resource.name = result[:basic_data]['name']
+    resource.link = result[:basic_data]['link']
+    if !resource.save
       flash[:alert] = 'Failed updating the resource'
     end
   end
   
-  def save_basic_data
-    new_data = @result[:basic_data].clone
-    existing_data = Basicdata.find_all_by_resource_id(@resource.id)
+  def save_basic_data(resource, result)
+    new_data = result[:basic_data].clone
+    existing_data = Basicdata.find_all_by_resource_id(resource.id)
     feed_prev_link = nil
     
     # overwrite existing values
@@ -60,7 +105,7 @@ class SyncController < ApplicationController
       basic_data = Basicdata.new
       basic_data.key = k
       basic_data.value = v.is_a?(Hash) ? ActiveSupport::JSON.encode(v) : v
-      basic_data.resource = @resource
+      basic_data.resource = resource
       
       if !basic_data.save
         flash[:alert] = 'Failed saving data for ' + basic_data.key
@@ -71,14 +116,14 @@ class SyncController < ApplicationController
     if feed_prev_link.nil?
       feed_prev_link = Basicdata.new
       feed_prev_link.key = @@feed_prev_link_key
-      feed_prev_link.resource = @resource
+      feed_prev_link.resource = resource
     end
-    feed_prev_link.value = @result[:feed][:previous_link][ @result[:feed][:previous_link].index('&')+1..-1 ] if @result[:feed][:previous_link] != ""
+    feed_prev_link.value = result[:feed][:previous_link][ result[:feed][:previous_link].index('&')+1..-1 ] if result[:feed][:previous_link] != ""
     feed_prev_link.save
   end
   
-  def save_feed
-    feeds = @result[:feed]
+  def save_feed(resource, result)
+    feeds = result[:feed]
     
     feeds[:data].each do |item|
       feed = Feed.find_by_facebook_id(item['id'])
@@ -87,7 +132,7 @@ class SyncController < ApplicationController
         feed = Feed.new
       end
       
-      feed.resource = @resource
+      feed.resource = resource
       feed.facebook_id = item['id']
       feed.from = get_or_make_resource(item['from'])
       feed.data_type = item.has_key?('message') ? 'message' : 'story'

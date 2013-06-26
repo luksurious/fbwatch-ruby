@@ -6,8 +6,7 @@
   = f.button :submit, 'Add'
 
 %h2 Current Resources
-%a{href: ""}
-  %button.btn{type: "submit"} Sync All
+= link_to "Sync All", sync_all_path, class: "btn", confirm: "This might take a while. Continue?"
 Total:
 = @resources.length
 
@@ -28,6 +27,9 @@ Total:
       %td= res["active"]
       %td= res["last_synced"]
       %td
-        %a{href: ''} Stop Syncing
+        - if res.active
+          = link_to "Stop Syncing", sync_disable_path(res.username)
+        - else
+          = link_to "Enable Syncing", sync_enable_path(res.username)
         %br
-        %a{href: sync_path(res['username'])} Sync now
+        = link_to "Sync now", sync_path(res['username'])

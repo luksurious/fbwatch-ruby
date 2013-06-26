@@ -1,7 +1,10 @@
 Fbwatch::Application.routes.draw do
+  get "sync/all", to: 'sync#syncall', as: 'sync_all'
+  
   get "sync/:name", to: 'sync#index', as: 'sync'
-
-  get "sync/all", to: 'sync#syncall'
+  
+  get "sync/disable/:name", to: 'sync#disable', as: 'sync_disable'
+  get "sync/enable/:name", to: 'sync#enable', as: 'sync_enable'
 
   get "apitest/index"
 
