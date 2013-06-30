@@ -28,7 +28,7 @@ class ResourcesController < ApplicationController
   def details
     @resource = Resource.find_by_username(params[:username])
     @basicdata = Basicdata.find_all_by_resource_id(@resource.id)
-    @feeds = Feed.find_all_by_resource_id(@resource.id)
+    @feeds = Feed.order("updated_time DESC").find_all_by_resource_id(@resource.id)
 
     respond_to do |format|
       format.html # show.html.erb
