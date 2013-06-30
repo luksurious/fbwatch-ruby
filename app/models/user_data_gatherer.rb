@@ -48,7 +48,7 @@ class UserDataGatherer
       # save this link so that we can get only updates next time
       if previous_link.empty?
         previous_link = result['paging']['previous']
-        previous_link[/access_token\=[^&]&/] = "" if previous_link.index("access_token")
+        previous_link[/access_token\=[^&]+&/] = "" if previous_link.index("access_token")
       end
 
       data.concat(result['data'])
