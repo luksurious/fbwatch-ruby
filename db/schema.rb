@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130625200501) do
+ActiveRecord::Schema.define(:version => 20130630194423) do
 
   create_table "basicdata", :force => true do |t|
     t.integer  "resource_id"
@@ -25,7 +25,7 @@ ActiveRecord::Schema.define(:version => 20130625200501) do
     t.string   "facebook_id"
     t.text     "data"
     t.string   "data_type"
-    t.string   "type"
+    t.string   "feed_type"
     t.datetime "created_time"
     t.datetime "updated_time"
     t.integer  "likes"
@@ -33,8 +33,9 @@ ActiveRecord::Schema.define(:version => 20130625200501) do
     t.integer  "resource_id"
     t.integer  "from_id"
     t.integer  "to_id"
-    t.datetime "created_at",   :null => false
-    t.datetime "updated_at",   :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.integer  "parent_id"
   end
 
   create_table "resources", :force => true do |t|

@@ -127,28 +127,57 @@ class SyncController < ApplicationController
     feeds = result[:feed]
     
     feeds[:data].each do |item|
-      feed = Feed.find_by_facebook_id(item['id'])
-      
-      if feed.nil?
-        feed = Feed.new
-      end
-      
-      feed.resource = resource
-      feed.facebook_id = item['id']
-      feed.from = get_or_make_resource(item['from'])
-      feed.data_type = item.has_key?('message') ? 'message' : 'story'
-      feed.data = item.has_key?('message') ? item['message'] : item['story']
-      feed.feed_type = item['type']
-      feed.created_time = item['created_time']
-      feed.updated_time = item['updated_time']
-      
-      if item.has_key?('to') and item['to']['data'].length > 0
-        feed.to = get_or_make_resource(item['to']['data'][0])
-      end
+      feed = build_feed_out_of_item(item, resource)
       
       feed.save
+      
+      if item.has_key?('comments')
+        save_comments_for_feed(feed, item["comments"])
+      end
     end
     
+  end
+  
+  def save_comments_for_feed(feed, comments)
+    comments["data"].each do |comment_hash|
+      comment = Feed.new
+      comment.parent_id = feed.id
+      comment.resource = feed.resource
+      comment.created_time = comment_hash["created_time"]
+      comment.updated_time = comment_hash["created_time"]
+      comment.facebook_id = comment_hash["id"]
+      comment.from = get_or_make_resource(comment_hash["from"])
+      comment.data = comment_hash["message"]
+      comment.data_type = "comment"
+      comment.feed_type = "comment"
+      comment.likes = comment_hash["like_count"]
+      
+      comment.save
+    end
+  end
+  
+  def build_feed_out_of_item(item, resource)
+    feed = Feed.find_by_facebook_id(item['id'])
+
+    if feed.nil?
+      feed = Feed.new
+    end
+
+    feed.resource = resource
+    feed.facebook_id = item['id']
+    feed.from = get_or_make_resource(item['from'])
+    feed.data_type = item.has_key?('message') ? 'message' : 'story'
+    feed.data = item.has_key?('message') ? item['message'] : item['story']
+    feed.feed_type = item['type']
+    feed.created_time = item['created_time']
+    feed.updated_time = item['updated_time']
+    feed.likes = item['likes']['count'] if item.has_key?('likes')
+
+    if item.has_key?('to') and item['to']['data'].length > 0
+      feed.to = get_or_make_resource(item['to']['data'][0])
+    end
+    
+    return feed
   end
   
   def get_or_make_resource(resource)

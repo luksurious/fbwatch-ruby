@@ -44,6 +44,9 @@ class UserDataGatherer
       if result_is_empty(result)
         break
       end
+      
+      get_all_comments(result)
+      get_all_likes(result)
 
       # save this link so that we can get only updates next time
       if previous_link.empty?
@@ -64,6 +67,24 @@ class UserDataGatherer
       call_history: call_history,
       previous_link: previous_link
     }
+  end
+  
+  def get_all_comments(result)
+    if !result['data'].has_key?('comments') or !result['data']['comments'].has_key?('next')
+      return
+    end
+    
+    query = result['data']['comments']['next']
+    query = query[ query.index('facebook.com/') + 13..-1 ].split('/')
+    
+    real_username = @username
+    real_prev_link = @prev_feed_link
+    @username = query[0]
+    @prev_feed_link = ""
+    comments = fetch_data(query[1] + "&")
+    result['data']['comments']['data'].concat(comments['data'])
+    @username = real_username
+    @prev_feed_link = real_prev_link
   end
     
   def result_is_empty(result) 

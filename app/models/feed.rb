@@ -4,4 +4,8 @@ class Feed < ActiveRecord::Base
   belongs_to :resource
   belongs_to :from, class_name: 'Resource'
   belongs_to :to, class_name: 'Resource'
+  
+  # self-join
+  belongs_to :parent, class_name: 'Feed'
+  has_many :children, class_name: 'Feed', foreign_key: 'parent_id'
 end
