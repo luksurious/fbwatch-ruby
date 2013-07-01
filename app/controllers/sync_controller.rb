@@ -129,17 +129,21 @@ class SyncController < ApplicationController
     feeds[:data].each do |item|
       feed = build_feed_out_of_item(item, resource)
       
+      if item.has_key?('comments') and item['comments'].has_key?('count')
+        feed.comments = item['comments']['count']
+      end
+      
       feed.save
       
-      if item.has_key?('comments')
-        save_comments_for_feed(feed, item["comments"])
+      if item.has_key?('comments') and item['comments'].has_key?('data')
+        save_comments_for_feed(feed, item["comments"]['data'])
       end
     end
     
   end
   
   def save_comments_for_feed(feed, comments)
-    comments["data"].each do |comment_hash|
+    comments.each do |comment_hash|
       comment = Feed.new
       comment.parent_id = feed.id
       comment.resource = feed.resource

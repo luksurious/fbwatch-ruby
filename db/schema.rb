@@ -49,6 +49,6 @@ ActiveRecord::Schema.define(:version => 20130630194423) do
     t.string   "link"
   end
 
-  add_index "resources", ["name"], :name => "index_resources_on_name", :unique => true
+  add_index "resources", ["username"], :name => "index_resources_on_username", :unique => true
 
 end

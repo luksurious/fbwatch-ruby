@@ -45,8 +45,10 @@ class UserDataGatherer
         break
       end
       
-      get_all_comments(result)
-      get_all_likes(result)
+      result['data'].each do |entry|
+        get_all_comments(entry)
+        #get_all_likes(entry)
+      end
 
       # save this link so that we can get only updates next time
       if previous_link.empty?
@@ -69,12 +71,12 @@ class UserDataGatherer
     }
   end
   
-  def get_all_comments(result)
-    if !result['data'].has_key?('comments') or !result['data']['comments'].has_key?('next')
+  def get_all_comments(entry)
+    if entry.has_key?('comments') or !entry['comments'].has_key?('next')
       return
     end
     
-    query = result['data']['comments']['next']
+    query = entry['comments']['next']
     query = query[ query.index('facebook.com/') + 13..-1 ].split('/')
     
     real_username = @username
@@ -82,7 +84,7 @@ class UserDataGatherer
     @username = query[0]
     @prev_feed_link = ""
     comments = fetch_data(query[1] + "&")
-    result['data']['comments']['data'].concat(comments['data'])
+    entry['comments']['data'].concat(comments['data'])
     @username = real_username
     @prev_feed_link = real_prev_link
   end

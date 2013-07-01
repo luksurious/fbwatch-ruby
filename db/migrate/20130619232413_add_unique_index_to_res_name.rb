@@ -1,5 +1,5 @@
 class AddUniqueIndexToResName < ActiveRecord::Migration
   def change
-    add_index :resources, :name, :unique
+    add_index :resources, :username, :unique
   end
 end

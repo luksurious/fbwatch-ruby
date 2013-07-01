@@ -56,8 +56,19 @@ class ResourcesController < ApplicationController
   # POST /resources.json
   def create
     #
-    params[:resource][:username] = parse_facebook_url(params[:resource][:username])
-    @resource = Resource.new(params[:resource])
+    username = parse_facebook_url(params[:resource][:username])
+    
+    basicdata = session[:facebook].get_object(username)
+    
+    @resource = Resource.find_by_facebook_id(basicdata['id'])
+    if @resource.nil?
+      @resource = Resource.new
+      @resource.facebook_id = basicdata['id']
+    end
+    
+    @resource.username = basicdata['username']
+    @resource.name = basicdata['name']
+    @resource.link = basicdata['link']
     @resource.active = true
 
     success = false
