@@ -14,9 +14,8 @@
 ActiveRecord::Schema.define(:version => 20130630194423) do
 
   create_table "basicdata", :force => true do |t|
-    t.integer  "resource_id"
-    t.datetime "created_at",  :null => false
-    t.datetime "updated_at",  :null => false
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
     t.string   "key"
     t.string   "value"
   end
@@ -33,8 +32,8 @@ ActiveRecord::Schema.define(:version => 20130630194423) do
     t.integer  "resource_id"
     t.integer  "from_id"
     t.integer  "to_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",   :null => false
+    t.datetime "updated_at",   :null => false
     t.integer  "parent_id"
   end
 

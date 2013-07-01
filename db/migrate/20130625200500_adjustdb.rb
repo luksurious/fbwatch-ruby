@@ -16,7 +16,6 @@ class Adjustdb < ActiveRecord::Migration
     remove_column :basicdata, :locale
     remove_column :basicdata, :verified
     remove_column :basicdata, :updated_time
-    remove_column :basicdata, :resource
     
     add_column :basicdata, :key, :string
     add_column :basicdata, :value, :string
@@ -24,5 +23,7 @@ class Adjustdb < ActiveRecord::Migration
     # change resource
     add_column :resources, :username, :string
     add_column :resources, :link, :string
+    
+    add_index :resources, :username, :unique
   end
 end
