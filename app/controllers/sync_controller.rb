@@ -42,6 +42,13 @@ class SyncController < ApplicationController
     redirect_to root_path, :notice => "Enabled " + params[:name]
   end
   
+  def clear
+    resource = Resource.find_by_username(params[:name])
+    
+    Feed.where(resource: resource).destroy_all
+    Basicdata.where(resource: resource).destroy_all
+  end
+  
   private
   def set_active_for(active, username)
     resource = Resource.find_by_username(username)
@@ -131,13 +138,16 @@ class SyncController < ApplicationController
       feed = build_feed_out_of_item(item, resource)
       
       if item.has_key?('comments') and item['comments'].has_key?('count')
-        feed.comments = item['comments']['count']
+        feed.comment_count = item['comments']['count']
       end
       
       feed.save
       
       if item.has_key?('comments') and item['comments'].has_key?('data')
         save_comments_for_feed(feed, item["comments"]['data'])
+      end
+      if item.has_key?('likes') and item['likes'].has_key?('data')
+        save_likes_for_feed(feed, item["likes"]['data'])
       end
     end
     
@@ -156,9 +166,19 @@ class SyncController < ApplicationController
       comment.data = comment_hash["message"]
       comment.data_type = "comment"
       comment.feed_type = "comment"
-      comment.likes = comment_hash["like_count"]
+      comment.like_count = comment_hash["like_count"]
       
       comment.save
+    end
+  end
+  
+  def save_likes_for_feed(feed, likes)
+    likes.each do |like_hash|
+      like = Likes.new
+      like.resource = feed.resource
+      like.feed = feed
+      
+      like.save
     end
   end
   
@@ -177,7 +197,7 @@ class SyncController < ApplicationController
     feed.feed_type = item['type']
     feed.created_time = item['created_time']
     feed.updated_time = item['updated_time']
-    feed.likes = item['likes']['count'] if item.has_key?('likes')
+    feed.like_count = item['likes']['count'] if item.has_key?('likes')
 
     if item.has_key?('to') and item['to']['data'].length > 0
       feed.to = get_or_make_resource(item['to']['data'][0])

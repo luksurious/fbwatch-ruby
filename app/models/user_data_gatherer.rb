@@ -53,7 +53,7 @@ class UserDataGatherer
       
       result['data'].each do |entry|
         get_all_comments(entry)
-        #get_all_likes(entry)
+        get_all_likes(entry)
       end
 
       # save this link so that we can get only updates next time
@@ -101,6 +101,17 @@ class UserDataGatherer
     
     entry['comments']['data'].concat(comments[:data])
   end
+  
+  def get_all_likes(entry)
+    # if we have more than 4 likes we need to call seperate api methods
+    if !entry.has_key?('likes') or entry['likes']['count'] <= 4
+      return
+    end
+    
+    likes = fetch_data(entry['id'] + '/likes', nil, nil)
+    
+    entry['likes']['data'] = likes[:data]
+  end
     
   def result_is_empty(result) 
     # if no paging array is present the return object is 
@@ -117,6 +128,7 @@ class UserDataGatherer
       uri = CGI.parse("")
     end
     uri.delete('access_token')
+    uri['limit'] = ["100"]
     
     uri.map{|k,v| "#{k}=#{v[0]}"}.join('&')
   end

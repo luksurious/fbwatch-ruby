@@ -11,13 +11,14 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130630194423) do
+ActiveRecord::Schema.define(:version => 20130706161248) do
 
   create_table "basicdata", :force => true do |t|
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
+    t.datetime "created_at",  :null => false
+    t.datetime "updated_at",  :null => false
     t.string   "key"
     t.string   "value"
+    t.integer  "resource_id", :null => false
   end
 
   create_table "feeds", :force => true do |t|
@@ -27,14 +28,21 @@ ActiveRecord::Schema.define(:version => 20130630194423) do
     t.string   "feed_type"
     t.datetime "created_time"
     t.datetime "updated_time"
-    t.integer  "likes"
-    t.integer  "comments"
+    t.integer  "like_count"
+    t.integer  "comment_count"
     t.integer  "resource_id"
     t.integer  "from_id"
     t.integer  "to_id"
-    t.datetime "created_at",   :null => false
-    t.datetime "updated_at",   :null => false
+    t.datetime "created_at",    :null => false
+    t.datetime "updated_at",    :null => false
     t.integer  "parent_id"
+  end
+
+  create_table "likes", :force => true do |t|
+    t.integer  "resource_id"
+    t.integer  "feed_id"
+    t.datetime "created_at",  :null => false
+    t.datetime "updated_at",  :null => false
   end
 
   create_table "resources", :force => true do |t|
