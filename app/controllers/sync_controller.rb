@@ -45,8 +45,8 @@ class SyncController < ApplicationController
   def clear
     resource = Resource.find_by_username(params[:name])
     
-    Feed.where(resource: resource).destroy_all
-    Basicdata.where(resource: resource).destroy_all
+    Feed.where(resource_id: resource).destroy_all
+    Basicdata.where(resource_id: resource).destroy_all
   end
   
   private
