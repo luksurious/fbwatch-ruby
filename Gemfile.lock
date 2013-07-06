@@ -83,6 +83,7 @@ GEM
     mime-types (1.23)
     multi_json (1.7.7)
     multipart-post (1.2.0)
+    mysql2 (0.3.11)
     mysql2 (0.3.11-x86-mingw32)
     oauth2 (0.8.1)
       faraday (~> 0.8)
@@ -114,6 +115,8 @@ GEM
       activesupport (= 3.2.13)
       bundler (~> 1.0)
       railties (= 3.2.13)
+    rails-footnotes (3.7.9)
+      rails (>= 3.0.0)
     railties (3.2.13)
       actionpack (= 3.2.13)
       activesupport (= 3.2.13)
@@ -157,6 +160,7 @@ DEPENDENCIES
   coffee-rails (~> 3.2.1)
   debugger
   figaro
+  haml
   haml-rails (>= 0.3.4)
   jquery-rails
   json
@@ -165,6 +169,7 @@ DEPENDENCIES
   omniauth
   omniauth-facebook
   rails (= 3.2.13)
+  rails-footnotes (>= 3.7.9)
   sass-rails (~> 3.2.3)
   simple_form
   sqlite3

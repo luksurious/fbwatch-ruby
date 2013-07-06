@@ -11,7 +11,8 @@ class SyncController < ApplicationController
       redirect_to root_path, :notice => "Username not found"
     end
     
-    @result = sync_resource(@resource)
+    pages = params[:p].to_i
+    @result = sync_resource(@resource, pages)
     
     redirect_to resource_details_path(@resource.username)
   end
@@ -21,7 +22,7 @@ class SyncController < ApplicationController
     resource_names = []
     
     resources.each do |resource|
-      sync_resource(resource)
+      sync_resource(resource, -1)
       
       resource_names << resource.name
     end
@@ -54,13 +55,13 @@ class SyncController < ApplicationController
     resource.save
   end
   
-  def sync_resource(resource)
+  def sync_resource(resource, pages)
     gatherer = UserDataGatherer.new(resource.username, session[:facebook])
     
     prev_feed_link = Basicdata.where({ resource_id: resource, key: @@feed_prev_link_key }).first
     gatherer.prev_feed_link = prev_feed_link.value if !prev_feed_link.nil?
     
-    result = gatherer.start_fetch
+    result = gatherer.start_fetch(pages.to_i)
     
     update_resource(resource, result)
     save_basic_data(resource, result)
@@ -151,6 +152,7 @@ class SyncController < ApplicationController
       comment.updated_time = comment_hash["created_time"]
       comment.facebook_id = comment_hash["id"]
       comment.from = get_or_make_resource(comment_hash["from"])
+      comment.to = @resource
       comment.data = comment_hash["message"]
       comment.data_type = "comment"
       comment.feed_type = "comment"

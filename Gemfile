@@ -20,11 +20,13 @@ group :assets do
   gem 'uglifier', '>= 1.0.3'
 end
 
+gem 'rails-footnotes', '>= 3.7.9', :group => :development
 gem 'jquery-rails'
 
 gem 'bootstrap-sass'
 
-gem 'haml-rails', '>= 0.3.4', :group => :development
+gem 'haml-rails', '>= 0.3.4'
+gem 'haml'
 
 gem 'simple_form'
 
