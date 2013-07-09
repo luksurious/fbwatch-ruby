@@ -6,7 +6,9 @@ class HomeController < ApplicationController
       return
     end
     
-    @resources = Resource.order('active DESC, last_synced DESC').all
+    offset = params[:p] || 0
+
+    @resources = Resource.order('active DESC, last_synced DESC').limit(100).offset(offset.to_i * 100)
     @resource = Resource.new
 
     respond_to do |format|
