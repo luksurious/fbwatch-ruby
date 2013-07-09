@@ -47,6 +47,7 @@ class SyncController < ApplicationController
     ActiveRecord::Base.transaction do 
       Feed.where(resource_id: resource).destroy_all
       Basicdata.where(resource_id: resource).destroy_all
+      Likes.where(resource_id: resource).destroy_all
     end
   end
   
