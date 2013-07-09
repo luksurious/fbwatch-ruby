@@ -32,7 +32,7 @@ class ResourcesController < ApplicationController
 
     respond_to do |format|
       format.html # show.html.erb
-      format.json { render json: [ @resource, @basicdata ] }
+      format.json { render json: build_detail_json }
     end
   end
 
@@ -132,5 +132,59 @@ class ResourcesController < ApplicationController
     # if it's a page or group the id is in the last "folder"
     # otherwise this will just return the unique name
     return path[-1]
+  end
+
+  def build_detail_json
+    # build basic structure
+    json = {
+      id: @resource.facebook_id,
+      name: @resource.name,
+      username: @resource.username,
+      link: @resource.link
+    }
+
+    likes = Likes.find_all_by_resource_id(@resource.id)
+
+    # add all special values from the basicdata store
+    @basicdata.each do |basic_hash|
+      json[ basic_hash.key ] = basic_hash.value
+    end
+
+    # add all likes to the feed items
+    likes.each do |like|
+      # TODO
+    end
+
+    # add feed items
+    feed_struct = {}
+    comments = []
+    @feeds.each do |feed_item|
+      if feed_item.parent_id.empty?
+        feed_struct[ feed_item.facebook_id ] = feed_item
+      elsif feed_struct.has_key?( feed_item.parent_id )
+        add_comment_to_feed_item(feed_struct[ feed_item.parent_id ], feed_item)
+      else
+        comments.push(feed_item)
+      end
+    end
+
+    # add comments which couldnt be added initially
+    comments.each do |comment|
+      if !feed_struct.has_key?(comment.parent_id)
+        logger.debug('Parent feed item of comment not found: ' + comment.id)
+        next
+      end
+
+      add_comment_to_feed_item(feed_struct[ comment.parent_id ], comment)
+    end
+
+  end
+
+  def add_comment_to_feed_item(feed_item, comment)
+    if feed_item.has_key?('comments')
+      feed_item['comments'][:data].push(comment)
+    else
+      feed_item['comments'] = {data: [comment], count: feed_item['comment_count']}
+    end
   end
 end
