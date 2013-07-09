@@ -10,6 +10,7 @@ class HomeController < ApplicationController
 
     @resources = Resource.order('active DESC, last_synced DESC').limit(100).offset(offset.to_i * 100)
     @resource = Resource.new
+    @total_res = Resource.count
 
     respond_to do |format|
       format.html # index.html.erb
