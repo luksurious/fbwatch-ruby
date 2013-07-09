@@ -1,5 +1,7 @@
 require 'json'
 require 'cgi'
+#require 'ruby-prof'
+
 
 class UserDataGatherer
   def initialize(username, facebook)
@@ -9,6 +11,7 @@ class UserDataGatherer
   attr_writer :prev_feed_link
   
   def start_fetch(pages)
+    #RubyProf.start
     basic_data = @facebook.get_object(@username)
 
     if basic_data.empty?
@@ -20,7 +23,13 @@ class UserDataGatherer
       basic_data: basic_data,
       feed: fetch_data("#{@username}/feed", @prev_feed_link, pages)
     }
+
+    #results = RubyProf.stop
     
+    #File.open "#{Rails.root}/tmp/profile-graph.html", 'w' do |file|
+    #  RubyProf::GraphHtmlPrinter.new(results).print(file)
+    #end
+
     return data
   end
   
@@ -82,11 +91,12 @@ class UserDataGatherer
   end
   
   def get_all_comments(entry)
-    if !entry.has_key?('comments') or entry['comments']['count'] == 0
+    if !entry.has_key?('comments') or entry['comments']['count'] == 0 or
+        entry['comments']['count'].to_i == entry['comments']['data'].length
       return
     end
     
-    if entry['comments'].has_key?('paging')
+    if entry['comments'].has_key?('paging') and entry['comments']['paging'].has_key?('next')
       # sometimes some comments are returned and then also the link to more comments
       query = entry['comments']['paging']['next']
       query = query[ query.index('facebook.com/') + 13..-1 ]
