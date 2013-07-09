@@ -1,5 +1,7 @@
 require 'json'
 require 'cgi'
+require 'ruby-prof'
+
 
 class UserDataGatherer
   def initialize(username, facebook)
@@ -9,6 +11,7 @@ class UserDataGatherer
   attr_writer :prev_feed_link
   
   def start_fetch(pages)
+    #RubyProf.start
     basic_data = @facebook.get_object(@username)
 
     if basic_data.empty?
@@ -20,7 +23,11 @@ class UserDataGatherer
       basic_data: basic_data,
       feed: fetch_data("#{@username}/feed", @prev_feed_link, pages)
     }
-    
+    #result = RubyProf.stop
+
+    #printer = RubyProf::GraphPrinter.new(result)
+    #printer.print(STDOUT, {})
+
     return data
   end
   
