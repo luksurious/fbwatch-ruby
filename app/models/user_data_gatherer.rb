@@ -82,11 +82,12 @@ class UserDataGatherer
   end
   
   def get_all_comments(entry)
-    if !entry.has_key?('comments') or entry['comments']['count'] == 0
+    if !entry.has_key?('comments') or entry['comments']['count'] == 0 or
+        entry['comments']['count'].to_i == entry['comments']['data'].length
       return
     end
     
-    if entry['comments'].has_key?('paging')
+    if entry['comments'].has_key?('paging') and entry['comments']['paging'].has_key?('next')
       # sometimes some comments are returned and then also the link to more comments
       query = entry['comments']['paging']['next']
       query = query[ query.index('facebook.com/') + 13..-1 ]
