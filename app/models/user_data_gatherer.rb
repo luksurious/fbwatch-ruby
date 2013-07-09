@@ -1,6 +1,6 @@
 require 'json'
 require 'cgi'
-require 'ruby-prof'
+#require 'ruby-prof'
 
 
 class UserDataGatherer
@@ -23,10 +23,12 @@ class UserDataGatherer
       basic_data: basic_data,
       feed: fetch_data("#{@username}/feed", @prev_feed_link, pages)
     }
-    #result = RubyProf.stop
 
-    #printer = RubyProf::GraphPrinter.new(result)
-    #printer.print(STDOUT, {})
+    #results = RubyProf.stop
+    
+    #File.open "#{Rails.root}/tmp/profile-graph.html", 'w' do |file|
+    #  RubyProf::GraphHtmlPrinter.new(results).print(file)
+    #end
 
     return data
   end
