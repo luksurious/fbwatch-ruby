@@ -45,7 +45,7 @@ class UserDataGatherer
       result = @facebook.api(fb_graph_call)
       call_history.push(fb_graph_call)
       
-      Rails.logger.debug "Received: '#{result}"
+      Rails.logger.debug "Received: #{result}"
 
       if result_is_empty(result)
         break
@@ -116,7 +116,7 @@ class UserDataGatherer
   def result_is_empty(result) 
     # if no paging array is present the return object is 
     # presumably empty
-    return !result.has_key?('paging')
+    result.nil? or !result.has_key?('paging')
   end
  
   def create_next_query(next_link)
