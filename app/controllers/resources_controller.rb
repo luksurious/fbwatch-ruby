@@ -164,7 +164,7 @@ class ResourcesController < ApplicationController
     feed_struct = {}
     comments = []
     @feeds.each do |feed_item|
-      if feed_item.parent_id.empty?
+      if feed_item.parent_id.nil?
         feed_struct[ feed_item.facebook_id ] = feed_item
       elsif feed_struct.has_key?( feed_item.parent_id )
         add_comment_to_feed_item(feed_struct[ feed_item.parent_id ], feed_item)
@@ -182,7 +182,10 @@ class ResourcesController < ApplicationController
 
       add_comment_to_feed_item(feed_struct[ comment.parent_id ], comment)
     end
-
+    
+    json["feed"] = feed_struct
+    
+    return json
   end
 
   def add_comment_to_feed_item(feed_item, comment)
