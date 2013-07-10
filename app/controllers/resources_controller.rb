@@ -27,6 +27,11 @@ class ResourcesController < ApplicationController
   # GET /resources/1.json
   def details
     @resource = Resource.find_by_username(params[:username])
+    if @resource.nil?
+      redirect_to root_path, alert: "Resource #{params[:username]} not found"
+      return
+    end
+
     @basicdata = Basicdata.find_all_by_resource_id(@resource.id)
     @feeds = Feed.order("updated_time DESC").find_all_by_resource_id(@resource.id)
 
