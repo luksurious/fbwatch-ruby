@@ -148,26 +148,47 @@ class ResourcesController < ApplicationController
       link: @resource.link
     }
 
-    likes = Likes.find_all_by_resource_id(@resource.id)
+    likes = Likes.joins(:resource).find_all_by_resource_id(@resource.id)
 
     # add all special values from the basicdata store
     @basicdata.each do |basic_hash|
       json[ basic_hash.key ] = basic_hash.value
     end
 
+    likes_struct = {}
     # add all likes to the feed items
     likes.each do |like|
-      # TODO
+      if !likes_struct.has_key?(like.feed_id)
+        likes_struct[ like.feed_id ] = []
+      end
+
+      likes_struct[ like.feed_id ].push({id: like.facebook_id, name: like.name, username: like.username})
     end
 
     # add feed items
     feed_struct = {}
     comments = []
     @feeds.each do |feed_item|
+
+      feed_item["likes"] = {
+        count: feed_item["like_count"],
+        data: likes_struct[ feed_item.id ]
+      }
+      feed_item.delete('like_count')
+
+      feed_item["comments"] = {
+        count: feed_item["comment_count"],
+        data: []
+      }
+      feed_item.delete('comment_count')
+
       if feed_item.parent_id.nil?
+        feed_item.delete('parent_id')
         feed_struct[ feed_item.facebook_id ] = feed_item
       elsif feed_struct.has_key?( feed_item.parent_id )
-        add_comment_to_feed_item(feed_struct[ feed_item.parent_id ], feed_item)
+
+        feed_item['comments'][:data].push(comment)
+
       else
         comments.push(feed_item)
       end
@@ -180,19 +201,11 @@ class ResourcesController < ApplicationController
         next
       end
 
-      add_comment_to_feed_item(feed_struct[ comment.parent_id ], comment)
+      feed_item['comments'][:data].push(comment)
     end
     
     json["feed"] = feed_struct
     
     return json
-  end
-
-  def add_comment_to_feed_item(feed_item, comment)
-    if feed_item.has_key?('comments')
-      feed_item['comments'][:data].push(comment)
-    else
-      feed_item['comments'] = {data: [comment], count: feed_item['comment_count']}
-    end
   end
 end
