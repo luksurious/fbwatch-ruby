@@ -60,7 +60,7 @@ class UserDataGatherer
         Rails.logger.debug "Received Exception: #{e.message}"
         break
       end
-      Rails.logger.debug "Received: #{result}"
+      Rails.logger.debug "Received: #{result[0..100]}"
 
       call_history.push(fb_graph_call)
 
