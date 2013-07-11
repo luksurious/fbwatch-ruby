@@ -2,8 +2,9 @@ require 'active_support'
 
 class DataSaver
 
-  def initialize(prev_link)
+  def initialize(prev_link, last_link)
     @@feed_prev_link_key = prev_link
+    @@feed_last_link_key = prev_link
   end
 
   def save_resource(resource, result)
@@ -59,6 +60,7 @@ class DataSaver
     new_data = @result[:basic_data].clone
     existing_data = Basicdata.find_all_by_resource_id(@resource.id)
     feed_prev_link = nil
+    feed_last_link = nil
     
     # overwrite existing values
     existing_data.each do |item|
@@ -70,6 +72,8 @@ class DataSaver
         new_data.delete(item.key)
       elsif item.key == @@feed_prev_link_key
         feed_prev_link = item
+      elsif item.key == @@feed_last_link_key
+        feed_last_link = item
       end
     end
     
@@ -86,14 +90,22 @@ class DataSaver
       @res_transaction.push(basic_data)
     end
     
-    # save special field
+    # save special fields
     if feed_prev_link.nil?
       feed_prev_link = Basicdata.new
       feed_prev_link.key = @@feed_prev_link_key
       feed_prev_link.resource = @resource
     end
-    feed_prev_link.value = @result[:feed][:previous_link][ @result[:feed][:previous_link].index('&')+1..-1 ] if @result[:feed][:previous_link] != ""
+    feed_prev_link.value = @result[:feed][:previous_link] if @result[:feed][:previous_link] != ""
     @res_transaction.push(feed_prev_link)
+
+    if feed_last_link.nil?
+      feed_last_link = Basicdata.new
+      feed_last_link.key = @@feed_last_link_key
+      feed_last_link.resource = @resource
+    end
+    feed_last_link.value = @result[:feed][:resume_query]
+    @res_transaction.push(feed_last_link)
   end
   
   def save_feed

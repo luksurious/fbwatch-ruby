@@ -36,25 +36,38 @@ class UserDataGatherer
   private
   def fetch_data(connection, graph_link, pages)
     graph_link ||= ''
+    forward = graph_link.index('since').nil?
     pages ||= -1
     
     data = []
     call_history = []
-    previous_link = ''
+    update_query = ''
+    resume_query = ''
     fb_graph_call = "/#{connection}?" + create_next_query(graph_link)
     
     while true
-      # TODO possibly make more robust
-      # if same query was sent before break
+      # stop if same call was made before
       if call_history.include? fb_graph_call
         break
       end
       
       Rails.logger.debug "Calling '#{fb_graph_call}#'..."
-      result = @facebook.api(fb_graph_call)
-      call_history.push(fb_graph_call)
-      
+      begin
+        result = @facebook.api(fb_graph_call)
+      rescue Exception => e
+        resume_query = fb_graph_call
+        # catch exceptions so that all previous data doesnt get lost
+        Rails.logger.debug "Received Exception: #{e.message}"
+        break
+      end
       Rails.logger.debug "Received: #{result}"
+
+      call_history.push(fb_graph_call)
+
+      if result.nil?
+        # connection or access issue
+        resume_query = fb_graph_call
+      end
 
       if result_is_empty(result)
         break
@@ -65,28 +78,30 @@ class UserDataGatherer
         get_all_likes(entry)
       end
 
-      # save this link so that we can get only updates next time
-      if previous_link.empty? and result['paging'].has_key?('previous')
-        previous_link = result['paging']['previous']
+      # save this link so we can continue after that point
+      if update_query.empty? and result['paging'].has_key?('previous')
+        update_query = result['paging']['previous']
       end
 
       data.concat(result['data'])
       
+      fb_graph_call = "/#{connection}?" + create_next_query(forward ? result['paging']['next'] : result['paging']['previous'])
+      
       pages -= 1
       if pages == 0
+        # save the next call to make to resume sync
+        resume_query = fb_graph_call
         break
       end
-
-      fb_graph_call = "/#{connection}?" + create_next_query(graph_link.empty? ? result['paging']['next'] : result['paging']['previous'])
     end
 
     access_token_regexp = /access_token\=[^&]+(&|$)/
-    previous_link[access_token_regexp] = "" if previous_link =~ access_token_regexp
+    update_query[access_token_regexp] = "" if update_query =~ access_token_regexp
     
     return {
       data: data,
-      call_history: call_history,
-      previous_link: previous_link
+      resume_query: resume_query,
+      previous_link: update_query
     }
   end
   
