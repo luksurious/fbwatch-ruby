@@ -197,7 +197,7 @@ class ResourcesController < ApplicationController
     # add comments which couldnt be added initially
     comments.each do |comment|
       if !feed_struct.has_key?(comment.parent_id)
-        logger.debug('Parent feed item of comment not found: ' + comment.id)
+        logger.debug('Parent feed item of comment not found: ' + comment.id.to_s)
         next
       end
 
