@@ -14,6 +14,7 @@ class DataSaver
     @feed_transaction = []
     @more_transaction = []
 
+    debugger
     update_resource
     save_basic_data
     save_feed
@@ -125,6 +126,11 @@ class DataSaver
       comment.data_type = "comment"
       comment.feed_type = "comment"
       comment.like_count = comment_hash["like_count"]
+      comment.comment_count = comment_hash["comment_count"]
+      
+      if comment_hash.has_key?('likes') and comment_hash['likes'].has_key?('data')
+        save_likes_for_feed(comment, comment_hash["likes"]['data'])
+      end
       
       @more_transaction.push(comment)
     end
@@ -132,8 +138,8 @@ class DataSaver
   
   def save_likes_for_feed(feed, likes)
     likes.each do |like_hash|
-      like = Likes.new
-      like.resource = feed.resource
+      like = Like.new
+      like.resource = get_or_make_resource(like_hash)
       like.feed = feed
       
       @more_transaction.push(like)
@@ -156,6 +162,15 @@ class DataSaver
     feed.created_time = item['created_time']
     feed.updated_time = item['updated_time']
     feed.like_count = item['likes']['count'] if item.has_key?('likes')
+    
+    # get comment count
+    if item.has_key?('comments')
+      if item['comments'].has_key?('count')
+        feed.comment_count = item['comments']['count'] 
+      else
+        feed.comment_count = item['comments']['data'].length
+      end
+    end
 
     if item.has_key?('to') and item['to']['data'].length > 0
       feed.to = get_or_make_resource(item['to']['data'][0])

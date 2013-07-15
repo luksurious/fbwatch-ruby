@@ -13,7 +13,7 @@ class UserDataGatherer
   def start_fetch(pages)
     #RubyProf.start
     basic_data = @facebook.get_object(@username)
-
+debugger
     if basic_data.empty?
         # TODO
         return
@@ -114,12 +114,14 @@ class UserDataGatherer
   
   def get_all_likes(entry)
     # if we have more than 4 likes we need to call seperate api methods
-    if !entry.has_key?('likes') or entry['likes']['count'] <= 4
+    if (!entry.has_key?('like_count') or entry['like_count'] == 0) and 
+       (!entry.has_key?('likes') or entry['likes']['count'] <= 4)
       return
     end
     
     likes = fetch_data(entry['id'] + '/likes', nil, nil)
     
+    entry['likes'] = {'data' => []} if !entry.has_key?('likes')
     entry['likes']['data'] = likes[:data]
   end
     

@@ -33,7 +33,12 @@ class ResourcesController < ApplicationController
     end
 
     @basicdata = Basicdata.find_all_by_resource_id(@resource.id)
-    @feeds = Feed.order("updated_time DESC").find_all_by_resource_id(@resource.id)
+    
+    if params[:format] == 'json'
+      @feeds = Feed.includes(:to, :from, :likes).order("updated_time DESC").find_all_by_resource_id(@resource.id)
+    else
+      @feeds = Feed.includes(:to, :from).order("updated_time DESC").find_all_by_resource_id(@resource.id)
+    end
 
     respond_to do |format|
       format.html # show.html.erb
@@ -147,61 +152,20 @@ class ResourcesController < ApplicationController
       username: @resource.username,
       link: @resource.link
     }
-
-    likes = Likes.joins(:resource).find_all_by_resource_id(@resource.id)
-
+    
     # add all special values from the basicdata store
     @basicdata.each do |basic_hash|
       json[ basic_hash.key ] = basic_hash.value
     end
-
-    likes_struct = {}
-    # add all likes to the feed items
-    likes.each do |like|
-      if !likes_struct.has_key?(like.feed_id)
-        likes_struct[ like.feed_id ] = []
-      end
-
-      likes_struct[ like.feed_id ].push({id: like.facebook_id, name: like.name, username: like.username})
-    end
+    json.delete('feed_previous_link')
 
     # add feed items
-    feed_struct = {}
-    comments = []
+    feed_struct = []
     @feeds.each do |feed_item|
-
-      feed_item["likes"] = {
-        count: feed_item["like_count"],
-        data: likes_struct[ feed_item.id ]
-      }
-      feed_item.delete('like_count')
-
-      feed_item["comments"] = {
-        count: feed_item["comment_count"],
-        data: []
-      }
-      feed_item.delete('comment_count')
-
-      if feed_item.parent_id.nil?
-        feed_item.delete('parent_id')
-        feed_struct[ feed_item.facebook_id ] = feed_item
-      elsif feed_struct.has_key?( feed_item.parent_id )
-
-        feed_item['comments'][:data].push(comment)
-
-      else
-        comments.push(feed_item)
-      end
-    end
-
-    # add comments which couldnt be added initially
-    comments.each do |comment|
-      if !feed_struct.has_key?(comment.parent_id)
-        logger.debug('Parent feed item of comment not found: ' + comment.id.to_s)
-        next
-      end
-
-      feed_item['comments'][:data].push(comment)
+      feed_hash = feed_item.to_fb_hash
+      
+      feed_struct.push(feed_hash) if feed_hash['parent_id'].nil?
+      feed_hash.delete('parent_id')
     end
     
     json["feed"] = feed_struct

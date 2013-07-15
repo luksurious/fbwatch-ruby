@@ -6,4 +6,12 @@ class Resource < ActiveRecord::Base
   
   has_many :basicdata
   has_many :feed
+  
+  def to_fb_hash
+    { 
+      id: self.facebook_id, 
+      name: self.name, 
+      username: self.username
+    }
+  end
 end
