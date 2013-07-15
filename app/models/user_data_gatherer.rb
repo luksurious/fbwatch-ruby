@@ -43,7 +43,8 @@ class UserDataGatherer
     call_history = []
     update_query = ''
     resume_query = ''
-    fb_graph_call = "/#{connection}?" + create_next_query(graph_link)
+    fb_graph_call = "/#{connection}?" + create_next_query("", graph_link)
+    last_result = ''
     
     while true
       # stop if same call was made before
@@ -60,7 +61,12 @@ class UserDataGatherer
         Rails.logger.debug "Received Exception: #{e.message}"
         break
       end
-      Rails.logger.debug "Received: #{result[0..100]}"
+      Rails.logger.debug "Received: #{result}"
+      
+      if last_result == result
+        break
+      end
+      last_result = result
 
       call_history.push(fb_graph_call)
 
@@ -85,11 +91,11 @@ class UserDataGatherer
 
       data.concat(result['data'])
       
-      fb_graph_call = "/#{connection}?" + create_next_query(forward ? result['paging']['next'] : result['paging']['previous'])
+      fb_graph_call = "/#{connection}?" + create_next_query(forward ? result['paging']['next'] : result['paging']['previous'], graph_link)
       
       pages -= 1
       if pages == 0
-        # save the next call to make to resume sync
+        # save the next call to resume sync
         resume_query = fb_graph_call
         break
       end
@@ -101,7 +107,7 @@ class UserDataGatherer
     return {
       data: data,
       resume_query: resume_query,
-      previous_link: update_query
+      previous_link: "/#{connection}?" + create_next_query(update_query)
     }
   end
   
@@ -111,18 +117,12 @@ class UserDataGatherer
       return
     end
     
-    if entry['comments'].has_key?('paging') and entry['comments']['paging'].has_key?('next')
-      # sometimes some comments are returned and then also the link to more comments
-      query = entry['comments']['paging']['next']
-      query = query[ query.index('facebook.com/') + 13..-1 ]
-    else
-      # sometimes no comments are returned in the feed but only the amount
-      query = entry['id'] + '/comments'
-      # reset sent comments to prevent duplicates
-      entry['comments']['data'] = []
-    end
+    # always fetch the comments new because of possible replies
+    query = entry['id'] + '/comments'
+    # reset sent comments to prevent duplicates
+    entry['comments']['data'] = []
     
-    comments = fetch_data(query, nil, nil)
+    comments = fetch_data(query, 'filter=stream', nil)
     
     entry['comments']['data'].concat(comments[:data])
   end
@@ -146,7 +146,7 @@ class UserDataGatherer
     result.nil? or !result.has_key?('paging')
   end
  
-  def create_next_query(next_link)
+  def create_next_query(next_link, *more)
     if !next_link.nil?
       startindex = next_link.index('?') ? next_link.index('?') + 1 : 0
       next_query = next_link[ startindex..-1 ]
@@ -156,6 +156,14 @@ class UserDataGatherer
     end
     uri.delete('access_token')
     uri['limit'] = ["100"]
+    
+    # add additional parameters if not already present
+    more_params = CGI.parse(more.join('&').to_s)
+    more_params.each do |k,v|
+      if !uri.has_key?(k)
+        uri[k] = v
+      end
+    end
     
     uri.map{|k,v| "#{k}=#{v[0]}"}.join('&')
   end
