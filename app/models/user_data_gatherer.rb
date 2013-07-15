@@ -13,7 +13,7 @@ class UserDataGatherer
   def start_fetch(pages)
     #RubyProf.start
     basic_data = @facebook.get_object(@username)
-debugger
+
     if basic_data.empty?
         # TODO
         return

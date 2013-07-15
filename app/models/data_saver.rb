@@ -4,26 +4,27 @@ class DataSaver
 
   def initialize(prev_link, last_link)
     @@feed_prev_link_key = prev_link
-    @@feed_last_link_key = prev_link
+    @@feed_last_link_key = last_link
   end
 
   def save_resource(resource, result)
     @resource = resource
     @result = result
 
-    @res_transaction = []
+    @res_transaction = {}
     @feed_transaction = []
     @more_transaction = []
 
-    debugger
     update_resource
     save_basic_data
     save_feed
 
     ActiveRecord::Base.transaction do 
-      @res_transaction.each { |res| res.save }
+      @res_transaction.each { |k,res| res.save }
+      @more_transaction.each { |res| res.save }
     end
-    @res_transaction = []
+    @res_transaction = {}
+    @more_transaction = []
 
     ActiveRecord::Base.transaction do 
       @feed_transaction.each do |feed| 
@@ -40,8 +41,12 @@ class DataSaver
       end
     end
     
+    # resources from previous transaction (likes, comments)
     ActiveRecord::Base.transaction do 
-      @res_transaction.each { |res| res.save }
+      @res_transaction.each { |k,res| res.save }
+    end
+    
+    ActiveRecord::Base.transaction do 
       @more_transaction.each { |res| res.save }
     end
 
@@ -54,7 +59,7 @@ class DataSaver
     @resource.username = @result[:basic_data]['username']
     @resource.link = @result[:basic_data]['link']
     
-    @res_transaction.push(@resource)
+    @more_transaction.push(@resource)
   end
   
   def save_basic_data
@@ -68,7 +73,7 @@ class DataSaver
       if new_data.has_key?(item.key)
         item.value = new_data[item.key].is_a?(Hash) ? ActiveSupport::JSON.encode(new_data[item.key]) : new_data[item.key]
         
-        @res_transaction.push(item)
+        @more_transaction.push(item)
 
         new_data.delete(item.key)
       elsif item.key == @@feed_prev_link_key
@@ -88,7 +93,7 @@ class DataSaver
       basic_data.value = v.is_a?(Hash) ? ActiveSupport::JSON.encode(v) : v
       basic_data.resource = @resource
       
-      @res_transaction.push(basic_data)
+      @more_transaction.push(basic_data)
     end
     
     # save special fields
@@ -98,7 +103,7 @@ class DataSaver
       feed_prev_link.resource = @resource
     end
     feed_prev_link.value = @result[:feed][:previous_link] if @result[:feed][:previous_link] != ""
-    @res_transaction.push(feed_prev_link)
+    @more_transaction.push(feed_prev_link)
 
     if feed_last_link.nil?
       feed_last_link = Basicdata.new
@@ -106,7 +111,7 @@ class DataSaver
       feed_last_link.resource = @resource
     end
     feed_last_link.value = @result[:feed][:resume_query]
-    @res_transaction.push(feed_last_link)
+    @more_transaction.push(feed_last_link)
   end
   
   def save_feed
@@ -125,6 +130,7 @@ class DataSaver
   end
   
   def save_comments_for_feed(feed, comments)
+    
     comments.each do |comment_hash|
       comment = Feed.new
       comment.parent_id = feed.id
@@ -192,7 +198,9 @@ class DataSaver
   end
   
   def get_or_make_resource(resource)
-    res = Resource.find_by_facebook_id resource['id']
+    res = Resource.find_by_facebook_id(resource['id'])
+    
+    res = @res_transaction[ resource['id'] ] if @res_transaction.has_key?(resource['id'])
     
     if res.nil?
       res = Resource.new
@@ -200,7 +208,7 @@ class DataSaver
       res.facebook_id = resource['id']
       res.username = resource['id']
       res.name = resource['name']
-      @res_transaction.push(res)
+      @res_transaction[ resource['id'] ] = res
     end
     
     return res

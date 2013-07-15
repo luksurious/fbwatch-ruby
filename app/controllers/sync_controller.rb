@@ -69,20 +69,20 @@ class SyncController < ApplicationController
     gatherer = UserDataGatherer.new(resource.username, session[:facebook])
     
     # set query to resume
-    resource_config = Basicdata.where({ resource_id: resource, key: [@@feed_previous_link, @@feed_last_link] })
+    resource_config = Basicdata.where({ resource_id: resource, key: [@@feed_prev_link_key, @@feed_last_link_key] })
     link_set = false
     resource_config.each do |link_hash|
-      if link_hash.key == @@feed_last_link and link_hash.value != ""
+      if link_hash.key == @@feed_last_link_key and link_hash.value != ""
         gatherer.prev_feed_link = link_hash.value
         link_set = true
-      elsif link_hash.key == @@feed_previous_link and link_set == false
+      elsif link_hash.key == @@feed_prev_link_key and link_set == false
         gatherer.prev_feed_link = link_hash.value
       end
     end
     
     result = gatherer.start_fetch(pages.to_i)
     
-    DataSaver.new(@@feed_previous_link, @@feed_last_link).save_resource(resource, result)
+    DataSaver.new(@@feed_prev_link_key, @@feed_last_link_key).save_resource(resource, result)
     
     return result
   end

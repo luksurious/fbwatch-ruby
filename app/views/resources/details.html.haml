@@ -1,6 +1,9 @@
 %h1 Details for Resource
 %p#notice= notice
 
+= link_to "Sync now", sync_path(@resource.username), class: "btn btn-primary"
+= link_to "Clear all", sync_clear_path(@resource.username), class: "btn"
+
 %h2 Basic Data
 %p
   %b ID:
