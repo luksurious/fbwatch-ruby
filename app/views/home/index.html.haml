@@ -10,6 +10,12 @@
 Total:
 = @total_res
 
+.paging
+  - if @offset > 0
+    = link_to 'Previous', root_paging_path(@offset-1)
+  \|
+  = link_to 'Next', root_paging_path(@offset+1)
+
 %table.table
   %tr
     %th Name
@@ -32,3 +38,9 @@ Total:
           = link_to "Enable Syncing", sync_enable_path(res.username), class: "btn btn-small"
         %br
         = link_to "Sync now", sync_path(res.username), class: "btn btn-primary"
+
+.paging
+  - if @offset > 0
+    = link_to 'Previous', root_paging_path(@offset-1)
+  \|
+  = link_to 'Next', root_paging_path(@offset+1)

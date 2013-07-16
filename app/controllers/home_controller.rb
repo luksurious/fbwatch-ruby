@@ -6,9 +6,9 @@ class HomeController < ApplicationController
       return
     end
     
-    offset = params[:p] || 0
+    @offset = params[:p].to_i || 0
 
-    @resources = Resource.order('active DESC, last_synced DESC').limit(100).offset(offset.to_i * 100)
+    @resources = Resource.order('active DESC, last_synced DESC').limit(100).offset(@offset * 100)
     @resource = Resource.new
     @total_res = Resource.count
 

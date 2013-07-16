@@ -37,7 +37,9 @@ class ResourcesController < ApplicationController
     if params[:format] == 'json'
       @feeds = Feed.includes(:to, :from, :likes).order("updated_time DESC").find_all_by_resource_id(@resource.id)
     else
-      @feeds = Feed.includes(:to, :from).order("updated_time DESC").find_all_by_resource_id(@resource.id)
+      @offset = params[:p].to_i || 0
+      @feeds = Feed.includes(:to, :from).order("updated_time DESC").where(resource_id: @resource.id).limit(100).offset(@offset * 100)
+      @total_feed = Feed.where(resource_id: @resource.id).count
     end
 
     respond_to do |format|

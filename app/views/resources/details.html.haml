@@ -35,7 +35,14 @@
 
 %h2 Feed
 Total: 
-= @feeds.length
+= @total_feed
+
+.paging
+  - if @offset > 0
+    = link_to 'Previous', resource_details_path(@resource.username, @offset-1)
+  \|
+  = link_to 'Next', resource_details_path(@resource.username, @offset+1)
+
 %table.table
   %tr
     %th Date
@@ -58,6 +65,12 @@ Total:
           = link_to item.to.name, resource_details_path(item.to.username)
       %td= item['comment_count']
       %td= item['like_count']
+
+.paging
+  - if @offset > 0
+    = link_to 'Previous', resource_details_path(@resource.username, @offset-1)
+  \|
+  = link_to 'Next', resource_details_path(@resource.username, @offset+1)
 
 = link_to 'Edit', edit_resource_path(@resource)
 \|

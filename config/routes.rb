@@ -11,13 +11,15 @@ Fbwatch::Application.routes.draw do
 
   resources :resources
   
-  get 'resource/:username', to: 'resources#details', :constraints => { :username => /[^\/]+/ }, as: 'resource_details'
+  get 'resource/:username(/:p)', to: 'resources#details', :constraints => { :username => /[^\/]+/ }, as: 'resource_details'
   
   get "home/index"
   
   get "login", to: 'home#login'
 
   root :to => 'home#index'
+
+  get '(:p)' => 'home#index', as: 'root_paging'
   
   get '/auth/:provider/callback', to: 'sessions#create'
   get '/auth/failure', to: 'sessions#failure'
