@@ -56,7 +56,7 @@ class DataSaver
     @resource.facebook_id = @result[:basic_data]['id']
     @resource.last_synced = DateTime.now
     @resource.name = @result[:basic_data]['name']
-    @resource.username = @result[:basic_data]['username']
+    @resource.username = @result[:basic_data]['username'] || @result[:basic_data]['id']
     @resource.link = @result[:basic_data]['link']
     
     @more_transaction.push(@resource)

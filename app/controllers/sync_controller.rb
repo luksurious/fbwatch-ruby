@@ -21,7 +21,7 @@ class SyncController < ApplicationController
     pages = params[:p].to_i
     @result = sync_resource(@resource, pages)
     
-    redirect_to resource_details_path(@resource.username)
+    redirect_to resource_details_path(@username)
   end
 
   def syncall
