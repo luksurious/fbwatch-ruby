@@ -1,9 +1,16 @@
 
 class SyncController < ApplicationController
+  include SessionsHelper
+  
   @@feed_prev_link_key = 'feed_previous_link'
   @@feed_last_link_key = 'feed_last_link'
   
   def index
+    if !signed_in?
+      redirect_to login_path
+      return
+    end
+
     @username = params[:name]
     @resource = Resource.find_by_username(@username)
     
@@ -18,6 +25,11 @@ class SyncController < ApplicationController
   end
 
   def syncall
+    if !signed_in?
+      redirect_to login_path
+      return
+    end
+
     resources = Resource.where({ :active => true }).all
     resource_names = []
     

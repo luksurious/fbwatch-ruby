@@ -67,9 +67,13 @@ class ResourcesController < ApplicationController
   # POST /resources
   # POST /resources.json
   def create
-    #
-    username = parse_facebook_url(params[:resource][:username])
     
+    username = parse_facebook_url(params[:resource][:username])
+    if username.nil?
+      redirect_to root_path, notice: 'Invalid URI provided'
+      return
+    end
+
     basicdata = session[:facebook].get_object(username)
     
     @resource = Resource.find_by_facebook_id(basicdata['id'])
@@ -78,7 +82,7 @@ class ResourcesController < ApplicationController
       @resource.facebook_id = basicdata['id']
     end
     
-    @resource.username = basicdata['username']
+    @resource.username = basicdata['username'] || basicdata['id']
     @resource.name = basicdata['name']
     @resource.link = basicdata['link']
     @resource.active = true
@@ -134,9 +138,13 @@ class ResourcesController < ApplicationController
     end
   end
   
-  private
   def parse_facebook_url(url)
-    uri = URI.parse(url)
+    begin
+      uri = URI.parse(url)
+    rescue URI::InvalidURIError => e
+      logger.debug("Invalid URI provided: #{url}")
+      return nil
+    end
     
     # the path of the facebook url holds either the unique name or the facebook id
     path = uri.path.split('/')

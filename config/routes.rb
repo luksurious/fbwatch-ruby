@@ -1,7 +1,7 @@
 Fbwatch::Application.routes.draw do
   get "sync/all", to: 'sync#syncall', as: 'sync_all'
   
-  get "sync/:name", to: 'sync#index', :constraints => { :name => /[^\/]+/ }, as: 'sync'
+  get "sync(/:name)", to: 'sync#index', :constraints => { :name => /[^\/]+/ }, as: 'sync'
   
   get "sync/disable/:name", to: 'sync#disable', :constraints => { :name => /[^\/]+/ }, as: 'sync_disable'
   get "sync/enable/:name", to: 'sync#enable', :constraints => { :name => /[^\/]+/ }, as: 'sync_enable'

@@ -1,13 +1,17 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
 
 one:
-  name: MyString
+  name: "My Name"
+  username: myname
+  link: http://facebook.com/myname
   facebook_id: MyString
   last_synced: 2013-06-19 23:53:33
-  active: false
+  active: true
 
 two:
-  name: MyString
+  name: "Hans Wurst"
+  username: hansiwursti2
+  link: http://facebook.com/hansiwursti2
   facebook_id: MyString
-  last_synced: 2013-06-19 23:53:33
+  last_synced: nil
   active: false

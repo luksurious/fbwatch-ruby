@@ -1,8 +1,10 @@
 class ApitestController < ApplicationController
   include SessionsHelper
+
   def index
     if !signed_in?
       redirect_to 'login'
+      return
     end
     
     if params.has_key?(:query)
