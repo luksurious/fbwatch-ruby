@@ -62,6 +62,8 @@ class SyncController < ApplicationController
       Basicdata.where(resource_id: resource).destroy_all
       Like.where(resource_id: resource).destroy_all
     end
+
+    redirect_to resource_details_path(params[:name])
   end
   
   private
@@ -79,7 +81,7 @@ class SyncController < ApplicationController
   
   def sync_resource(resource, pages)
     gatherer = UserDataGatherer.new(resource.username, session[:facebook])
-    
+
     # set query to resume
     resource_config = Basicdata.where({ resource_id: resource, key: [@@feed_prev_link_key, @@feed_last_link_key] })
     link_set = false
@@ -92,10 +94,17 @@ class SyncController < ApplicationController
       end
     end
     
-    result = gatherer.start_fetch(pages.to_i)
-    
-    DataSaver.new(@@feed_prev_link_key, @@feed_last_link_key).save_resource(resource, result)
-    
+    result = nil
+    data_time = SyncHelper.time do
+      result = gatherer.start_fetch(pages.to_i)
+    end
+
+    save_time = SyncHelper.time do
+      DataSaver.new(@@feed_prev_link_key, @@feed_last_link_key).save_resource(resource, result)
+    end
+    total_time = data_time + save_time
+    flash[:notice] = "Syncing of #{resource.username} took #{data_time}s + #{save_time}s = #{total_time}s, total calls: #{gatherer.no_of_queries}"
+
     return result
   end
 

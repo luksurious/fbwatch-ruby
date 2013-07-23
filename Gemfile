@@ -23,6 +23,8 @@ end
 gem 'rails-footnotes', '>= 3.7.9', :group => :development
 gem 'jquery-rails'
 
+gem 'ruby-prof', group: :development
+
 gem 'bootstrap-sass'
 
 gem 'haml-rails', '>= 0.3.4'
@@ -38,6 +40,8 @@ gem 'omniauth'
 gem 'omniauth-facebook'
 
 gem 'figaro'
+
+gem 'therubyracer'
 
 gem 'json'
 

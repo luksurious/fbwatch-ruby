@@ -7,7 +7,7 @@ Fbwatch::Application.routes.draw do
   get "sync/enable/:name", to: 'sync#enable', :constraints => { :name => /[^\/]+/ }, as: 'sync_enable'
   get "sync/clear/:name", to: 'sync#clear', :constraints => { :name => /[^\/]+/ }, as: 'sync_clear'
 
-  get "apitest/index"
+  get "apitest", to: 'apitest#index'
 
   resources :resources
   

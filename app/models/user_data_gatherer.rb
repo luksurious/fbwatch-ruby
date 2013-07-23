@@ -7,8 +7,14 @@ class UserDataGatherer
   def initialize(username, facebook)
     @username = username
     @facebook = facebook
+    @no_of_queries = 0
   end
   attr_writer :prev_feed_link
+  attr_reader :no_of_queries
+
+  def my_logger
+    @@my_logger ||= Logger.new("#{Rails.root}/log/#{@username}.log")
+  end
   
   def start_fetch(pages)
     #RubyProf.start
@@ -52,16 +58,17 @@ class UserDataGatherer
         break
       end
       
-      Rails.logger.debug "Calling '#{fb_graph_call}#'..."
+      my_logger.debug "Calling '#{fb_graph_call}#'..."
       begin
         result = @facebook.api(fb_graph_call)
+        @no_of_queries += 1
       rescue Exception => e
         resume_query = fb_graph_call
         # catch exceptions so that all previous data doesnt get lost
         Rails.logger.debug "Received Exception: #{e.message}"
         break
       end
-      Rails.logger.debug "Received: #{result}"
+      my_logger.debug "Received: " + result.to_s[0..100]
       
       if last_result == result
         break
@@ -155,7 +162,7 @@ class UserDataGatherer
       uri = CGI.parse("")
     end
     uri.delete('access_token')
-    uri['limit'] = ["100"]
+    uri['limit'] = ["900"]
     
     # add additional parameters if not already present
     more_params = CGI.parse(more.join('&').to_s)

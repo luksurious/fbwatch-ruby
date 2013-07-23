@@ -14,11 +14,11 @@
 ActiveRecord::Schema.define(:version => 20130706161248) do
 
   create_table "basicdata", :force => true do |t|
+    t.integer  "resource_id"
     t.datetime "created_at",  :null => false
     t.datetime "updated_at",  :null => false
     t.string   "key"
     t.string   "value"
-    t.integer  "resource_id", :null => false
   end
 
   create_table "feeds", :force => true do |t|
