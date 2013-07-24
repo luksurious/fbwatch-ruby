@@ -41,7 +41,7 @@ gem 'omniauth-facebook'
 
 gem 'figaro'
 
-gem 'therubyracer'
+gem 'therubyracer', :platforms => :ruby
 
 gem 'json'
 

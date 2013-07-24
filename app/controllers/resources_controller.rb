@@ -40,6 +40,9 @@ class ResourcesController < ApplicationController
       @offset = params[:p].to_i || 0
       @feeds = Feed.includes(:to, :from).order("updated_time DESC").where(resource_id: @resource.id).limit(100).offset(@offset * 100)
       @total_feed = Feed.where(resource_id: @resource.id).count
+      @posts_count = Feed.where({resource_id: @resource.id, from_id: @resource.id, data_type: "message"}).count
+      @comment_count = Feed.where({resource_id: @resource.id, feed_type: "comment"}).count
+      @resource_count = Feed.where(resource_id: @resource.id).count(:from_id, distinct: true)
     end
 
     respond_to do |format|

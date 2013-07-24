@@ -36,6 +36,12 @@
 %h2 Feed
 Total: 
 = @total_feed
+Owner Posts:
+= @posts_count
+Comments:
+= @comment_count
+Involved Resources:
+= @resource_count
 
 .paging
   - if @offset > 0
