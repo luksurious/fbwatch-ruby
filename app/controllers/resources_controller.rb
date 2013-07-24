@@ -43,6 +43,7 @@ class ResourcesController < ApplicationController
       @posts_count = Feed.where({resource_id: @resource.id, from_id: @resource.id, data_type: "message"}).count
       @comment_count = Feed.where({resource_id: @resource.id, feed_type: "comment"}).count
       @resource_count = Feed.where(resource_id: @resource.id).count(:from_id, distinct: true)
+      @resource_like_count = Like.joins(:feed).where(feeds: {resource_id: @resource.id}).count(:resource_id, distinct: true)
     end
 
     respond_to do |format|
