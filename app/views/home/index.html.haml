@@ -6,7 +6,7 @@
   = f.button :submit, 'Add'
 
 %h2 Current Resources
-= link_to "Sync All", sync_all_path, class: "btn", confirm: "This might take a while. Continue?"
+= link_to "Sync All", sync_all_path, class: "btn", data: { confirm: "This might take a while. Continue?" }
 Total:
 = @total_res
 
