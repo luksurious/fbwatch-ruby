@@ -9,19 +9,19 @@
 # from scratch. The latter is a flawed and unsustainable approach (the more migrations
 # you'll amass, the slower it'll run and the greater likelihood for issues).
 #
-# It's strongly recommended to check this file into your version control system.
+# It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130706161248) do
+ActiveRecord::Schema.define(version: 20130812184400) do
 
-  create_table "basicdata", :force => true do |t|
-    t.integer  "resource_id"
-    t.datetime "created_at",  :null => false
-    t.datetime "updated_at",  :null => false
+  create_table "basicdata", force: true do |t|
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
     t.string   "key"
-    t.string   "value"
+    t.text     "value"
+    t.integer  "resource_id", null: false
   end
 
-  create_table "feeds", :force => true do |t|
+  create_table "feeds", force: true do |t|
     t.string   "facebook_id"
     t.text     "data"
     t.string   "data_type"
@@ -33,29 +33,29 @@ ActiveRecord::Schema.define(:version => 20130706161248) do
     t.integer  "resource_id"
     t.integer  "from_id"
     t.integer  "to_id"
-    t.datetime "created_at",    :null => false
-    t.datetime "updated_at",    :null => false
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
     t.integer  "parent_id"
   end
 
-  create_table "likes", :force => true do |t|
+  create_table "likes", force: true do |t|
     t.integer  "resource_id"
     t.integer  "feed_id"
-    t.datetime "created_at",  :null => false
-    t.datetime "updated_at",  :null => false
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
   end
 
-  create_table "resources", :force => true do |t|
+  create_table "resources", force: true do |t|
     t.string   "name"
     t.string   "facebook_id"
     t.datetime "last_synced"
     t.boolean  "active"
-    t.datetime "created_at",  :null => false
-    t.datetime "updated_at",  :null => false
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
     t.string   "username"
     t.string   "link"
   end
 
-  add_index "resources", ["username"], :name => "index_resources_on_username", :unique => true
+  add_index "resources", ["username"], name: "index_resources_on_username", unique: true, using: :btree
 
 end

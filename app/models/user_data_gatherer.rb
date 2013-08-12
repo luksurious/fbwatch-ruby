@@ -29,6 +29,7 @@ class UserDataGatherer
         return
     end
     
+    @prev_feed_link = @prev_feed_link[ @prev_feed_link.index('?')+1..-1 ] if @prev_feed_link.index('?') > 0
     data = {
       basic_data: basic_data,
       feed: fetch_data("#{@username}/feed", @prev_feed_link, pages)
@@ -53,7 +54,9 @@ class UserDataGatherer
     call_history = []
     update_query = ''
     resume_query = ''
+
     fb_graph_call = "/#{connection}?" + create_next_query("", graph_link)
+
     last_result = ''
     
     while true

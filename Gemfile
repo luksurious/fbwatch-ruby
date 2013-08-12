@@ -56,7 +56,7 @@ group :development do
   gem 'mailcatcher'
   gem 'quiet_assets'
   gem 'rack-mini-profiler'
-  gem 'railroady'
+#  gem 'railroady'
 #  gem 'rails-footnotes', '>= 3.7.9'
   gem 'rails_best_practices'
   gem 'reek', '>= 1.3'
