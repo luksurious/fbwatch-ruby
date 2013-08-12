@@ -28,8 +28,8 @@ class UserDataGatherer
         # TODO
         return
     end
-    
-    @prev_feed_link = @prev_feed_link[ @prev_feed_link.index('?')+1..-1 ] if @prev_feed_link.index('?') > 0
+
+    @prev_feed_link = @prev_feed_link[ @prev_feed_link.index('?')+1..-1 ] if !@prev_feed_link.nil? and @prev_feed_link.index('?') > 0
     data = {
       basic_data: basic_data,
       feed: fetch_data("#{@username}/feed", @prev_feed_link, pages)
