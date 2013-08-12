@@ -38,7 +38,15 @@ class ResourcesController < ApplicationController
       @feeds = Feed.includes(:to, :from, :likes).order("updated_time DESC").find_all_by_resource_id(@resource.id)
     else
       @offset = params[:p].to_i || 0
-      @feeds = Feed.includes(:to, :from).order("updated_time DESC").where(resource_id: @resource.id).limit(100).offset(@offset * 100)
+      
+      filter_hash = {resource_id: @resource.id}
+      @filter = params[:f]
+      filter_hash[:data_type] = @filter if !@filter.nil? and !@filter.empty?
+
+      @feeds = Feed.includes(:to, :from).order("updated_time DESC").where(filter_hash).limit(100).offset(@offset * 100)
+      @filter_count = Feed.where(filter_hash).count
+      @total_pages = (@filter_count / 100.0).ceil
+
       @total_feed = Feed.where(resource_id: @resource.id).count
       @posts_count = Feed.where({resource_id: @resource.id, from_id: @resource.id, data_type: "message"}).count
       @comment_count = Feed.where({resource_id: @resource.id, feed_type: "comment"}).count

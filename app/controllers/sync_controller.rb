@@ -19,7 +19,13 @@ class SyncController < ApplicationController
     end
     
     pages = params[:p].to_i
-    @result = sync_resource(@resource, pages)
+    page_limit = nil
+    if params[:test] == "1"
+      pages = 1
+      page_limit = 25
+    end
+
+    @result = sync_resource(@resource, pages, page_limit)
     
     redirect_to resource_details_path(@username)
   end
@@ -34,7 +40,7 @@ class SyncController < ApplicationController
     resource_names = []
     
     resources.each do |resource|
-      sync_resource(resource, -1)
+      sync_resource(resource, -1, nil)
       
       resource_names << resource.name
     end
@@ -79,7 +85,7 @@ class SyncController < ApplicationController
     resource.save
   end
   
-  def sync_resource(resource, pages)
+  def sync_resource(resource, pages, page_limit)
     gatherer = UserDataGatherer.new(resource.username, session[:facebook])
 
     # set query to resume
@@ -93,6 +99,8 @@ class SyncController < ApplicationController
         gatherer.prev_feed_link = link_hash.value
       end
     end
+
+    gatherer.page_limit = page_limit if !page_limit.nil?
     
     result = nil
     data_time = SyncHelper.time do

@@ -8,12 +8,16 @@ class UserDataGatherer
     @username = username
     @facebook = facebook
     @no_of_queries = 0
+    
+    @@MAX_LIMIT = 900
+
+    @page_limit = @@MAX_LIMIT
   end
-  attr_writer :prev_feed_link
+  attr_writer :prev_feed_link, :page_limit
   attr_reader :no_of_queries
 
   def my_logger
-    @@my_logger ||= Logger.new("#{Rails.root}/log/#{@username}.log")
+    @my_logger ||= Logger.new("#{Rails.root}/log/#{@username}.log")
   end
   
   def start_fetch(pages)
@@ -117,6 +121,18 @@ class UserDataGatherer
       previous_link: "/#{connection}?" + create_next_query(update_query)
     }
   end
+
+  def fetch_connected_data(query, parameter)
+    # fetch data for likes & comments as fast as possible
+    custom_limit = @page_limit
+    @page_limit = @@MAX_LIMIT
+
+    result = fetch_data(query, parameter, nil)
+    
+    @page_limit = custom_limit
+
+    return result
+  end
   
   def get_all_comments(entry)
     if !entry.has_key?('comments') or entry['comments']['count'] == 0 or
@@ -129,8 +145,9 @@ class UserDataGatherer
     # reset sent comments to prevent duplicates
     entry['comments']['data'] = []
     
-    comments = fetch_data(query, 'filter=stream', nil)
-    
+
+    comments = fetch_connected_data(query, 'filter=stream')
+
     entry['comments']['data'].concat(comments[:data])
   end
   
@@ -141,7 +158,7 @@ class UserDataGatherer
       return
     end
     
-    likes = fetch_data(entry['id'] + '/likes', nil, nil)
+    likes = fetch_connected_data(entry['id'] + '/likes', nil)
     
     entry['likes'] = {'data' => []} if !entry.has_key?('likes')
     entry['likes']['data'] = likes[:data]
@@ -162,7 +179,7 @@ class UserDataGatherer
       uri = CGI.parse("")
     end
     uri.delete('access_token')
-    uri['limit'] = ["900"]
+    uri['limit'] = [@page_limit.to_s]
     
     # add additional parameters if not already present
     more_params = CGI.parse(more.join('&').to_s)

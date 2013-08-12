@@ -2,6 +2,7 @@
 %p#notice= notice
 
 = link_to "Sync now", sync_path(@resource.username), class: "btn btn-primary"
+= link_to "Sync test", sync_path(@resource.username, test: 1), class: "btn"
 = link_to "Clear all", sync_clear_path(@resource.username), class: "btn"
 
 %h2 Basic Data
@@ -34,22 +35,44 @@
     = item['value']
 
 %h2 Feed
-Total: 
-= @total_feed
-Owner Posts:
-= @posts_count
-Comments:
-= @comment_count
-Resources on Feed:
-= @resource_count
-Resources likes:
-= @resource_like_count
+.summary
+  %h6 Summary
+  %ul
+    %li 
+      Total: 
+      = @total_feed
+    %li 
+      Owner Posts:
+      = @posts_count
+    %li 
+      Comments:
+      = @comment_count
+    %li 
+      Resources Active on Feed:
+      = @resource_count
+    %li 
+      Unique Resources with Likes on Feed Items:
+      = @resource_like_count
+
+.filter
+  %h6 Filter:
+  %ul
+    %li= link_to 'All', resource_details_path(@resource.username, 0)
+    %li= link_to 'Posts', resource_details_path(@resource.username, 0, f: "message")
+    %li= link_to 'Comments', resource_details_path(@resource.username, 0, f: "comment")
+    %li= link_to 'Stories', resource_details_path(@resource.username, 0, f: "story")
 
 .paging
-  - if @offset > 0
-    = link_to 'Previous', resource_details_path(@resource.username, @offset-1)
-  \|
-  = link_to 'Next', resource_details_path(@resource.username, @offset+1)
+  %h6 Paging
+  %ul
+    %li= "Total Items #{@filter_count}"
+    %li= "Page #{@offset+1} of #{@total_pages}"
+    %li 
+      - if @offset > 0
+        = link_to 'Previous', resource_details_path(@resource.username, @offset-1, f: @filter)
+      \|
+      - if @total_pages > (@offset+1)
+        = link_to 'Next', resource_details_path(@resource.username, @offset+1, f: @filter)
 
 %table.table
   %tr
@@ -76,9 +99,10 @@ Resources likes:
 
 .paging
   - if @offset > 0
-    = link_to 'Previous', resource_details_path(@resource.username, @offset-1)
+    = link_to 'Previous', resource_details_path(@resource.username, @offset-1, f: @filter)
   \|
-  = link_to 'Next', resource_details_path(@resource.username, @offset+1)
+  - if @total_pages > (@offset+1)
+    = link_to 'Next', resource_details_path(@resource.username, @offset+1, f: @filter)
 
 = link_to 'Edit', edit_resource_path(@resource)
 \|
