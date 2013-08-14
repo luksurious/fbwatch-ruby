@@ -54,6 +54,7 @@ class UserDataGatherer
     call_history = []
     update_query = ''
     resume_query = ''
+    error = nil
 
     fb_graph_call = "/#{connection}?" + create_next_query("", graph_link)
 
@@ -72,9 +73,18 @@ class UserDataGatherer
       rescue Exception => e
         resume_query = fb_graph_call
         # catch exceptions so that all previous data doesnt get lost
-        Rails.logger.debug "Received Exception: #{e.message}"
+        Rails.logger.error "Received Exception: #{e.message}"
+        error = e
         break
       end
+
+      if result.has_key?('error')
+        resume_query = fb_graph_call
+        Rails.logger.error "Received Error: #{result['error']['message']}"
+        error = result['error']
+        break
+      end
+
       my_logger.debug "Received: " + result.to_s[0..100]
       
       if last_result == result
@@ -94,8 +104,19 @@ class UserDataGatherer
       end
       
       result['data'].each do |entry|
-        get_all_comments(entry)
-        get_all_likes(entry)
+        [ get_all_comments(entry),
+          get_all_likes(entry) ].each do |ok|
+
+          if ok != true
+            resume_query = fb_graph_call
+            Rails.logger.debug "Stopping querying because encountered an error in sub-query"
+            error = ok
+          end
+        end
+
+        if !error.nil?
+          break
+        end
       end
 
       # save this link so we can continue after that point
@@ -121,7 +142,8 @@ class UserDataGatherer
     return {
       data: data,
       resume_query: resume_query,
-      previous_link: "/#{connection}?" + create_next_query(update_query)
+      previous_link: "/#{connection}?" + create_next_query(update_query),
+      error: error
     }
   end
 
@@ -150,8 +172,11 @@ class UserDataGatherer
     
 
     comments = fetch_connected_data(query, 'filter=stream')
+    return comments['error'] if !comments['error'].nil?
 
     entry['comments']['data'].concat(comments[:data])
+
+    return true
   end
   
   def get_all_likes(entry)
@@ -162,9 +187,12 @@ class UserDataGatherer
     end
     
     likes = fetch_connected_data(entry['id'] + '/likes', nil)
+    return likes['error'] if !likes['error'].nil?
     
     entry['likes'] = {'data' => []} if !entry.has_key?('likes')
     entry['likes']['data'] = likes[:data]
+
+    return true
   end
     
   def result_is_empty(result) 
