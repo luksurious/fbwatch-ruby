@@ -47,9 +47,24 @@ class DataSaver
     end
     
     ActiveRecord::Base.transaction do 
-      @more_transaction.each { |res| res.save }
+      @more_transaction.each { |res| 
+        res.save
+      }
     end
 
+  end
+
+  def save_resource_gracefully(res)
+    if !res.instance_of?(ActiveRecord::Base) 
+      Rails.logger.warn("Invalid object provided for saving: " + res)
+      return
+    end
+
+    begin
+      res.save
+    rescue => e
+      Rails.logger.error("An exception occured while trying to save " + res + ": " + e.message)
+    end
   end
   
   def update_resource

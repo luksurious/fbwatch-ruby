@@ -102,7 +102,7 @@ class ResourcesController < ApplicationController
     success = false
     begin
       success = @resource.save
-    rescue Exception => e
+    rescue => e
       if e.is_a? ActiveRecord::RecordNotUnique
         alert = 'This resource seems to be already in the database!'
       else
