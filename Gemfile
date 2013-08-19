@@ -1,49 +1,54 @@
 source 'https://rubygems.org'
+ruby '2.0.0'
 
-gem 'rails', '>= 4.0.0'
+gem 'rails', '4.0.0'
 
-# Bundle edge Rails instead:
-# gem 'rails', :git => 'git://github.com/rails/rails.git'
-
-gem 'sqlite3'
 gem 'mysql2', '0.3.13'
-
-# Gems used only for assets and not required
-# in production environments by default.
-# group :assets do
-  gem 'sass-rails',   '>= 3.2.3'
-  gem 'coffee-rails', '>= 3.2.1'
-
-  # See https://github.com/sstephenson/execjs#readme for more supported runtimes
-  # gem 'therubyracer', :platforms => :ruby
-
-  gem 'uglifier', '>= 1.0.3'
-# end
-
+gem 'sass-rails',   '>= 3.2.3'
+gem 'coffee-rails', '>= 3.2.1'
+gem 'uglifier', '>= 1.0.3'
 gem 'jquery-rails'
-
 gem 'bootstrap-sass'
-
 gem 'haml-rails', '>= 0.3.4'
 gem 'haml'
-
 gem 'simple_form', '>= 3.0.0.rc'
-
-gem 'debugger', group: [:development, :test]
-
 gem 'koala', "~> 1.7.0rc1"
-
 gem 'omniauth'
 gem 'omniauth-facebook'
-
 gem 'figaro'
-
 gem 'therubyracer', :platforms => :ruby
-
 gem 'json'
+gem 'turbolinks'
+gem 'jbuilder'
 
-#gem 'grizzled-rails-logger'
 gem 'logstasher'
+
+group :development, :test do
+  gem 'debugger'
+  gem 'sqlite3'
+  gem 'rspec-rails'
+  gem 'guard-rspec'
+  gem 'spork-rails', github: 'sporkrb/spork-rails'
+  gem 'guard-spork'
+  gem 'childprocess'
+end
+
+group :test do
+  gem 'selenium-webdriver', '2.0.0'
+  gem 'capybara', '2.1.0'
+
+  # Uncomment this line on OS X.
+  # gem 'growl', '1.0.3'
+
+  # Uncomment these lines on Linux.
+  gem 'libnotify', '0.8.0'
+
+  # Uncomment these lines on Windows.
+  # gem 'rb-notifu', '0.0.4'
+  # gem 'win32console', '1.3.2'
+
+  gem 'factory_girl_rails'
+end
 
 group :development do
   gem "better_errors"
@@ -56,8 +61,6 @@ group :development do
   gem 'mailcatcher'
   gem 'quiet_assets'
   gem 'rack-mini-profiler'
-#  gem 'railroady'
-#  gem 'rails-footnotes', '>= 3.7.9'
   gem 'rails_best_practices'
   gem 'reek', '>= 1.3'
   gem 'request-log-analyzer'
@@ -65,17 +68,6 @@ group :development do
   gem 'ruby-prof'
 end
 
-# To use ActiveModel has_secure_password
-# gem 'bcrypt-ruby', '~> 3.0.0'
-
-# To use Jbuilder templates for JSON
-# gem 'jbuilder'
-
-# Use unicorn as the app server
-# gem 'unicorn'
-
-# Deploy with Capistrano
-# gem 'capistrano'
-
-# To use debugger
-# gem 'debugger'
+group :doc do
+  gem 'sdoc', '0.3.20', require: false
+end
