@@ -20,7 +20,7 @@ class UserDataGatherer
     @my_logger ||= Logger.new("#{Rails.root}/log/#{@username}.log")
   end
   
-  def start_fetch(pages)
+  def start_fetch(pages = nil)
     #RubyProf.start
     basic_data = @facebook.get_object(@username)
 
@@ -73,14 +73,14 @@ class UserDataGatherer
       rescue Exception => e
         resume_query = fb_graph_call
         # catch exceptions so that all previous data doesnt get lost
-        Rails.logger.error "Received Exception: #{e.message}"
+        my_logger.error "Received Exception: #{e.message}"
         error = e
         break
       end
 
       if result.has_key?('error')
         resume_query = fb_graph_call
-        Rails.logger.error "Received Error: #{result['error']['message']}"
+        my_logger.error "Received Error: #{result['error']['message']}"
         error = result['error']
         break
       end
