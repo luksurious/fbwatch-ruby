@@ -24,6 +24,6 @@ class Adjustdb < ActiveRecord::Migration
     add_column :resources, :username, :string
     add_column :resources, :link, :string
     
-    add_index :resources, :username, :unique
+    add_index :resources, :username, unique: true
   end
 end
