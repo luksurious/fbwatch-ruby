@@ -51,57 +51,19 @@ class UserDataGatherer
     pages ||= -1
     
     data = []
-    call_history = []
     update_query = ''
     resume_query = ''
-    error = nil
+    @last_result = ''
 
     fb_graph_call = "/#{connection}?" + create_next_query("", graph_link)
-
-    last_result = ''
     
     while true
-      # stop if same call was made before
-      if call_history.include? fb_graph_call
-        break
-      end
+      result = dispatch_api_query(fb_graph_call)
+
+      # connection or access issue
+      resume_query = fb_graph_call if result.nil?
       
-      my_logger.debug "Calling '#{fb_graph_call}#'..."
-      begin
-        result = @facebook.api(fb_graph_call)
-        @no_of_queries += 1
-      rescue Exception => e
-        resume_query = fb_graph_call
-        # catch exceptions so that all previous data doesnt get lost
-        my_logger.error "Received Exception: #{e.message}"
-        error = e
-        break
-      end
-
-      if result.has_key?('error')
-        resume_query = fb_graph_call
-        my_logger.error "Received Error: #{result['error']['message']}"
-        error = result['error']
-        break
-      end
-
-      my_logger.debug "Received: " + result.to_s[0..100]
-      
-      if last_result == result
-        break
-      end
-      last_result = result
-
-      call_history.push(fb_graph_call)
-
-      if result.nil?
-        # connection or access issue
-        resume_query = fb_graph_call
-      end
-
-      if result_is_empty(result)
-        break
-      end
+      break if result_is_empty(result)
       
       result['data'].each do |entry|
         [ get_all_comments(entry),
@@ -114,9 +76,7 @@ class UserDataGatherer
           end
         end
 
-        if !error.nil?
-          break
-        end
+        break unless error.nil?
       end
 
       # save this link so we can continue after that point
@@ -145,6 +105,44 @@ class UserDataGatherer
       previous_link: "/#{connection}?" + create_next_query(update_query),
       error: error
     }
+  end
+
+  # return empty? to break
+  # return nil? to save query
+  def dispatch_api_query(fb_graph_call)
+    @error = nil
+
+    # stop if same call was made before
+    return "" if api_query_already_sent?(fb_graph_call)
+    
+    my_logger.debug "Calling '#{fb_graph_call}#'..."
+    begin
+      result = @facebook.api(fb_graph_call)
+      @no_of_queries += 1
+    rescue Exception => e
+      result = { 'error' => { 'message' => "Received Exception: #{e.message}" } }
+    end
+
+    if result.has_key?('error')
+      my_logger.error "Received Error: #{result['error']['message']}"
+      @error = result['error']
+      return nil
+    end
+### BOOKMARK: REFACTORING; still ugly cuz lots of different returns etc. test if still works
+    return "" if @last_result == result
+    @last_result = result
+
+    my_logger.debug "Received: " + result.to_s[0..100]
+
+    return result
+  end
+
+  @call_history = []
+  def api_query_already_sent?(fb_graph_call)
+    already_sent = @call_history.include?(fb_graph_call)
+    @call_history.push(fb_graph_call) unless already_sent
+
+    return already_sent
   end
 
   def fetch_connected_data(query, parameter)
