@@ -47,6 +47,9 @@ GEM
     builder (3.1.4)
     bullet (4.6.0)
       uniform_notifier
+    byebug (1.8.2)
+      columnize (~> 0.3.6)
+      debugger-linecache (~> 1.2.0)
     capybara (2.1.0)
       mime-types (>= 1.16)
       nokogiri (>= 1.3.3)
@@ -69,12 +72,7 @@ GEM
     columnize (0.3.6)
     daemons (1.1.9)
     debug_inspector (0.0.2)
-    debugger (1.6.1)
-      columnize (>= 0.3.1)
-      debugger-linecache (~> 1.2.0)
-      debugger-ruby_core_source (~> 1.2.3)
     debugger-linecache (1.2.0)
-    debugger-ruby_core_source (1.2.3)
     diff-lcs (1.2.4)
     erubis (2.7.0)
     eventmachine (1.0.3)
@@ -137,7 +135,9 @@ GEM
       addressable
       faraday
       multi_json
-    libv8 (3.11.8.17)
+    libnotify (0.8.0)
+      ffi (>= 1.0.11)
+    libv8 (3.16.14.3)
     listen (1.3.0)
       rb-fsevent (>= 0.9.3)
       rb-inotify (>= 0.9)
@@ -208,7 +208,7 @@ GEM
     quiet_assets (1.0.2)
       railties (>= 3.1, < 5.0)
     rack (1.5.2)
-    rack-mini-profiler (0.1.28)
+    rack-mini-profiler (0.1.29)
       rack (>= 1.1.3)
     rack-protection (1.5.0)
       rack
@@ -287,7 +287,7 @@ GEM
       ffi (>= 1.0.7)
       json_pure
       rubyzip
-    sexp_processor (4.2.1)
+    sexp_processor (4.3.0)
     simple_form (3.0.0.rc)
       actionpack (>= 4.0.0.rc1, < 4.1)
       activemodel (>= 4.0.0.rc1, < 4.1)
@@ -317,8 +317,8 @@ GEM
     sqlite3 (1.3.8-x86-mingw32)
     sqlite3-ruby (1.3.3)
       sqlite3 (>= 1.3.3)
-    therubyracer (0.11.4)
-      libv8 (~> 3.11.8.12)
+    therubyracer (0.12.0)
+      libv8 (~> 3.16.14.0)
       ref
     thin (1.5.1)
       daemons (>= 1.0.9)
@@ -351,10 +351,10 @@ DEPENDENCIES
   binding_of_caller
   bootstrap-sass
   bullet
+  byebug
   capybara (= 2.1.0)
   childprocess
   coffee-rails (>= 3.2.1)
-  debugger
   factory_girl_rails
   figaro
   flay
