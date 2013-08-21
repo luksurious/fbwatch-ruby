@@ -54,30 +54,22 @@ class UserDataGatherer
     update_query = ''
     resume_query = ''
     @last_result = ''
+    @error = nil
+    @call_history = []
 
     fb_graph_call = "/#{connection}?" + create_next_query("", graph_link)
     
     while true
       result = dispatch_api_query(fb_graph_call)
 
-      # connection or access issue
-      resume_query = fb_graph_call if result.nil?
+      # query issue
+      resume_query = fb_graph_call if result == false
       
+      # end of data
       break if result_is_empty(result)
       
-      result['data'].each do |entry|
-        [ get_all_comments(entry),
-          get_all_likes(entry) ].each do |ok|
-
-          if ok != true
-            resume_query = fb_graph_call
-            Rails.logger.debug "Stopping querying because encountered an error in sub-query"
-            error = ok
-          end
-        end
-
-        break unless error.nil?
-      end
+      # get comments and likes
+      resume_query = fb_graph_call if get_all_comments_and_likes_for(result['data']) == false
 
       # save this link so we can continue after that point
       if update_query.empty? and result['paging'].has_key?('previous')
@@ -103,41 +95,55 @@ class UserDataGatherer
       data: data,
       resume_query: resume_query,
       previous_link: "/#{connection}?" + create_next_query(update_query),
-      error: error
+      error: @error
     }
   end
 
-  # return empty? to break
-  # return nil? to save query
+  def get_all_comments_and_likes_for(data)
+    @error = nil
+    data.each do |entry|
+      [ get_all_comments(entry),
+        get_all_likes(entry) ].each do |ok|
+
+        if ok != true
+          my_logger.debug "Stopping querying because encountered an error in sub-query"
+          @error = ok
+        end
+      end
+
+      break unless @error.nil?
+    end
+
+    return @error.nil?
+  end
+
   def dispatch_api_query(fb_graph_call)
     @error = nil
 
     # stop if same call was made before
-    return "" if api_query_already_sent?(fb_graph_call)
-    
-    my_logger.debug "Calling '#{fb_graph_call}#'..."
-    begin
-      result = @facebook.api(fb_graph_call)
-      @no_of_queries += 1
-    rescue Exception => e
-      result = { 'error' => { 'message' => "Received Exception: #{e.message}" } }
+    unless api_query_already_sent?(fb_graph_call)
+      my_logger.debug "Calling '#{fb_graph_call}#'..."
+      begin
+        result = @facebook.api(fb_graph_call)
+        @no_of_queries += 1
+      rescue => e
+        result = { 'error' => { 'message' => "Received Exception: #{e.message}" } }
+      end
+
+      if result.has_key?('error')
+        my_logger.error "Received Error: #{result['error']['message']}"
+        @error = result['error']
+      elsif @last_result != result
+        @last_result = result
+
+        my_logger.debug "Received: " + result.to_s[0..100]
+
+        return result
+      end
     end
-
-    if result.has_key?('error')
-      my_logger.error "Received Error: #{result['error']['message']}"
-      @error = result['error']
-      return nil
-    end
-### BOOKMARK: REFACTORING; still ugly cuz lots of different returns etc. test if still works
-    return "" if @last_result == result
-    @last_result = result
-
-    my_logger.debug "Received: " + result.to_s[0..100]
-
-    return result
+    return false
   end
 
-  @call_history = []
   def api_query_already_sent?(fb_graph_call)
     already_sent = @call_history.include?(fb_graph_call)
     @call_history.push(fb_graph_call) unless already_sent
@@ -196,7 +202,7 @@ class UserDataGatherer
   def result_is_empty(result) 
     # if no paging array is present the return object is 
     # presumably empty
-    result.nil? or !result.has_key?('paging')
+    result.blank? || !result.has_key?('paging')
   end
  
   def create_next_query(next_link, *more)

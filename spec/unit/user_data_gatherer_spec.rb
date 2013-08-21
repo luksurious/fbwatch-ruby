@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe UserDataGatherer do
-  it "should return if error json received" do
+  it "should return empty result if error json received (top-level)" do
     facebook = double("koala")
     facebook.should_receive(:get_object).and_return({
       "name" => "name",
@@ -11,7 +11,7 @@ describe UserDataGatherer do
     })
 
     api_error = { "error" => {
-      "message" => "error occured (OAuthException)",
+      "message" => "test error occured (OAuthException)",
       "code" => "17"
     }}
 
@@ -26,4 +26,19 @@ describe UserDataGatherer do
     data[:feed][:error].should eq api_error["error"]
 
   end
+
+  it "should fetch comments and likes" do
+    class UserDataGatherer
+      public :get_all_comments_and_likes_for
+    end
+
+    facebook = double("koala")
+    facebook.stub(:api).and_return({ data: "some data" })
+    gatherer = UserDataGatherer.new("username", facebook)
+
+    result = gatherer.get_all_comments_and_likes_for([{'id' => '123', 'comments' => {'data' => [1]}, 'likes' => {'data' => [1], 'count' => 10}}])
+
+    result.should eq true
+  end
+
 end
