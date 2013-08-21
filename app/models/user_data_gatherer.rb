@@ -70,6 +70,7 @@ class UserDataGatherer
       
       # get comments and likes
       resume_query = fb_graph_call if get_all_comments_and_likes_for(result['data']) == false
+      break unless @error.nil?
 
       # save this link so we can continue after that point
       if update_query.empty? and result['paging'].has_key?('previous')
@@ -101,6 +102,7 @@ class UserDataGatherer
 
   def get_all_comments_and_likes_for(data)
     @error = nil
+    
     data.each do |entry|
       [ get_all_comments(entry),
         get_all_likes(entry) ].each do |ok|

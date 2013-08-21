@@ -36,7 +36,10 @@ describe UserDataGatherer do
     facebook.stub(:api).and_return({ data: "some data" })
     gatherer = UserDataGatherer.new("username", facebook)
 
-    result = gatherer.get_all_comments_and_likes_for([{'id' => '123', 'comments' => {'data' => [1]}, 'likes' => {'data' => [1], 'count' => 10}}])
+    result = gatherer.get_all_comments_and_likes_for([
+      {'id' => '123', 'comments' => {'data' => [1]}, 'likes' => {'data' => [1], 'count' => 10}},
+      {'id' => '456', 'comments' => {'data' => [555]}, 'likes' => {'data' => [1], 'count' => 10}}
+    ])
 
     result.should eq true
   end
