@@ -24,7 +24,7 @@ gem 'jbuilder'
 gem 'logstasher'
 
 group :development, :test do
-  gem 'debugger'
+  gem 'byebug'
   gem 'sqlite3'
   gem 'rspec-rails'
   gem 'guard-rspec'
@@ -41,7 +41,7 @@ group :test do
   # gem 'growl', '1.0.3'
 
   # Uncomment these lines on Linux.
-  gem 'libnotify', '0.8.0', platforms: :ruby
+  gem 'libnotify', '0.8.0', :platform => :ruby
 
   # Uncomment these lines on Windows.
   # gem 'rb-notifu', '0.0.4'
