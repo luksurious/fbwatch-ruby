@@ -12,6 +12,9 @@ class UserDataGatherer
     @@MAX_LIMIT = 900
 
     @page_limit = @@MAX_LIMIT
+
+    @call_history = {}
+    @call_history_index = nil
   end
   attr_writer :prev_feed_link, :page_limit
   attr_reader :no_of_queries
@@ -20,7 +23,7 @@ class UserDataGatherer
     @my_logger ||= Logger.new("#{Rails.root}/log/#{@username}.log")
   end
   
-  def start_fetch(pages)
+  def start_fetch(pages = nil)
     #RubyProf.start
     basic_data = @facebook.get_object(@username)
 
@@ -51,73 +54,27 @@ class UserDataGatherer
     pages ||= -1
     
     data = []
-    call_history = []
     update_query = ''
     resume_query = ''
-    error = nil
+    @last_result = ''
+    @error = nil
 
     fb_graph_call = "/#{connection}?" + create_next_query("", graph_link)
-
-    last_result = ''
     
     while true
-      # stop if same call was made before
-      if call_history.include? fb_graph_call
-        break
-      end
+      # switch to the correct call stack
+      call_history(connection)
+      result = dispatch_api_query(fb_graph_call)
+
+      # query issue
+      resume_query = fb_graph_call if result == false
       
-      my_logger.debug "Calling '#{fb_graph_call}#'..."
-      begin
-        result = @facebook.api(fb_graph_call)
-        @no_of_queries += 1
-      rescue Exception => e
-        resume_query = fb_graph_call
-        # catch exceptions so that all previous data doesnt get lost
-        Rails.logger.error "Received Exception: #{e.message}"
-        error = e
-        break
-      end
-
-      if result.has_key?('error')
-        resume_query = fb_graph_call
-        Rails.logger.error "Received Error: #{result['error']['message']}"
-        error = result['error']
-        break
-      end
-
-      my_logger.debug "Received: " + result.to_s[0..100]
+      # end of data
+      break if result_is_empty(result)
       
-      if last_result == result
-        break
-      end
-      last_result = result
-
-      call_history.push(fb_graph_call)
-
-      if result.nil?
-        # connection or access issue
-        resume_query = fb_graph_call
-      end
-
-      if result_is_empty(result)
-        break
-      end
-      
-      result['data'].each do |entry|
-        [ get_all_comments(entry),
-          get_all_likes(entry) ].each do |ok|
-
-          if ok != true
-            resume_query = fb_graph_call
-            Rails.logger.debug "Stopping querying because encountered an error in sub-query"
-            error = ok
-          end
-        end
-
-        if !error.nil?
-          break
-        end
-      end
+      # get comments and likes
+      resume_query = fb_graph_call if get_all_comments_and_likes_for(result['data']) == false
+      break unless @error.nil?
 
       # save this link so we can continue after that point
       if update_query.empty? and result['paging'].has_key?('previous')
@@ -143,8 +100,70 @@ class UserDataGatherer
       data: data,
       resume_query: resume_query,
       previous_link: "/#{connection}?" + create_next_query(update_query),
-      error: error
+      error: @error
     }
+  end
+
+  def get_all_comments_and_likes_for(data)
+    @error = nil
+    
+    data.each do |entry|
+      [ get_all_comments(entry),
+        get_all_likes(entry) ].each do |ok|
+
+        if ok != true
+          my_logger.debug "Stopping querying because encountered an error in sub-query"
+          @error = ok
+        end
+      end
+
+      break unless @error.nil?
+    end
+
+    return @error.nil?
+  end
+
+  def dispatch_api_query(fb_graph_call)
+    @error = nil
+
+    # stop if same call was made before
+    unless api_query_already_sent?(fb_graph_call)
+      my_logger.debug "Calling '#{fb_graph_call}#'..."
+      begin
+        result = @facebook.api(fb_graph_call)
+        @no_of_queries += 1
+      rescue => e
+        result = { 'error' => { 'message' => "Received Exception: #{e.message}" } }
+      end
+
+      if result.has_key?('error')
+        my_logger.error "Received Error: #{result['error']['message']}"
+        @error = result['error']
+      elsif @last_result != result
+        @last_result = result
+
+        my_logger.debug "Received: " + result.to_s[0..100]
+
+        return result
+      end
+    end
+    return false
+  end
+
+  def call_history(new_group = nil)
+    unless new_group.nil?
+      @call_history_index = new_group
+      @call_history[ @call_history_index ] = [] if @call_history[ @call_history_index ].nil?
+    end
+
+    @call_history[ @call_history_index ]
+  end
+
+  def api_query_already_sent?(fb_graph_call)
+    already_sent = call_history.include?(fb_graph_call)
+    call_history.push(fb_graph_call) unless already_sent
+
+    return already_sent
   end
 
   def fetch_connected_data(query, parameter)
@@ -162,7 +181,7 @@ class UserDataGatherer
   def get_all_comments(entry)
     if !entry.has_key?('comments') or entry['comments']['count'] == 0 or
         entry['comments']['count'].to_i == entry['comments']['data'].length
-      return
+      return true
     end
     
     # always fetch the comments new because of possible replies
@@ -183,7 +202,7 @@ class UserDataGatherer
     # if we have more than 4 likes we need to call seperate api methods
     if (!entry.has_key?('like_count') or entry['like_count'] == 0) and 
        (!entry.has_key?('likes') or entry['likes']['count'] <= 4)
-      return
+      return true
     end
     
     likes = fetch_connected_data(entry['id'] + '/likes', nil)
@@ -198,7 +217,7 @@ class UserDataGatherer
   def result_is_empty(result) 
     # if no paging array is present the return object is 
     # presumably empty
-    result.nil? or !result.has_key?('paging')
+    result.blank? || !result.has_key?('paging')
   end
  
   def create_next_query(next_link, *more)

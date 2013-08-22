@@ -53,15 +53,15 @@ class DataSaver
   end
 
   def save_resource_gracefully(res)
-    if !res.instance_of?(ActiveRecord::Base) 
-      Rails.logger.warn(Time.now.to_s + ": Invalid object provided for saving: " + res)
+    unless res.is_a?(ActiveRecord::Base) 
+      Rails.logger.warn(Time.now.to_s + ": Invalid object provided for saving: " + res.to_s)
       return
     end
 
     begin
       res.save
     rescue => e
-      Rails.logger.error(Time.now.to_s + ": An exception occured while trying to save " + res + ": " + e.message)
+      Rails.logger.error(Time.now.to_s + ": An exception occured while trying to save " + res.to_s + ": " + e.message)
     end
   end
   
