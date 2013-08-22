@@ -20,15 +20,15 @@ class DataSaver
     save_feed
 
     ActiveRecord::Base.transaction do 
-      @res_transaction.each { |k,res| res.save }
-      @more_transaction.each { |res| res.save }
+      @res_transaction.each { |k,res| save_resource_gracefully(res) }
+      @more_transaction.each { |res| save_resource_gracefully(res) }
     end
     @res_transaction = {}
     @more_transaction = []
 
     ActiveRecord::Base.transaction do 
       @feed_transaction.each do |feed| 
-        feed[:entity].save
+        save_resource_gracefully(feed[:entity])
       end
     end
 
@@ -43,27 +43,25 @@ class DataSaver
     
     # resources from previous transaction (likes, comments)
     ActiveRecord::Base.transaction do 
-      @res_transaction.each { |k,res| res.save }
+      @res_transaction.each { |k,res| save_resource_gracefully(res) }
     end
     
     ActiveRecord::Base.transaction do 
-      @more_transaction.each { |res| 
-        res.save
-      }
+      @more_transaction.each { |res| save_resource_gracefully(res) }
     end
 
   end
 
   def save_resource_gracefully(res)
     if !res.instance_of?(ActiveRecord::Base) 
-      Rails.logger.warn("Invalid object provided for saving: " + res)
+      Rails.logger.warn(Time.now.to_s + ": Invalid object provided for saving: " + res)
       return
     end
 
     begin
       res.save
     rescue => e
-      Rails.logger.error("An exception occured while trying to save " + res + ": " + e.message)
+      Rails.logger.error(Time.now.to_s + ": An exception occured while trying to save " + res + ": " + e.message)
     end
   end
   
