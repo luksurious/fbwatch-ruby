@@ -12,6 +12,9 @@ class UserDataGatherer
     @@MAX_LIMIT = 900
 
     @page_limit = @@MAX_LIMIT
+
+    @call_history = {}
+    @call_history_index = nil
   end
   attr_writer :prev_feed_link, :page_limit
   attr_reader :no_of_queries
@@ -55,11 +58,12 @@ class UserDataGatherer
     resume_query = ''
     @last_result = ''
     @error = nil
-    @call_history = []
 
     fb_graph_call = "/#{connection}?" + create_next_query("", graph_link)
     
     while true
+      # switch to the correct call stack
+      call_history(connection)
       result = dispatch_api_query(fb_graph_call)
 
       # query issue
@@ -146,9 +150,18 @@ class UserDataGatherer
     return false
   end
 
+  def call_history(new_group = nil)
+    unless new_group.nil?
+      @call_history_index = new_group
+      @call_history[ @call_history_index ] = [] if @call_history[ @call_history_index ].nil?
+    end
+
+    @call_history[ @call_history_index ]
+  end
+
   def api_query_already_sent?(fb_graph_call)
-    already_sent = @call_history.include?(fb_graph_call)
-    @call_history.push(fb_graph_call) unless already_sent
+    already_sent = call_history.include?(fb_graph_call)
+    call_history.push(fb_graph_call) unless already_sent
 
     return already_sent
   end
@@ -168,7 +181,7 @@ class UserDataGatherer
   def get_all_comments(entry)
     if !entry.has_key?('comments') or entry['comments']['count'] == 0 or
         entry['comments']['count'].to_i == entry['comments']['data'].length
-      return
+      return true
     end
     
     # always fetch the comments new because of possible replies
@@ -189,7 +202,7 @@ class UserDataGatherer
     # if we have more than 4 likes we need to call seperate api methods
     if (!entry.has_key?('like_count') or entry['like_count'] == 0) and 
        (!entry.has_key?('likes') or entry['likes']['count'] <= 4)
-      return
+      return true
     end
     
     likes = fetch_connected_data(entry['id'] + '/likes', nil)

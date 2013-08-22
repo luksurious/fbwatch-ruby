@@ -44,4 +44,27 @@ describe UserDataGatherer do
     result.should eq true
   end
 
+  it "should detect duplicate queries even if nested calls were made" do
+    class UserDataGatherer
+      public :call_history, :api_query_already_sent?
+    end
+    
+    gatherer = UserDataGatherer.new("1", nil)
+
+    gatherer.call_history('/1/feed')
+    gatherer.api_query_already_sent?('/1/feed?limit=25').should eq false
+
+    gatherer.call_history('/123/comments')
+    gatherer.api_query_already_sent?('/123/comments?limit=25').should eq false
+
+    gatherer.call_history('/123/likes')
+    gatherer.api_query_already_sent?('/123/likes?limit=25').should eq false
+
+    gatherer.call_history('/1/feed')
+    gatherer.api_query_already_sent?('/1/feed?limit=25').should eq true
+    
+    gatherer.call_history('/1/feed')
+    gatherer.api_query_already_sent?('/123/likes?limit=25').should eq false
+
+  end
 end
