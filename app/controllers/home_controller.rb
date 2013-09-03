@@ -1,5 +1,4 @@
 class HomeController < ApplicationController
-  include SessionsHelper
   def index
     if !signed_in?
       redirect_to login_path

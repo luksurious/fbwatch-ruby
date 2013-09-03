@@ -1,6 +1,4 @@
 class ApitestController < ApplicationController
-  include SessionsHelper
-
   def index
     if !signed_in?
       redirect_to 'login'

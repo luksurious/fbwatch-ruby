@@ -1,5 +1,4 @@
 class SessionsController < ApplicationController
-  include SessionsHelper
   def create
     sign_in auth_hash
     redirect_to root_path

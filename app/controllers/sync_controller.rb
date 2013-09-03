@@ -1,6 +1,5 @@
 
 class SyncController < ApplicationController
-  include SessionsHelper
   
   @@feed_prev_link_key = 'feed_previous_link'
   @@feed_last_link_key = 'feed_last_link'
@@ -63,10 +62,13 @@ class SyncController < ApplicationController
   def clear
     resource = Resource.find_by_username(params[:name])
     
+    resource.last_synced = nil
+    resource.active = false
     ActiveRecord::Base.transaction do 
       Feed.where(resource_id: resource).destroy_all
       Basicdata.where(resource_id: resource).destroy_all
       Like.where(resource_id: resource).destroy_all
+      resource.save
     end
 
     redirect_to resource_details_path(params[:name])
@@ -119,7 +121,7 @@ class SyncController < ApplicationController
   end
 
   def resource_currently_syncing?(resource)
-    if resource.last_synced > DateTime.now
+    if resource.last_synced.is_a?(Time) and resource.last_synced > DateTime.now
       flash[:warning] = "Resource #{resource.username} is already being synced right now. Please be patient and wait for the operation to finish."
       return true
     end
