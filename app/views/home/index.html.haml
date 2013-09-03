@@ -30,7 +30,11 @@ Total:
       %td= link_to res.username, { controller: 'resources', action: 'details', username: res.username }
       %td= res.facebook_id
       %td= res.active
-      %td= time_ago_in_words(res.last_synced) + " ago" if res.last_synced.is_a?(Time)
+      %td
+        - if res.last_synced.is_a?(DateTime) and res.last_synced > DateTime.now
+          %i currently syncing
+        - elsif res.last_synced.is_a?(Time)
+          = time_ago_in_words(res.last_synced) + " ago"
       %td
         - if res.active
           = link_to "Stop Syncing", sync_disable_path(res.username), class: "btn btn-small"

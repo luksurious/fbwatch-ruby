@@ -86,9 +86,11 @@ class SyncController < ApplicationController
   end
   
   def sync_resource(resource, pages, page_limit)
+    return false if resource_currently_syncing?(resource)
+
     gatherer = UserDataGatherer.new(resource.username, session[:facebook])
 
-    # set query to resume
+    # set query to resume; might be best to push to resource table
     resource_config = Basicdata.where({ resource_id: resource, key: [@@feed_prev_link_key, @@feed_last_link_key] })
     link_set = false
     resource_config.each do |link_hash|
@@ -116,4 +118,14 @@ class SyncController < ApplicationController
     return result
   end
 
+  def resource_currently_syncing?(resource)
+    if resource.last_synced > DateTime.now
+      flash[:warning] = "Resource #{resource.username} is already being synced right now. Please be patient and wait for the operation to finish."
+      return true
+    end
+  
+    resource.last_synced = Time.now.tomorrow
+    resource.save!
+    return false
+  end
 end
