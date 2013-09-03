@@ -211,9 +211,11 @@ class DataSaver
   end
   
   def get_or_make_resource(resource)
-    res = Resource.find_by_facebook_id(resource['id'])
-    
-    res = @res_transaction[ resource['id'] ] if @res_transaction.has_key?(resource['id'])
+    if @res_transaction.has_key?(resource['id'])
+      res = @res_transaction[ resource['id'] ] 
+    else
+      res = Resource.find_by_facebook_id(resource['id'])
+    end
     
     if res.nil?
       res = Resource.new
