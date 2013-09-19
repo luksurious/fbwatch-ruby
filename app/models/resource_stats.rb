@@ -13,8 +13,14 @@ class ResourceStats < MetricBase
     posts_count = Feed.where({resource_id: @resource.id, from_id: @resource.id, data_type: "message"}).count
     make_metric_model('posts_by_owner', 'Posts made by Owner', posts_count)
 
+    posts_by_others_count = Feed.where({resource_id: @resource.id, data_type: "message"}).where.not(from_id: @resource.id).count
+    make_metric_model('posts_by_others', 'Posts made by Others', posts_by_others_count)
+
     comment_count = Feed.where({resource_id: @resource.id, feed_type: "comment"}).count
     make_metric_model('comment_count', 'Comments on Posts', comment_count)
+
+    story_count = Feed.where({resource_id: @resource.id, data_type: "story"}).count
+    make_metric_model('story_count', 'Stories', story_count)
 
     resource_count = Feed.where(resource_id: @resource.id).distinct.count(:from_id)
     make_metric_model('resources_on_feed', 'Resources Posted on Feed', resource_count)

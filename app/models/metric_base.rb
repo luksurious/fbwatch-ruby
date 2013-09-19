@@ -6,8 +6,8 @@ class MetricBase
   end
 
   def make_metric_model(name, desc, value)
-    metric = Metric.where({ metric_id: @id, name: name }).first
-    metric = Metric.new if metric.nil?
+    metric = ::Metric.where({ metric_id: @id, name: name }).first
+    metric = ::Metric.new if metric.nil?
 
     metric.metric_id = @id
     metric.name = name
