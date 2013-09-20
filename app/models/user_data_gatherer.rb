@@ -22,6 +22,10 @@ class UserDataGatherer
   def my_logger
     @my_logger ||= Logger.new("#{Rails.root}/log/#{@username}.log")
   end
+
+  def flash
+    @flash ||= {error: [], notice: []}
+  end
   
   def start_fetch(pages = nil)
     #RubyProf.start
@@ -99,8 +103,7 @@ class UserDataGatherer
     return {
       data: data,
       resume_query: resume_query,
-      previous_link: "/#{connection}?" + create_next_query(update_query),
-      error: @error
+      previous_link: "/#{connection}?" + create_next_query(update_query)
     }
   end
 
@@ -142,6 +145,8 @@ class UserDataGatherer
 
       if result.has_key?('error')
         my_logger.error "Received Error: #{result['error']['message']}"
+        flash[:error] = result['error']['message']
+        
         @error = result['error']
       elsif @last_result != result
         @last_result = result

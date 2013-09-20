@@ -111,6 +111,9 @@ class SyncController < ApplicationController
       result = gatherer.start_fetch(pages.to_i)
     end
 
+    flash[:error] = gatherer.flash[:error]
+    flash[:notice] = gatherer.flash[:notice]
+
     save_time = SyncHelper.time do
       DataSaver.new(@@feed_prev_link_key, @@feed_last_link_key).save_resource(resource, result)
     end
