@@ -133,7 +133,11 @@ class UserDataGatherer
         result = @facebook.api(fb_graph_call)
         @no_of_queries += 1
       rescue => e
-        result = { 'error' => { 'message' => "Received Exception: #{e.message}" } }
+        result = { 'error' => { 'message' => "Ruby Exception: #{e.message}" } }
+      end
+
+      if result.nil?
+        result = { 'error' => { 'message' => "Empty result object" } }
       end
 
       if result.has_key?('error')
