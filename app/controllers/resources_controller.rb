@@ -53,7 +53,7 @@ class ResourcesController < ApplicationController
       @resource_count = Feed.where(resource_id: @resource.id).count(:from_id, distinct: true)
       @resource_like_count = Like.joins(:feed).where(feeds: {resource_id: @resource.id}).count(:resource_id, distinct: true)
     end
-
+    
     respond_to do |format|
       format.html # show.html.erb
       format.json { render json: build_detail_json }
@@ -108,7 +108,7 @@ class ResourcesController < ApplicationController
       else
         alert = 'Some error occured: ' + e.message
       end
-      flash[:alert] = alert
+      flash[:alert] << alert
     end
     
     respond_to do |format|

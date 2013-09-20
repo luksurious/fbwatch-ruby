@@ -4,6 +4,10 @@ require 'cgi'
 
 
 class UserDataGatherer
+
+  class OAuthException < StandardError
+  end
+
   def initialize(username, facebook)
     @username = username
     @facebook = facebook
@@ -145,8 +149,10 @@ class UserDataGatherer
 
       if result.has_key?('error')
         my_logger.error "Received Error: #{result['error']['message']}"
-        flash[:error] = result['error']['message']
-        
+        flash[:error] << result['error']['message']
+
+        raise OAuthException, result['error']['message'] if result['error']['message'].include?("OAuthException")
+
         @error = result['error']
       elsif @last_result != result
         @last_result = result

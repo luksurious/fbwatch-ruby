@@ -105,27 +105,30 @@ class SyncController < ApplicationController
     end
 
     gatherer.page_limit = page_limit if !page_limit.nil?
-    
     result = nil
     data_time = SyncHelper.time do
-      result = gatherer.start_fetch(pages.to_i)
+      begin
+        result = gatherer.start_fetch(pages.to_i)
+      rescue UserDataGatherer::OAuthException => e
+        flash[:error] << e.message
+      end
     end
 
-    flash[:error] = gatherer.flash[:error]
-    flash[:notice] = gatherer.flash[:notice]
+    flash[:error].concat(gatherer.flash[:error])
+    flash[:notice].concat(gatherer.flash[:notice])
 
     save_time = SyncHelper.time do
       DataSaver.new(@@feed_prev_link_key, @@feed_last_link_key).save_resource(resource, result)
     end
     total_time = data_time + save_time
-    flash[:notice] = "Syncing of #{resource.username} took #{data_time}s + #{save_time}s = #{total_time}s, total calls: #{gatherer.no_of_queries}"
+    flash[:notice] << "Syncing of #{resource.username} took #{data_time}s + #{save_time}s = #{total_time}s, total calls: #{gatherer.no_of_queries}"
 
     return result
   end
 
   def resource_currently_syncing?(resource)
     if resource.last_synced.is_a?(Time) and resource.last_synced > DateTime.now
-      flash[:warning] = "Resource #{resource.username} is already being synced right now. Please be patient and wait for the operation to finish."
+      flash[:warning] << "Resource #{resource.username} is already being synced right now. Please be patient and wait for the operation to finish."
       return true
     end
   

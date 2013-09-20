@@ -66,16 +66,21 @@ class DataSaver
   end
   
   def update_resource
-    @resource.facebook_id = @result[:basic_data]['id']
     @resource.last_synced = DateTime.now
-    @resource.name = @result[:basic_data]['name']
-    @resource.username = @result[:basic_data]['username'] || @result[:basic_data]['id']
-    @resource.link = @result[:basic_data]['link']
+
+    unless @result.nil?
+      @resource.facebook_id = @result[:basic_data]['id']
+      @resource.name = @result[:basic_data]['name']
+      @resource.username = @result[:basic_data]['username'] || @result[:basic_data]['id']
+      @resource.link = @result[:basic_data]['link']
+    end
     
     @more_transaction.push(@resource)
   end
   
   def save_basic_data
+    return if @result.nil?
+
     new_data = @result[:basic_data].clone
     existing_data = Basicdata.find_all_by_resource_id(@resource.id)
     feed_prev_link = nil
@@ -128,6 +133,8 @@ class DataSaver
   end
   
   def save_feed
+    return if @result.nil?
+    
     feeds = @result[:feed]
     
     feeds[:data].each do |item|
