@@ -1,12 +1,10 @@
 require 'json'
 require 'cgi'
+require 'uri'
 #require 'ruby-prof'
 
 
 class UserDataGatherer
-
-  class OAuthException < StandardError
-  end
 
   def initialize(username, facebook)
     @username = username
@@ -17,8 +15,8 @@ class UserDataGatherer
 
     @page_limit = @@MAX_LIMIT
 
-    @call_history = {}
-    @call_history_index = nil
+    @call_history = {default: []}
+    @call_history_index = :default
   end
   attr_writer :prev_feed_link, :page_limit
   attr_reader :no_of_queries
@@ -54,6 +52,41 @@ class UserDataGatherer
 
     return data
   end
+
+  def dispatch_api_query(fb_graph_call)
+    @error = nil
+
+    # stop if same call was made before
+    unless api_query_already_sent?(fb_graph_call)
+      my_logger.debug "Calling '#{fb_graph_call}#'..."
+      begin
+        result = @facebook.api(fb_graph_call)
+        @no_of_queries += 1
+      rescue Koala::Facebook::APIError => e
+        result = { 'error' => { 'message' => e.fb_error_message, 'type' => e.fb_error_type, 'code' => e.fb_error_code } }
+      rescue => e 
+        result = { 'error' => { 'message' => "Ruby Exception: #{e.message}" } }
+      end
+
+      if result.nil?
+        result = { 'error' => { 'message' => "Empty result object" } }
+      end
+
+      if result.has_key?('error')
+        my_logger.error "Received Error: #{result['error']['message']}"
+        flash[:error] << result.to_yaml
+
+        @error = result['error']
+      elsif @last_result != result
+        @last_result = result
+
+        my_logger.debug "Received: " + result.to_s[0..100]
+
+        return result
+      end
+    end
+    return false
+  end
   
   private
   def fetch_data(connection, graph_link, pages)
@@ -76,28 +109,36 @@ class UserDataGatherer
 
       # query issue
       resume_query = fb_graph_call if result == false
-      
-      # end of data
-      break if result_is_empty(result)
-      
-      # get comments and likes
-      resume_query = fb_graph_call if get_all_comments_and_likes_for(result['data']) == false
-      break unless @error.nil?
 
-      # save this link so we can continue after that point
-      if update_query.empty? and result['paging'].has_key?('previous')
-        update_query = result['paging']['previous']
-      end
+      unless @error.nil?
+        if is_unknown_oauthexception?(@error)
+          # unknown FB error, try changing the query
+          fb_graph_call = change_query_for_unknown_error(fb_graph_call)
+        else
+          break
+        end
+      else
+        # end of data
+        break if result_is_empty(result)
+        
+        # get comments and likes
+        resume_query = fb_graph_call if get_all_comments_and_likes_for(result['data']) == false
+        
+        # save this link so we can continue after that point
+        if update_query.empty? and result['paging'].has_key?('previous')
+          update_query = result['paging']['previous']
+        end
 
-      data.concat(result['data'])
-      
-      fb_graph_call = "/#{connection}?" + create_next_query(forward ? result['paging']['next'] : result['paging']['previous'], graph_link)
-      
-      pages -= 1
-      if pages == 0
-        # save the next call to resume sync
-        resume_query = fb_graph_call
-        break
+        data.concat(result['data'])
+        
+        fb_graph_call = "/#{connection}?" + create_next_query(forward ? result['paging']['next'] : result['paging']['previous'], graph_link)
+        
+        pages -= 1
+        if pages == 0
+          # save the next call to resume sync
+          resume_query = fb_graph_call
+          break
+        end
       end
     end
 
@@ -109,6 +150,10 @@ class UserDataGatherer
       resume_query: resume_query,
       previous_link: "/#{connection}?" + create_next_query(update_query)
     }
+  end
+
+  def is_unknown_oauthexception?(error)
+    error.has_key?('type') and error['type'] == 'OAuthException' and error.has_key?('code') and error['code'] == 1
   end
 
   def get_all_comments_and_likes_for(data)
@@ -128,41 +173,6 @@ class UserDataGatherer
     end
 
     return @error.nil?
-  end
-
-  def dispatch_api_query(fb_graph_call)
-    @error = nil
-
-    # stop if same call was made before
-    unless api_query_already_sent?(fb_graph_call)
-      my_logger.debug "Calling '#{fb_graph_call}#'..."
-      begin
-        result = @facebook.api(fb_graph_call)
-        @no_of_queries += 1
-      rescue => e
-        result = { 'error' => { 'message' => "Ruby Exception: #{e.message}" } }
-      end
-
-      if result.nil?
-        result = { 'error' => { 'message' => "Empty result object" } }
-      end
-
-      if result.has_key?('error')
-        my_logger.error "Received Error: #{result['error']['message']}"
-        flash[:error] << result['error']['message']
-
-        raise OAuthException, result['error']['message'] if result['error']['message'].include?("OAuthException")
-
-        @error = result['error']
-      elsif @last_result != result
-        @last_result = result
-
-        my_logger.debug "Received: " + result.to_s[0..100]
-
-        return result
-      end
-    end
-    return false
   end
 
   def call_history(new_group = nil)
@@ -235,6 +245,17 @@ class UserDataGatherer
     result.blank? || !result.has_key?('paging')
   end
  
+  def change_query_for_unknown_error(old_query)
+    uri = URI.parse(old_query)
+
+    orig_page_limit = @page_limit
+    @page_limit = 25
+    new_query = uri.path + "?" + create_next_query(nil, uri.query)
+    @page_limit = orig_page_limit
+
+    return new_query
+  end
+
   def create_next_query(next_link, *more)
     if !next_link.nil?
       startindex = next_link.index('?') ? next_link.index('?') + 1 : 0

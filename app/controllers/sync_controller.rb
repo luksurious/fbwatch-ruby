@@ -107,11 +107,7 @@ class SyncController < ApplicationController
     gatherer.page_limit = page_limit if !page_limit.nil?
     result = nil
     data_time = SyncHelper.time do
-      begin
-        result = gatherer.start_fetch(pages.to_i)
-      rescue UserDataGatherer::OAuthException => e
-        flash[:error] << e.message
-      end
+      result = gatherer.start_fetch(pages.to_i)
     end
 
     flash[:error].concat(gatherer.flash[:error])
