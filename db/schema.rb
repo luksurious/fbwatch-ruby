@@ -11,14 +11,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130812184400) do
+ActiveRecord::Schema.define(version: 20130903233812) do
 
   create_table "basicdata", force: true do |t|
-    t.integer  "resource_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
     t.string   "key"
-    t.text     "value",       limit: 255
+    t.text     "value"
+    t.integer  "resource_id", null: false
   end
 
   create_table "feeds", force: true do |t|
@@ -33,14 +33,24 @@ ActiveRecord::Schema.define(version: 20130812184400) do
     t.integer  "resource_id"
     t.integer  "from_id"
     t.integer  "to_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
     t.integer  "parent_id"
   end
 
   create_table "likes", force: true do |t|
     t.integer  "resource_id"
     t.integer  "feed_id"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+  end
+
+  create_table "metrics", force: true do |t|
+    t.string   "metric_id"
+    t.string   "name"
+    t.string   "description"
+    t.string   "value"
+    t.integer  "resource_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -50,12 +60,13 @@ ActiveRecord::Schema.define(version: 20130812184400) do
     t.string   "facebook_id"
     t.datetime "last_synced"
     t.boolean  "active"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
     t.string   "username"
     t.string   "link"
   end
 
-  add_index "resources", ["username"], name: "index_resources_on_username", unique: true
+  add_index "resources", ["facebook_id"], name: "index_resources_on_facebook_id", using: :btree
+  add_index "resources", ["username"], name: "index_resources_on_username", unique: true, using: :btree
 
 end

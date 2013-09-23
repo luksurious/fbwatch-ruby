@@ -27,6 +27,13 @@
   %b Active:
   = @resource.active
 
+%h2 Metrics
+= link_to "Re-Calc", run_metrics_path(@resource.username), class: "btn"
+- @metrics.each do |item|
+  %p
+    %b= item['description']
+    = item['value']
+
 %h2 Additional Data
 - @basicdata.each do |item|
   %p
@@ -34,25 +41,6 @@
     = item['value']
 
 %h2 Feed
-.summary
-  %h6 Summary
-  %ul
-    %li 
-      Total: 
-      = @total_feed
-    %li 
-      Owner Posts:
-      = @posts_count
-    %li 
-      Comments:
-      = @comment_count
-    %li 
-      Resources Active on Feed:
-      = @resource_count
-    %li 
-      Unique Resources with Likes on Feed Items:
-      = @resource_like_count
-
 .filter
   %h6 Filter:
   %ul

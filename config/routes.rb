@@ -25,4 +25,6 @@ Fbwatch::Application.routes.draw do
   get '/auth/failure', to: 'sessions#failure'
   
   get 'apitest', to: 'apitest#index'
+
+  get 'metrics/:username', to: 'metrics#run', :constraints => { :username => /[^\/]+/ }, as: 'run_metrics'
 end

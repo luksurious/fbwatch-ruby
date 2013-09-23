@@ -32,7 +32,7 @@ class ResourcesController < ApplicationController
       return
     end
 
-    @basicdata = Basicdata.find_all_by_resource_id(@resource.id)
+    @basicdata = Basicdata.where(resource_id: @resource.id)
     
     if params[:format] == 'json'
       @feeds = Feed.includes(:to, :from, :likes).order("updated_time DESC").find_all_by_resource_id(@resource.id)
@@ -47,11 +47,7 @@ class ResourcesController < ApplicationController
       @filter_count = Feed.where(filter_hash).count
       @total_pages = (@filter_count / 100.0).ceil
 
-      @total_feed = Feed.where(resource_id: @resource.id).count
-      @posts_count = Feed.where({resource_id: @resource.id, from_id: @resource.id, data_type: "message"}).count
-      @comment_count = Feed.where({resource_id: @resource.id, feed_type: "comment"}).count
-      @resource_count = Feed.where(resource_id: @resource.id).count(:from_id, distinct: true)
-      @resource_like_count = Like.joins(:feed).where(feeds: {resource_id: @resource.id}).count(:resource_id, distinct: true)
+      @metrics = Metric.where(resource_id: @resource.id)
     end
     
     respond_to do |format|
