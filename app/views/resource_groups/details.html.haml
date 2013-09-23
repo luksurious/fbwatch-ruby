@@ -1,0 +1,9 @@
+Details for the resource group
+%h1= @resource_group.group_name
+
+%p
+  = link_to 'Destroy', @resource_group, method: :delete, data: { confirm: 'Are you sure?' }
+
+Resources in this group:
+= render "partials/reslist", resources: @resource_group.resources
+
