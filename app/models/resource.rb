@@ -6,6 +6,8 @@ class Resource < ActiveRecord::Base
   
   has_many :basicdata
   has_many :feed
+
+  has_and_belongs_to_many :resource_groups
   
   def to_fb_hash
     { 

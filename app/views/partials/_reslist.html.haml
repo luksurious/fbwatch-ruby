@@ -1,0 +1,27 @@
+%table.table
+  %tr
+    %th Name
+    %th Username
+    %th Facebook ID
+    %th Active
+    %th Last Synced
+    %th &nbsp;
+  - resources.each do |res|
+    %tr
+      %td= res.name
+      %td= link_to res.username, { controller: 'resources', action: 'details', username: res.username }
+      %td= res.facebook_id
+      %td= res.active
+      %td
+        - if res.last_synced.is_a?(Time) and res.last_synced > DateTime.now
+          %i currently syncing
+        - elsif res.last_synced.is_a?(Time)
+          = time_ago_in_words(res.last_synced) + " ago"
+      %td
+        - if res.active
+          = link_to "Stop Syncing", sync_disable_path(res.username), class: "btn btn-small"
+        - else
+          = link_to "Enable Syncing", sync_enable_path(res.username), class: "btn btn-small"
+        %br
+        = link_to "Sync now", sync_path(res.username), class: "btn btn-primary"
+        = yield res

@@ -11,14 +11,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130903233812) do
+ActiveRecord::Schema.define(version: 20130923204242) do
 
   create_table "basicdata", force: true do |t|
-    t.datetime "created_at",  null: false
-    t.datetime "updated_at",  null: false
+    t.integer  "resource_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.string   "key"
     t.text     "value"
-    t.integer  "resource_id", null: false
   end
 
   create_table "feeds", force: true do |t|
@@ -33,16 +33,16 @@ ActiveRecord::Schema.define(version: 20130903233812) do
     t.integer  "resource_id"
     t.integer  "from_id"
     t.integer  "to_id"
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.integer  "parent_id"
   end
 
   create_table "likes", force: true do |t|
     t.integer  "resource_id"
     t.integer  "feed_id"
-    t.datetime "created_at",  null: false
-    t.datetime "updated_at",  null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "metrics", force: true do |t|
@@ -55,13 +55,26 @@ ActiveRecord::Schema.define(version: 20130903233812) do
     t.datetime "updated_at"
   end
 
+  create_table "resource_groups", force: true do |t|
+    t.string "group_name"
+  end
+
+  create_table "resource_groups_resources", id: false, force: true do |t|
+    t.integer "resource_id"
+    t.integer "resource_group_id"
+  end
+
+  add_index "resource_groups_resources", ["resource_group_id"], name: "index_resource_groups_resources_on_resource_group_id", using: :btree
+  add_index "resource_groups_resources", ["resource_id", "resource_group_id"], name: "index_resource_groups_resources_on_resource_and_resource_group", unique: true, using: :btree
+  add_index "resource_groups_resources", ["resource_id"], name: "index_resource_groups_resources_on_resource_id", using: :btree
+
   create_table "resources", force: true do |t|
     t.string   "name"
     t.string   "facebook_id"
     t.datetime "last_synced"
     t.boolean  "active"
-    t.datetime "created_at",  null: false
-    t.datetime "updated_at",  null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.string   "username"
     t.string   "link"
   end

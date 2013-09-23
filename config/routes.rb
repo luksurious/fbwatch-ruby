@@ -27,4 +27,10 @@ Fbwatch::Application.routes.draw do
   get 'apitest', to: 'apitest#index'
 
   get 'metrics/:username', to: 'metrics#run', :constraints => { :username => /[^\/]+/ }, as: 'run_metrics'
+
+  get 'group/:id', to: 'resource_groups#details', as: 'resource_group_details'
+  resources :resource_groups, only: [:create, :destroy, :update]
+
+  post 'resource/:id/groups', to: 'resources#add_to_group', as: 'add_resource_to_group'
+  post 'group/mass', to: 'resource_groups#mass_assign', as: 'resource_group_mass_assign'
 end

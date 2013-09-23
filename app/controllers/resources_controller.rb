@@ -1,6 +1,16 @@
 require 'uri'
 
 class ResourcesController < ApplicationController
+
+  def add_to_group
+    @resource = Resource.find(params[:id])
+
+    @resource.resource_groups << ResourceGroup.find(params[:resource][:resource_groups])
+    @resource.save
+
+    redirect_to resource_details_path(@resource.username)
+  end
+
   # GET /resources
   # GET /resources.json
   def index
@@ -48,6 +58,8 @@ class ResourcesController < ApplicationController
       @total_pages = (@filter_count / 100.0).ceil
 
       @metrics = Metric.where(resource_id: @resource.id)
+
+      @all_groups = ResourceGroup.all
     end
     
     respond_to do |format|
@@ -124,7 +136,7 @@ class ResourcesController < ApplicationController
     @resource = Resource.find(params[:id])
 
     respond_to do |format|
-      if @resource.update_attributes(params[:resource])
+      if @resource.update_attributes(resource_params)
         format.html { redirect_to @resource, notice: 'Resource was successfully updated.' }
         format.json { head :no_content }
       else
@@ -190,4 +202,9 @@ class ResourcesController < ApplicationController
     
     return json
   end
+
+  private
+    def resource_params
+      params[:resource].permit(:active, :facebook_id, :last_synced, :name, :username, :link)
+    end
 end

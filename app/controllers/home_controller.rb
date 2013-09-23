@@ -4,7 +4,26 @@ class HomeController < ApplicationController
       redirect_to login_path
       return
     end
-    
+
+    if params[:simple]
+      index_plain
+    else
+      index_groups
+    end
+  end
+
+  def index_groups
+    @resource_groups = ResourceGroup.order(:group_name)
+    @resource_group = ResourceGroup.new
+    @total_groups = ResourceGroup.count
+
+    respond_to do |format|
+      format.html { render template: "home/groups" }
+      format.json { render json: @resources }
+    end
+  end
+
+  def index_plain
     @offset = params[:p].to_i || 0
 
     @resources = Resource.order('active DESC, last_synced DESC').limit(100).offset(@offset * 100)

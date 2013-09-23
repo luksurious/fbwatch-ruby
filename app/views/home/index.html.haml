@@ -1,4 +1,6 @@
 %h1 FBWatch Status
+= link_to "Grouped View", root_path
+
 %h2 Add new resource to observe
 = simple_form_for(@resource) do |f|
   = f.error_notification
@@ -16,32 +18,13 @@ Total:
   \|
   = link_to 'Next', root_paging_path(@offset+1)
 
-%table.table
-  %tr
-    %th Name
-    %th Username
-    %th Facebook ID
-    %th Active
-    %th Last Synced
-    %th &nbsp;
-  - @resources.each do |res|
-    %tr
-      %td= res.name
-      %td= link_to res.username, { controller: 'resources', action: 'details', username: res.username }
-      %td= res.facebook_id
-      %td= res.active
-      %td
-        - if res.last_synced.is_a?(Time) and res.last_synced > DateTime.now
-          %i currently syncing
-        - elsif res.last_synced.is_a?(Time)
-          = time_ago_in_words(res.last_synced) + " ago"
-      %td
-        - if res.active
-          = link_to "Stop Syncing", sync_disable_path(res.username), class: "btn btn-small"
-        - else
-          = link_to "Enable Syncing", sync_enable_path(res.username), class: "btn btn-small"
-        %br
-        = link_to "Sync now", sync_path(res.username), class: "btn btn-primary"
+= form_tag(resource_group_mass_assign_path) do
+  = render(layout: "partials/reslist", locals: {resources: @resources}) do |res|
+    %p{style:"float:right;"}= check_box_tag('resources[]', res.id, false, id: "resource-check-#{res.id}")
+
+  %p Add to group
+  %p= select_tag(:group, options_for_select(ResourceGroup.all.map { |group| [group.group_name, group.id] }))
+  %p= submit_tag("Add")
 
 .paging
   - if @offset > 0

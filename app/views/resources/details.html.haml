@@ -34,6 +34,17 @@
     %b= item['description']
     = item['value']
 
+%h2 Groups
+%ul
+  - @resource.resource_groups.each do |group|
+    %li= link_to group.group_name, resource_group_details_path(group)
+
+= form_tag(add_resource_to_group_path(@resource)) do
+  Add to group
+  %p= collection_select(:resource, :resource_groups, @all_groups, :id, :group_name)
+  %p= submit_tag("Add")
+
+
 %h2 Additional Data
 - @basicdata.each do |item|
   %p
