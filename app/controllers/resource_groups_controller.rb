@@ -1,7 +1,15 @@
 class ResourceGroupsController < ApplicationController
-  before_action :set_resource_group, only: [:update, :destroy, :details, :activate, :deactivate]
+  before_action :set_resource_group, only: [:update, :destroy, :details, :activate, :deactivate, :remove_resource]
 
   def details
+  end
+
+  def remove_resource
+    resource = Resource.find(params[:resource_id])
+
+    @resource_group.resources.delete(resource)
+
+    redirect_to resource_group_details_path(@resource_group)
   end
 
   def activate
@@ -22,7 +30,7 @@ class ResourceGroupsController < ApplicationController
         res.save
       end
     end
-    
+
     redirect_to resource_group_details_path(@resource_group)
   end
 

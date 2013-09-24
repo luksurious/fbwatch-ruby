@@ -10,5 +10,6 @@ Details for the resource group
   = link_to 'Deactivate all', deactivate_group_path(@resource_group), method: :patch, class: 'btn btn-small'
 
 
-= render "partials/reslist", resources: @resource_group.resources
+= render layout: "partials/reslist", locals: { resources: @resource_group.resources } do |res|
+  %p= link_to 'Remove from group', remove_resource_from_group_path(@resource_group, res), method: :delete, class: 'btn btn-small btn-danger'
 
