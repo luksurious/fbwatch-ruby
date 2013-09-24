@@ -19,7 +19,8 @@ Fbwatch::Application.routes.draw do
   post 'resource/:id/groups', to: 'resources#add_to_group', as: 'add_resource_to_group'
 
   # metrics
-  get 'resource/:username/metrics', to: 'metrics#run', :constraints => { :username => /[^\/]+/ }, as: 'run_metrics'
+  patch 'resource/:username/metrics', to: 'metrics#resource', :constraints => { :username => /[^\/]+/ }, as: 'run_metrics'
+  patch 'group/:id/metrics', to: 'metrics#group', as: 'group_metrics'
 
   # login actions
   get "login", to: 'home#login'

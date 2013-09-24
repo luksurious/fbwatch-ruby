@@ -28,7 +28,7 @@
   = @resource.active
 
 %h2 Metrics
-= link_to "Re-Calc", run_metrics_path(@resource.username), class: "btn"
+= link_to "Re-Calc", run_metrics_path(@resource.username), method: :patch, class: "btn"
 - @metrics.each do |item|
   %p
     %b= item['description']

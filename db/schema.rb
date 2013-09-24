@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130923204242) do
+ActiveRecord::Schema.define(version: 20130924182126) do
 
   create_table "basicdata", force: true do |t|
     t.integer  "resource_id"
@@ -37,6 +37,25 @@ ActiveRecord::Schema.define(version: 20130923204242) do
     t.datetime "updated_at"
     t.integer  "parent_id"
   end
+
+  create_table "group_metrics", force: true do |t|
+    t.string   "metric_class"
+    t.string   "resources_token"
+    t.string   "name"
+    t.string   "value"
+    t.integer  "resource_group_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "group_metrics_resources", id: false, force: true do |t|
+    t.integer "group_metric_id"
+    t.integer "resource_id"
+  end
+
+  add_index "group_metrics_resources", ["group_metric_id"], name: "index_group_metrics_resources_on_group_metric_id", using: :btree
+  add_index "group_metrics_resources", ["resource_id", "group_metric_id"], name: "index_group_metrics_resources_on_resource_id_and_group_metric_id", unique: true, using: :btree
+  add_index "group_metrics_resources", ["resource_id"], name: "index_group_metrics_resources_on_resource_id", using: :btree
 
   create_table "likes", force: true do |t|
     t.integer  "resource_id"

@@ -1,10 +1,7 @@
 class ApitestController < ApplicationController
-  def index
-    if !signed_in?
-      redirect_to 'login'
-      return
-    end
-    
+  before_action :assert_auth
+  
+  def index  
     if params.has_key?(:query)
       @query = params[:query]
       fetcher = UserDataGatherer.new("apitest", session[:facebook])

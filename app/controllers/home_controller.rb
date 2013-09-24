@@ -1,10 +1,7 @@
 class HomeController < ApplicationController
-  def index
-    if !signed_in?
-      redirect_to login_path
-      return
-    end
+  before_action :assert_auth, only: [:index]
 
+  def index
     if params[:simple]
       index_plain
     else

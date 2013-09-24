@@ -2,7 +2,7 @@ class ResourceStats < MetricBase
   @@id = "resource_stats"
 
   def initialize(resource)
-    super(@@id, resource)
+    super(id: @@id, resource: resource)
     @resource = resource
   end
 
