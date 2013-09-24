@@ -16,4 +16,11 @@ module SessionsHelper
   def current_user
     @current_user ||= session[:auth_hash]
   end
+
+  def assert_auth
+    if !signed_in?
+      redirect_to login_path
+      return
+    end
+  end
 end
