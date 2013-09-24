@@ -1,7 +1,29 @@
 class ResourceGroupsController < ApplicationController
-  before_action :set_resource_group, only: [:update, :destroy, :details]
+  before_action :set_resource_group, only: [:update, :destroy, :details, :activate, :deactivate]
 
   def details
+  end
+
+  def activate
+    ActiveRecord::Base.transaction do 
+      @resource_group.resources.each do |res|
+        res.activate
+        res.save
+      end
+    end
+
+    redirect_to resource_group_details_path(@resource_group)
+  end
+
+  def deactivate
+    ActiveRecord::Base.transaction do 
+      @resource_group.resources.each do |res|
+        res.deactivate
+        res.save
+      end
+    end
+    
+    redirect_to resource_group_details_path(@resource_group)
   end
 
   def mass_assign

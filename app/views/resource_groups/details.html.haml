@@ -1,8 +1,10 @@
 Details for the resource group
 %h1= @resource_group.group_name
 
-%p
-  = link_to 'Destroy', @resource_group, method: :delete, data: { confirm: 'Are you sure?' }
+%p= link_to 'Destroy', @resource_group, method: :delete, data: { confirm: 'Are you sure?' }, class: 'btn btn-small btn-danger'
+
+= link_to 'Activate all', activate_group_path(@resource_group), method: :patch, class: 'btn btn-small'
+= link_to 'Deactivate all', deactivate_group_path(@resource_group), method: :patch, class: 'btn btn-small'
 
 = render "partials/reslist", resources: @resource_group.resources
 

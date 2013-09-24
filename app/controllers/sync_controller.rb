@@ -47,23 +47,11 @@ class SyncController < ApplicationController
     redirect_to root_path, :notice => "Synced all active resources: " + resource_names.join(", ")
   end
   
-  def disable
-    set_active_for(false, params[:name])
-    
-    redirect_to root_path, :notice => "Disabled " + params[:name]
-  end
-  
-  def enable
-    set_active_for(true, params[:name])
-    
-    redirect_to root_path, :notice => "Enabled " + params[:name]
-  end
-  
   def clear
     resource = Resource.find_by_username(params[:name])
     
     resource.last_synced = nil
-    resource.active = false
+    # resource.active = false
     ActiveRecord::Base.transaction do 
       Feed.where(resource_id: resource).destroy_all
       Basicdata.where(resource_id: resource).destroy_all
@@ -75,17 +63,6 @@ class SyncController < ApplicationController
   end
   
   private
-  def set_active_for(active, username)
-    resource = Resource.find_by_username(username)
-    
-    if resource.nil?
-      redirect_to root_path, :notice => "Resource " + username + " not found"
-      return
-    end
-    
-    resource.active = active
-    resource.save
-  end
   
   def sync_resource(resource, pages, page_limit)
     return false if resource_currently_syncing?(resource)

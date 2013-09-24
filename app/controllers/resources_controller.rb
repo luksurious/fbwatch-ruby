@@ -1,14 +1,29 @@
 require 'uri'
 
 class ResourcesController < ApplicationController
+  before_action :set_resource_by_id, only: [:add_to_group, :show, :edit, :update, :destroy]
+  before_action :set_resource_by_username, only: [:details, :disable, :enable, :update, :destroy]
+
 
   def add_to_group
-    @resource = Resource.find(params[:id])
-
     @resource.resource_groups << ResourceGroup.find(params[:resource][:resource_groups])
     @resource.save
 
     redirect_to resource_details_path(@resource.username)
+  end
+  
+  def disable
+    @resource.deactivate
+    @resource.save
+    
+    redirect_to root_path, :notice => "Disabled #{@resource.username}"
+  end
+  
+  def enable
+    @resource.activate
+    @resource.save
+
+    redirect_to root_path, :notice => "Enabled #{@resource.username}"
   end
 
   # GET /resources
@@ -25,8 +40,6 @@ class ResourcesController < ApplicationController
   # GET /resources/1
   # GET /resources/1.json
   def show
-    @resource = Resource.find(params[:id])
-
     respond_to do |format|
       format.html # show.html.erb
       format.json { render json: @resource }
@@ -36,7 +49,6 @@ class ResourcesController < ApplicationController
   # GET /resources/1
   # GET /resources/1.json
   def details
-    @resource = Resource.find_by_username(params[:username])
     if @resource.nil?
       redirect_to root_path, alert: "Resource #{params[:username]} not found"
       return
@@ -81,7 +93,6 @@ class ResourcesController < ApplicationController
 
   # GET /resources/1/edit
   def edit
-    @resource = Resource.find(params[:id])
   end
 
   # POST /resources
@@ -133,8 +144,6 @@ class ResourcesController < ApplicationController
   # PUT /resources/1
   # PUT /resources/1.json
   def update
-    @resource = Resource.find(params[:id])
-
     respond_to do |format|
       if @resource.update_attributes(resource_params)
         format.html { redirect_to @resource, notice: 'Resource was successfully updated.' }
@@ -149,7 +158,6 @@ class ResourcesController < ApplicationController
   # DELETE /resources/1
   # DELETE /resources/1.json
   def destroy
-    @resource = Resource.find(params[:id])
     @resource.destroy
 
     respond_to do |format|
@@ -204,6 +212,14 @@ class ResourcesController < ApplicationController
   end
 
   private
+    def set_resource_by_id
+      @resource = Resource.find(params[:id])
+    end
+
+    def set_resource_by_username
+      @resource = Resource.where(username: params[:username]).first
+    end
+
     def resource_params
       params[:resource].permit(:active, :facebook_id, :last_synced, :name, :username, :link)
     end

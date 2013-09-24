@@ -16,4 +16,12 @@ class Resource < ActiveRecord::Base
       username: self.username
     }
   end
+
+  def activate
+    self.active = true
+  end
+
+  def deactivate
+    self.active = false
+  end
 end
