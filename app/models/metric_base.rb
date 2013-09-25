@@ -14,8 +14,7 @@ class MetricBase
     metric.description = desc
     metric.value = value
     
-    #@metrics.push(metric)
-    metric.save!
+    @metrics.push(metric)
   end
 
   def make_group_metric_model(options)

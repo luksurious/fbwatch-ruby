@@ -71,6 +71,13 @@ class ResourcesController < ApplicationController
 
       @metrics = Metric.where(resource_id: @resource.id)
 
+      @group_metrics = {}
+      @resource.group_metrics.each do |metric|
+        @group_metrics[metric.resource_group_id] ||= []
+
+        @group_metrics[metric.resource_group_id] << metric
+      end
+
       @all_groups = ResourceGroup.all
     end
     

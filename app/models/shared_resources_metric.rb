@@ -51,7 +51,12 @@ class SharedResourcesMetric < MetricBase
     get_metrics
   end
 
-  def render(name, value, resources)
+  def render(options)
+    value = options[:value] || []
 
+    shared_resources_raw = JSON.load(value)
+    shared_resources = shared_resources_raw.map { |hash| Resource.find(hash['id']) }
+
+    "<b>Shared users</b> for #{options[:resources].map { |res| res.username }.join(', ')}: #{shared_resources.size} (#{shared_resources.map { |res| res.name }.join(', ')})"
   end
 end
