@@ -38,44 +38,24 @@ class SharedResourcesMetric < MetricBase
     get_metrics
   end
 
-  def render(options)
-      
-    value = options[:value] || []
-    resources = options[:resources] || []
-
-    shared_resources_raw = JSON.load(value)
-    shared_resources = shared_resources_raw.map { |hash| Resource.find(hash['id']) }
-    shared_resources_string = shared_resources.map { |res| res.name }.join(', ')
-
-    involved_resources_string = resources.map do |res| 
-      next if res == options[:for]
-
-      "#{res.username}" if res.is_a?(Resource) 
-    end.compact.join(', ')
-
-    html = '<p><b>'
-
-    case options[:name]
-    when 'shared_resources'
-      html += "Shared users with posts"
-    when 'shared_resources_likes'
-      html += "Shared users with likes"
-    when 'shared_resources_any'
-      html += "Shared users with posts or likes"
-    end
-
-    html += "</b></p><p>with #{involved_resources_string}: #{shared_resources.size} <br><span>(#{shared_resources_string})</span></p>"
-  end
-
   def vars_for_render(options)
     value = options[:value] || []
 
-    shared_resources_raw = JSON.load(value)
+    shared_resources_raw = shared_resources_array(value)
     shared_resources = shared_resources_raw.map { |hash| Resource.find(hash['id']) }
 
     {
       shared_resources: shared_resources
     }
+  end
+
+  def shared_resources_array(value)
+    @res_array ||= JSON.load(value)
+  end
+
+  def sort_value(value)
+    res_array = shared_resources_array(value)
+    res_array.size
   end
 
   private

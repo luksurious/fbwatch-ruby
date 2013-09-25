@@ -77,6 +77,9 @@ class ResourcesController < ApplicationController
 
         @group_metrics[metric.resource_group_id] << metric
       end
+      @group_metrics.each do |key,group|
+        @group_metrics[key] = group.sort { |a,b| b.sort_value <=> a.sort_value }
+      end
 
       @all_groups = ResourceGroup.all
     end
