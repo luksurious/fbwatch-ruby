@@ -5,7 +5,7 @@ class MetricsController < ApplicationController
 
     MetricsManager.new(resource: @resource).run_resource_metrics
 
-    redirect_to resource_details_path(@resource.username)
+    redirect_to resource_details_path(@resource.username), notice: "Resource metrics updated"
   end
 
   def group
@@ -15,6 +15,6 @@ class MetricsController < ApplicationController
     metrics.run_group_metrics
     metrics.run_resource_metrics
 
-    redirect_to resource_group_details_path(resource_group)
+    redirect_to resource_group_details_path(resource_group), notice: "Group and resource metrics updated"
   end
 end

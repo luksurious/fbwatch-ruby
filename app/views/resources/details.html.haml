@@ -45,7 +45,7 @@
     - unless @group_metrics[group.id].nil?
       - @group_metrics[group.id].each do |metric|
         %ul
-          %li= raw(metric.render)
+          %li= render "metrics/#{metric.name}", metric.vars_for_render
 
 = form_tag(add_resource_to_group_path(@resource)) do
   Add to group
