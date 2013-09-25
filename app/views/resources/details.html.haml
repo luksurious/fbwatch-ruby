@@ -42,9 +42,10 @@
   - @resource.resource_groups.each do |group|
     %li
       = link_to group.group_name, resource_group_details_path(group)
-    - @group_metrics[group.id].each do |metric|
-      %ul
-        %li= raw(metric.render)
+    - unless @group_metrics[group.id].nil?
+      - @group_metrics[group.id].each do |metric|
+        %ul
+          %li= raw(metric.render)
 
 = form_tag(add_resource_to_group_path(@resource)) do
   Add to group
