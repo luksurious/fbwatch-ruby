@@ -33,7 +33,10 @@ class MetricBase
       metric.resources.delete(res) unless options[:resources].include?(res)
     end
 
-    @metrics.push(metric)
+    # @metrics.push(metric)
+    if !metric.save
+      Rails.logger.error "Couldn't save metric #{options[:name]} (errors: #{metric.errors.full_messages}"
+    end
   end
 
   def get_metrics

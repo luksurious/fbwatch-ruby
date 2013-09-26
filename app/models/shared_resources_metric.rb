@@ -35,7 +35,7 @@ class SharedResourcesMetric < MetricBase
 
     end
 
-    get_metrics
+    # get_metrics
   end
 
   def vars_for_render(options)
@@ -74,14 +74,14 @@ class SharedResourcesMetric < MetricBase
       #  where(feed1: {resource_id: }, feed2: {resource_id: 257})
 
       "SELECT A.id FROM (
-        SELECT DISTINCT resources.* 
+        SELECT DISTINCT resources.id
         FROM resources 
           INNER JOIN feeds 
             ON feeds.from_id = resources.id 
               OR feeds.to_id = resources.id 
         WHERE feeds.resource_id = ?) 
       A INNER JOIN (
-        SELECT DISTINCT resources.* 
+        SELECT DISTINCT resources.id
         FROM resources 
           INNER JOIN feeds 
             ON feeds.from_id = resources.id 
@@ -92,20 +92,20 @@ class SharedResourcesMetric < MetricBase
 
     def like_intersection_sql
       "SELECT A.id FROM (
-        SELECT DISTINCT resources.* FROM resources INNER JOIN likes ON likes.resource_id = resources.id INNER JOIN feeds ON feeds.id = likes.feed_id
+        SELECT DISTINCT resources.id FROM resources INNER JOIN likes ON likes.resource_id = resources.id INNER JOIN feeds ON feeds.id = likes.feed_id
         WHERE feeds.resource_id = ?) A
       INNER JOIN
-      (SELECT DISTINCT resources.* FROM resources INNER JOIN likes ON likes.resource_id = resources.id INNER JOIN feeds ON feeds.id = likes.feed_id
+      (SELECT DISTINCT resources.id FROM resources INNER JOIN likes ON likes.resource_id = resources.id INNER JOIN feeds ON feeds.id = likes.feed_id
         WHERE feeds.resource_id = ?) B
       ON A.id = B.id"
     end
 
     def any_intersection_sql
       "SELECT DISTINCT A.id FROM (
-        SELECT DISTINCT resources.* FROM resources INNER JOIN likes ON likes.resource_id = resources.id INNER JOIN feeds ON feeds.id = likes.feed_id
+        SELECT DISTINCT resources.id FROM resources INNER JOIN likes ON likes.resource_id = resources.id INNER JOIN feeds ON feeds.id = likes.feed_id
         WHERE feeds.resource_id = ?
         UNION
-        SELECT DISTINCT resources.* 
+        SELECT DISTINCT resources.id 
         FROM resources 
           INNER JOIN feeds 
             ON feeds.from_id = resources.id 
@@ -114,10 +114,10 @@ class SharedResourcesMetric < MetricBase
       ) A
       INNER JOIN
       (
-        SELECT DISTINCT resources.* FROM resources INNER JOIN likes ON likes.resource_id = resources.id INNER JOIN feeds ON feeds.id = likes.feed_id
+        SELECT DISTINCT resources.id FROM resources INNER JOIN likes ON likes.resource_id = resources.id INNER JOIN feeds ON feeds.id = likes.feed_id
         WHERE feeds.resource_id = ?
           UNION
-        SELECT DISTINCT resources.* 
+        SELECT DISTINCT resources.id
         FROM resources 
           INNER JOIN feeds 
             ON feeds.from_id = resources.id 
