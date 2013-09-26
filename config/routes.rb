@@ -2,7 +2,6 @@ Fbwatch::Application.routes.draw do
   # general actiosn
   get "home/index"
   root :to => 'home#index'
-  get '(:p)' => 'home#index', as: 'root_paging'
   
   get "apitest", to: 'apitest#index'
 
@@ -23,7 +22,7 @@ Fbwatch::Application.routes.draw do
   patch 'group/:id/metrics', to: 'metrics#group', as: 'group_metrics'
 
   # login actions
-  get "login", to: 'home#login'
+  get "login", to: 'sessions#login'
   get '/auth/:provider/callback', to: 'sessions#create'
   get '/auth/failure', to: 'sessions#failure'
   
@@ -35,4 +34,7 @@ Fbwatch::Application.routes.draw do
   patch 'group/:id/deactivate', to: 'resource_groups#deactivate', as: 'deactivate_group'
   patch 'group/:id/sync', to: 'sync#group', as: 'sync_group'
   delete 'group/:id/resource/:resource_id', to: 'resource_groups#remove_resource', as: 'remove_resource_from_group'
+
+  # has to be at the bottom otherwise intercepts some routes
+  get '(:p)' => 'home#index', as: 'root_paging'
 end

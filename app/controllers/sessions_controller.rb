@@ -1,4 +1,7 @@
 class SessionsController < ApplicationController
+  def login
+  end
+
   def create
     sign_in auth_hash
     redirect_to root_path

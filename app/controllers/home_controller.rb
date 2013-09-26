@@ -32,7 +32,4 @@ class HomeController < ApplicationController
       format.json { render json: @resources }
     end
   end
-  
-  def login
-  end
 end
