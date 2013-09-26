@@ -4,8 +4,9 @@
   -  next if res == @resource
   -  link_to res.name, resource_details_path(res.username) }.compact.join(', ')
   = raw "#{involved_resources_string}: #{shared_resources.size}"
-  %br
-  %span
-    (
-    = raw shared_resources.map { |res| link_to res.name, resource_details_path(res.username) }.join(', ')
-    )
+  - unless shared_resources.empty?
+    %br
+    %span
+      (
+      = raw shared_resources.map { |res| link_to res.name, resource_details_path(res.username) }.join(', ')
+      )

@@ -17,4 +17,8 @@ class GroupMetric < ActiveRecord::Base
   def sort_value
     klass.sort_value(self.value)
   end
+
+  def empty?
+    klass.empty?(self.value)
+  end
 end

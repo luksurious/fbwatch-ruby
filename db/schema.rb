@@ -14,11 +14,11 @@
 ActiveRecord::Schema.define(version: 20130924182126) do
 
   create_table "basicdata", force: true do |t|
-    t.integer  "resource_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
     t.string   "key"
     t.text     "value"
+    t.integer  "resource_id", null: false
   end
 
   create_table "feeds", force: true do |t|
@@ -33,8 +33,8 @@ ActiveRecord::Schema.define(version: 20130924182126) do
     t.integer  "resource_id"
     t.integer  "from_id"
     t.integer  "to_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
     t.integer  "parent_id"
   end
 
@@ -42,7 +42,7 @@ ActiveRecord::Schema.define(version: 20130924182126) do
     t.string   "metric_class"
     t.string   "resources_token"
     t.string   "name"
-    t.string   "value"
+    t.text     "value"
     t.integer  "resource_group_id"
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -60,8 +60,8 @@ ActiveRecord::Schema.define(version: 20130924182126) do
   create_table "likes", force: true do |t|
     t.integer  "resource_id"
     t.integer  "feed_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
   end
 
   create_table "metrics", force: true do |t|
@@ -92,8 +92,8 @@ ActiveRecord::Schema.define(version: 20130924182126) do
     t.string   "facebook_id"
     t.datetime "last_synced"
     t.boolean  "active"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
     t.string   "username"
     t.string   "link"
   end

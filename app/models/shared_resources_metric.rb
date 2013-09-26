@@ -58,6 +58,10 @@ class SharedResourcesMetric < MetricBase
     res_array.size
   end
 
+  def empty?(value)
+    shared_resources_array(value).empty?
+  end
+
   private
     def post_intersection_sql
 
