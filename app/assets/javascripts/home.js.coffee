@@ -2,5 +2,6 @@
 # All this logic will automatically be available in application.js.
 # You can use CoffeeScript in this file: http://jashkenas.github.com/coffee-script/
 
-$('#make-input-batch').bind 'click', (e) => 
-	$('#resource_username').replaceWith(jQuery('<textarea />').attr({'name': 'resource[usernames]', 'class': 'string required'}))
+$(document).ready ->
+  $('#make-input-batch').bind 'click', (e) => 
+	 $('#resource_username').replaceWith(jQuery('<textarea />').attr({'name': 'resource[usernames]', 'class': 'string required'}))
