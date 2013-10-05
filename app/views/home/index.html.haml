@@ -5,6 +5,7 @@
 = simple_form_for(@resource) do |f|
   = f.error_notification
   = f.input :username, label: "Facebook URL"
+  = link_to 'Batch Input', 'javascript:void(0);', id: 'make-input-batch'
   = f.button :submit, 'Add'
 
 %h2 Current Resources

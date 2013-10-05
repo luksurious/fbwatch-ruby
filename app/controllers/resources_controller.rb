@@ -108,8 +108,20 @@ class ResourcesController < ApplicationController
   # POST /resources
   # POST /resources.json
   def create
-    
-    username = parse_facebook_url(params[:resource][:username])
+    if params[:resource].has_key?(:username)
+      username = parse_facebook_url(params[:resource][:username])
+      create_for(username)
+    elsif params[:resource].has_key?(:usernames)
+      usernames = params[:resource][:usernames].split(/\r?\n/)
+      usernames.each do |username|
+        create_for(username)
+      end
+    else
+      # TODO error handling
+    end
+  end
+
+  def create_for(username)
     if username.nil?
       redirect_to root_path, notice: 'Invalid URI provided'
       return
