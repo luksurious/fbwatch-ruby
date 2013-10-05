@@ -114,7 +114,7 @@ class ResourcesController < ApplicationController
     elsif params[:resource].has_key?(:usernames)
       usernames = params[:resource][:usernames].split(/\r?\n/)
       usernames.each do |username|
-        create_for(username)
+        create_for(parse_facebook_url(username))
       end
     else
       # TODO error handling
