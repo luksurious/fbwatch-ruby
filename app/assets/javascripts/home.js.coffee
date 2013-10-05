@@ -4,4 +4,4 @@
 
 $(document).ready ->
   $('#make-input-batch').bind 'click', (e) => 
-	 $('#resource_username').replaceWith(jQuery('<textarea />').attr({'name': 'resource[usernames]', 'class': 'string required'}))
+    $('#resource_username').replaceWith(jQuery('<textarea />').attr({'name': 'resource[usernames]', 'class': 'string required'}))
