@@ -135,8 +135,8 @@ class ResourcesController < ApplicationController
 
   def create_for(username)
     if username.nil?
-      redirect_to root_path, notice: 'Invalid URI provided'
-      return
+      flash[:notice] << 'Invalid URI provided'
+      return false
     end
 
     begin
