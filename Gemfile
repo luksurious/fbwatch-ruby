@@ -50,8 +50,11 @@ group :test do
   gem 'factory_girl_rails'
 end
 
+# enable on production to make error hunting easier
+gem "better_errors"
+
 group :development do
-  gem "better_errors"
+#  gem "better_errors"
   gem "binding_of_caller"
   gem 'bullet'
   gem 'flay'
