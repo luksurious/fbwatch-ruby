@@ -226,7 +226,7 @@ class UserDataGatherer
   def get_all_likes(entry)
     # if we have more than 4 likes we need to call seperate api methods
     if (!entry.has_key?('like_count') or entry['like_count'] == 0) and 
-       (!entry.has_key?('likes') or entry['likes']['count'] <= 4)
+       (!entry.has_key?('likes') or !entry['likes'].has_key?('count') or entry['likes']['count'] <= 4)
       return true
     end
     
