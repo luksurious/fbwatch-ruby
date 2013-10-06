@@ -139,7 +139,12 @@ class ResourcesController < ApplicationController
       return
     end
 
-    basicdata = session[:facebook].get_object(username)
+    begin
+      basicdata = session[:facebook].get_object(username)
+    rescue Koala::Facebook::ClientError => e
+      flash[:alert] << "failed to create resource for #{username}. facebook returned an error: #{e.fb_error_message}"
+      return false
+    end
     
     @resource = Resource.find_by_facebook_id(basicdata['id'])
     if @resource.nil?
