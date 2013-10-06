@@ -142,7 +142,7 @@ class ResourcesController < ApplicationController
     begin
       basicdata = session[:facebook].get_object(username)
     rescue Koala::Facebook::ClientError => e
-      flash[:alert] << "failed to create resource for #{username}. facebook returned an error: #{e.fb_error_message}"
+      flash[:error] << "failed to create resource for #{username}. facebook returned an error: #{e.fb_error_message}"
       return false
     end
     
@@ -166,7 +166,7 @@ class ResourcesController < ApplicationController
       else
         alert = 'Some error occured: ' + e.message
       end
-      flash[:alert] << alert
+      flash[:error] << alert
     end
 
     return success
