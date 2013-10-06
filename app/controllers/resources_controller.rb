@@ -110,14 +110,26 @@ class ResourcesController < ApplicationController
   def create
     if params[:resource].has_key?(:username)
       username = parse_facebook_url(params[:resource][:username])
-      create_for(username)
+      success = create_for(username)
     elsif params[:resource].has_key?(:usernames)
+      success = true
       usernames = params[:resource][:usernames].split(/\r?\n/)
       usernames.each do |username|
         create_for(parse_facebook_url(username))
       end
     else
       # TODO error handling
+    end
+
+    
+    respond_to do |format|
+      if success
+        format.html { redirect_to root_path, notice: 'Resource was successfully created.' }
+        format.json { render json: @resource, status: :created, location: @resource }
+      else
+        format.html { render :new }
+        format.json { render json: @resource.errors, status: :unprocessable_entity }
+      end
     end
   end
 
@@ -151,16 +163,8 @@ class ResourcesController < ApplicationController
       end
       flash[:alert] << alert
     end
-    
-    respond_to do |format|
-      if success
-        format.html { redirect_to root_path, notice: 'Resource was successfully created.' }
-        format.json { render json: @resource, status: :created, location: @resource }
-      else
-        format.html { render :new }
-        format.json { render json: @resource.errors, status: :unprocessable_entity }
-      end
-    end
+
+    return success
   end
 
   # PUT /resources/1
