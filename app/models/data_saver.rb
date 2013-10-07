@@ -197,6 +197,19 @@ class DataSaver
     feed.from = get_or_make_resource(item['from'])
     feed.data_type = item.has_key?('message') ? 'message' : 'story'
     feed.data = item.has_key?('message') ? item['message'] : item['story']
+    if item['type'] == 'link' and 
+       item.has_key?('link') and 
+       item.has_key?('name') and 
+       item.has_key?('description')
+      
+      feed.data += " -- #{item['name']}: #{item['description']} #{item['link']}" 
+    elsif item['type'] == 'photo' and
+          item.has_key?('picture')
+
+      feed.data += " -- #{item['picture']}"
+    end  
+
+
     feed.feed_type = item['type']
     feed.created_time = item['created_time']
     feed.updated_time = item['updated_time']
