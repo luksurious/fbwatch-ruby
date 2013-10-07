@@ -6,6 +6,7 @@ class Feed < ActiveRecord::Base
   belongs_to :to, class_name: 'Resource'
   
   has_many :likes
+  has_many :feed_tags
   
   # self-join
   belongs_to :parent, class_name: 'Feed'

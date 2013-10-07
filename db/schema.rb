@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130924182126) do
+ActiveRecord::Schema.define(version: 20131007204636) do
 
   create_table "basicdata", force: true do |t|
     t.integer  "resource_id"
@@ -19,6 +19,11 @@ ActiveRecord::Schema.define(version: 20130924182126) do
     t.datetime "updated_at"
     t.string   "key"
     t.text     "value"
+  end
+
+  create_table "feed_tags", force: true do |t|
+    t.integer "feed_id"
+    t.integer "resource_id"
   end
 
   create_table "feeds", force: true do |t|
