@@ -1,25 +1,34 @@
-%h1 Listing resources
+%h1 FBWatch Status
+= link_to "Grouped View", root_path
 
-%table
-  %tr
-    %th Name
-    %th Facebook
-    %th Last synced
-    %th Active
-    %th
-    %th
-    %th
+%h2 Add new resource to observe
+= simple_form_for(@resource) do |f|
+  = f.error_notification
+  = f.input :username, label: "Facebook URL"
+  = link_to 'Batch Input', 'javascript:void(0);', id: 'make-input-batch'
+  = f.button :submit, 'Add'
 
-  - @resources.each do |resource|
-    %tr
-      %td= resource.name
-      %td= resource.facebook_id
-      %td= resource.last_synced
-      %td= resource.active
-      %td= link_to 'Show', resource
-      %td= link_to 'Edit', edit_resource_path(resource)
-      %td= link_to 'Destroy', resource, :method => :delete, :data => { :confirm => 'Are you sure?' }
+%h2 Current Resources
+= link_to "Sync All", sync_all_path, class: "btn", data: { confirm: "This might take a while. Continue?" }
+Total:
+= @total_res
 
-%br
+.paging
+  - if @offset > 0
+    = link_to 'Previous', resources_index_path(@offset-1)
+  \|
+  = link_to 'Next', resources_index_path(@offset+1)
 
-= link_to 'New Resource', new_resource_path
+= form_tag(resource_group_mass_assign_path) do
+  = render(layout: "partials/reslist", locals: {resources: @resources}) do |res|
+    %p{style:"float:right;"}= check_box_tag('resources[]', res.id, false, id: "resource-check-#{res.id}")
+
+  %p Add to group
+  %p= select_tag(:group, options_for_select(ResourceGroup.all.map { |group| [group.group_name, group.id] }))
+  %p= submit_tag("Add")
+
+.paging
+  - if @offset > 0
+    = link_to 'Previous', resources_index_path(@offset-1)
+  \|
+  = link_to 'Next', resources_index_path(@offset+1)

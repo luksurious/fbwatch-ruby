@@ -1,7 +1,6 @@
 Fbwatch::Application.routes.draw do
-  # general actiosn
-  get "home/index"
-  root :to => 'home#index'
+  # general actions
+  root :to => 'home#index_groups'
   
   get "apitest", to: 'apitest#index'
 
@@ -11,6 +10,8 @@ Fbwatch::Application.routes.draw do
   get "sync/clear/:name", to: 'sync#clear', :constraints => { :name => /[^\/]+/ }, as: 'sync_clear'
   
   # resource actions
+  get 'resource(/:p)' => 'resources#index', as: 'resources_index', constraints: { p: /[0-9]+/ }
+
   resources :resources
   get "resource/:username/disable", to: 'resources#disable', :constraints => { :username => /[^\/]+/ }, as: 'sync_disable'
   get "resource/:username/enable", to: 'resources#enable', :constraints => { :username => /[^\/]+/ }, as: 'sync_enable'
@@ -34,7 +35,4 @@ Fbwatch::Application.routes.draw do
   patch 'group/:id/deactivate', to: 'resource_groups#deactivate', as: 'deactivate_group'
   patch 'group/:id/sync', to: 'sync#group', as: 'sync_group'
   delete 'group/:id/resource/:resource_id', to: 'resource_groups#remove_resource', as: 'remove_resource_from_group'
-
-  # has to be at the bottom otherwise intercepts some routes
-  get '(:p)' => 'home#index', as: 'root_paging'
 end

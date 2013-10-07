@@ -16,20 +16,24 @@ class ResourcesController < ApplicationController
     @resource.deactivate
     @resource.save
     
-    redirect_to root_path, :notice => "Disabled #{@resource.username}"
+    redirect_to resources_index_path, :notice => "Disabled #{@resource.username}"
   end
   
   def enable
     @resource.activate
     @resource.save
 
-    redirect_to root_path, :notice => "Enabled #{@resource.username}"
+    redirect_to resources_index_path, :notice => "Enabled #{@resource.username}"
   end
 
   # GET /resources
   # GET /resources.json
   def index
-    @resources = Resource.all
+    @offset = params[:p].to_i || 0
+
+    @resources = Resource.order('active DESC, last_synced DESC, created_at ASC').limit(100).offset(@offset * 100)
+    @resource = Resource.new
+    @total_res = Resource.count
 
     respond_to do |format|
       format.html # index.html.erb
@@ -50,7 +54,7 @@ class ResourcesController < ApplicationController
   # GET /resources/1.json
   def details
     if @resource.nil?
-      redirect_to root_path, alert: "Resource #{params[:username]} not found"
+      redirect_to resources_index_path, alert: "Resource #{params[:username]} not found"
       return
     end
 
@@ -124,7 +128,7 @@ class ResourcesController < ApplicationController
     
     respond_to do |format|
       if success
-        format.html { redirect_to root_path, notice: 'Resource was successfully created.' }
+        format.html { redirect_to resources_index_path, notice: 'Resource was successfully created.' }
         format.json { render json: @resource, status: :created, location: @resource }
       else
         format.html { render :new }
