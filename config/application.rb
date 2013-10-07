@@ -65,5 +65,7 @@ module Fbwatch
     config.generators do |g|
       g.stylesheets false
     end
+
+    config.action_view.logger = nil
   end
 end
