@@ -109,7 +109,7 @@ class DataSaver
       end
       basic_data = Basicdata.new
       basic_data.key = k
-      basic_data.value = v.is_a?(Hash) ? ActiveSupport::JSON.encode(v) : v
+      basic_data.value = v.is_a?(Hash) or v.is_a?(Array) ? ActiveSupport::JSON.encode(v) : v
       basic_data.resource = @resource
       
       @more_transaction.push(basic_data)
