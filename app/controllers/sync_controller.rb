@@ -88,7 +88,17 @@ class SyncController < ApplicationController
     def use_gatherer_to_sync(gatherer, options)
       gatherer.page_limit = options[:page_limit] unless options[:page_limit].blank?
 
-      result = gatherer.start_fetch((options[:pages] || -1).to_i)
+      begin
+        result = gatherer.start_fetch((options[:pages] || -1).to_i)
+      rescue Koala::Facebook::APIError => e 
+        # if we reach this point the exception was thrown at the first call to get the basic information for a resource
+        # i.e. not during the loop of getting the feed, this is important because if an error occurs during said loop
+        # we want to be able to resume getting data at the point where it occured and not have to reload everything
+        # this usually occurs if the request limit is reached (#17) or for any other permanent error
+        flash[:error] << "A connection error occured: #{e.fb_error_message}"
+      end
+
+
       flash[:error].concat(gatherer.flash[:error])
       flash[:notice].concat(gatherer.flash[:notice])
 

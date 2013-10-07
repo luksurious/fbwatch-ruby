@@ -82,7 +82,7 @@ class DataSaver
     return if @result.nil?
 
     new_data = @result[:basic_data].clone
-    existing_data = Basicdata.where(resource_id: @resource.id).all
+    existing_data = Basicdata.where(resource_id: @resource.id)
     feed_prev_link = nil
     feed_last_link = nil
     

@@ -27,5 +27,4 @@
         %br
         = link_to "Sync now", sync_path(res.username), class: "btn btn-primary"
         = yield res
-        %br
-        = link_to 'Destroy', res, :method => :delete, :data => { :confirm => 'Are you sure?' }
+        %p= link_to 'Destroy', res, :method => :delete, :data => { :confirm => 'Are you sure?' }
