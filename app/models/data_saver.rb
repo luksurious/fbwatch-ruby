@@ -61,7 +61,8 @@ class DataSaver
     begin
       res.save
     rescue => e
-      Rails.logger.error(Time.now.to_s + ": An exception occured while trying to save " + res.to_s + ": " + e.message)
+      Rails.logger.error(Time.now.to_s + ": An exception occured while trying to save #{res.inspect}: #{e.message}")
+      Rails.logger.info(e.backtrace.join("\n"))
     end
   end
   
