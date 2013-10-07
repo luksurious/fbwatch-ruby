@@ -18,7 +18,9 @@
 /nbproject
 # Ignore application configuration
 /config/application.yml
+config/database.yml
 
 # ignore log files
 /log
 fbwatch.sublime-workspace
+fbwatch.sublime-project
