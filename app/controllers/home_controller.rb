@@ -23,7 +23,7 @@ class HomeController < ApplicationController
   def index_plain
     @offset = params[:p].to_i || 0
 
-    @resources = Resource.order('active DESC, last_synced DESC').limit(100).offset(@offset * 100)
+    @resources = Resource.order('active DESC, last_synced DESC, created_at ASC').limit(100).offset(@offset * 100)
     @resource = Resource.new
     @total_res = Resource.count
 

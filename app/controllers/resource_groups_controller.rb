@@ -37,8 +37,9 @@ class ResourceGroupsController < ApplicationController
   def mass_assign
     @resource_group = ResourceGroup.find(params[:group])
 
-    params[:resources].each do |res|
-      @resource_group.resources << Resource.find(res)
+    params[:resources].each do |res_id|
+      res = Resource.find(res_id)
+      @resource_group.resources << res unless @resource_group.resources.include?(res)
     end
 
     @resource_group.save
