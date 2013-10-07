@@ -10,7 +10,7 @@ Fbwatch::Application.routes.draw do
   get "sync/clear/:name", to: 'sync#clear', :constraints => { :name => /[^\/]+/ }, as: 'sync_clear'
   
   # resource actions
-  get 'resource(/:p)' => 'resources#index', as: 'resources_index', constraints: { p: /[0-9]+/ }
+  get 'resources(/:p)' => 'resources#index', as: 'resources_index', constraints: { p: /[0-9]+/ }
 
   resources :resources
   get "resource/:username/disable", to: 'resources#disable', :constraints => { :username => /[^\/]+/ }, as: 'sync_disable'
