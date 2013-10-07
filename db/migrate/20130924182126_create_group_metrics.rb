@@ -16,7 +16,7 @@ class CreateGroupMetrics < ActiveRecord::Migration
       t.belongs_to :resource
     end
 
-    add_index :group_metrics_resources, [:resource_id, :group_metric_id], unique: true
+    add_index :group_metrics_resources, [:resource_id, :group_metric_id], unique: true, name: 'index_group_metrics_resources_on_resource_and_group_metric'
     add_index :group_metrics_resources, :resource_id
     add_index :group_metrics_resources, :group_metric_id
   end
