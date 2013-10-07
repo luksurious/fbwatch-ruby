@@ -75,6 +75,7 @@ class UserDataGatherer
       if result.has_key?('error')
         my_logger.error "Received Error: #{result['error']['message']}"
         my_logger.info "-- result: #{result.to_s}"
+        Rails.logger.error "Error in resource #{@username}: #{result['error']['message']}"
 
         flash[:error] << result.to_yaml
 

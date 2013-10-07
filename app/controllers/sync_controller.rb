@@ -96,6 +96,7 @@ class SyncController < ApplicationController
         # we want to be able to resume getting data at the point where it occured and not have to reload everything
         # this usually occurs if the request limit is reached (#17) or for any other permanent error
         flash[:error] << "A connection error occured: #{e.fb_error_message}"
+        Rails.logger.error "A connection error occured: #{e.fb_error_message}"
       end
 
 
