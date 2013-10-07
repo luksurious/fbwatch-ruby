@@ -196,7 +196,14 @@ class DataSaver
     feed.facebook_id = item['id']
     feed.from = get_or_make_resource(item['from'])
     feed.data_type = item.has_key?('message') ? 'message' : 'story'
-    feed.data = item.has_key?('message') ? item['message'] : item['story']
+    if item.has_key?('message')
+      feed.data = item['message'] || ""
+    elsif item.has_key?('story')
+      feed.data = item['story'] || ""
+    else
+      feed.data = ""
+    end
+
     if item['type'] == 'link' and 
        item.has_key?('link') and 
        item.has_key?('name') and 
