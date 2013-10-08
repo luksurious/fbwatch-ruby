@@ -102,10 +102,10 @@ module Tasks
       end
 
       def use_gatherer_to_sync(options)
-        @gatherer.page_limit = options[:page_limit] unless options[:page_limit].blank?
+        @gatherer.page_limit = options["page_limit"] unless options["page_limit"].blank?
 
         begin
-          result = @gatherer.start_fetch((options[:pages] || -1).to_i)
+          result = @gatherer.start_fetch((options["pages"] || -1).to_i)
         rescue Koala::Facebook::APIError => e 
           # if we reach this point the exception was thrown at the first call to get the basic information for a resource
           # i.e. not during the loop of getting the feed, this is important because if an error occurs during said loop
