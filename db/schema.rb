@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130924182126) do
+ActiveRecord::Schema.define(version: 20131008000246) do
 
   create_table "basicdata", force: true do |t|
     t.integer  "resource_id"
@@ -19,6 +19,11 @@ ActiveRecord::Schema.define(version: 20130924182126) do
     t.datetime "updated_at"
     t.string   "key"
     t.text     "value"
+  end
+
+  create_table "feed_tags", force: true do |t|
+    t.integer "feed_id"
+    t.integer "resource_id"
   end
 
   create_table "feeds", force: true do |t|
@@ -100,5 +105,17 @@ ActiveRecord::Schema.define(version: 20130924182126) do
 
   add_index "resources", ["facebook_id"], name: "index_resources_on_facebook_id", using: :btree
   add_index "resources", ["username"], name: "index_resources_on_username", unique: true, using: :btree
+
+  create_table "tasks", force: true do |t|
+    t.integer  "resource_id"
+    t.integer  "resource_group_id"
+    t.string   "type"
+    t.decimal  "progress",          precision: 2, scale: 1
+    t.integer  "duration"
+    t.text     "data"
+    t.boolean  "running"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
 end
