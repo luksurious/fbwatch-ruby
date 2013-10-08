@@ -14,18 +14,16 @@ class SyncController < ApplicationController
     page_limit = nil
     data = {}
     if params[:test] == "1"
-      pages = 1
-      page_limit = 25
-      data = { test: true }
+      data = { pages: 1, page_limit: 25 }
     end
 
-    @result = sync(resource: @resource, pages: pages, page_limit: page_limit, data: data)
+    @result = sync(resource: @resource, data: data)
     
-    redirect_to resource_details_path(@username)
+    redirect_to resource_details_path(@resource.username)
   end
 
   def all
-    sync(resource_group: Tasks::SyncTask.ALL)
+    sync(resource_group: Tasks::SyncTask::ALL)
 
     redirect_to resources_index_path
   end
@@ -62,15 +60,15 @@ class SyncController < ApplicationController
 
       if result.is_a?(Koala::Facebook::APIError)
         flash[:error] << "A connection error occured: #{result.fb_error_message}"
-      elsif result == Tasks::SyncTask.ERROR_ALREADY_SYNCING
+      elsif result == Tasks::SyncTask::ERROR_ALREADY_SYNCING
         flash[:warning] << "#{entity_name} is already being synced right now. Please be patient and wait for the operation to finish."
       end
 
       flash[:error].concat(sync_task.gatherer.flash[:error])
       flash[:notice].concat(sync_task.gatherer.flash[:notice])
 
-      data_time = sync_task.task.data[Tasks::SyncTask.DATA_TIME]
-      save_time = sync_task.task.data[Tasks::SyncTask.SAVE_TIME]
+      data_time = sync_task.task.data[Tasks::SyncTask::DATA_TIME]
+      save_time = sync_task.task.data[Tasks::SyncTask::SAVE_TIME]
       total_time = data_time + save_time
       flash[:notice] << "Syncing of #{entity_name} took #{data_time}s + #{save_time}s = #{total_time}s, total calls: #{sync_task.gatherer.no_of_queries}"
 
@@ -82,7 +80,7 @@ class SyncController < ApplicationController
         return options[:resource].username
       elsif options[:resource_group].is_a?(ResourceGroup)
         return options[:resource_group].group_name
-      elsif options[:resource_group] == Tasks::SyncTask.ALL
+      elsif options[:resource_group] == Tasks::SyncTask::ALL
         return 'all'
       end
     end
