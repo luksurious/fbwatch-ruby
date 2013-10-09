@@ -58,7 +58,7 @@ module Sync
 
       # stop if same call was made before
       unless api_query_already_sent?(fb_graph_call)
-        my_logger.debug "Calling '#{fb_graph_call}#'..."
+        my_logger.debug "Calling '#{fb_graph_call}'..."
         begin
           result = @facebook.api(fb_graph_call)
           @no_of_queries += 1
@@ -151,7 +151,8 @@ module Sync
       return {
         data: data,
         resume_query: resume_query,
-        previous_link: "/#{connection}?" + create_next_query(update_query)
+        previous_link: "/#{connection}?" + create_next_query(update_query),
+        error: @error
       }
     end
 
@@ -279,7 +280,12 @@ module Sync
         end
       end
       
-      uri.map{|k,v| "#{k}=#{v[0]}"}.join('&')
+      result = uri.map{|k,v| "#{k}=#{v[0]}"}.join('&')
+
+      # encountered a strange bug where at the end a " was added making the URI invalid
+      result = result[0..-2] if result[-1] == '"'
+
+      return result
     end
   end
 end
