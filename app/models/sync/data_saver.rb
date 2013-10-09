@@ -43,7 +43,7 @@ module Sync
           save_likes_for_feed(feed[:entity], feed[:item]["likes"]['data'])
         end
 
-        save_tags(feed)
+        save_tags_for_feed(feed)
       end
       
       # resources from previous transaction (likes, comments)
@@ -204,7 +204,7 @@ module Sync
       feed.from = get_or_make_resource(item['from'])
       feed.data_type = item.has_key?('message') ? 'message' : 'story'
 
-      parse_feed_data(item)
+      parse_feed_data(feed, item)
 
       feed.feed_type = item['type']
       feed.created_time = item['created_time']
@@ -233,16 +233,18 @@ module Sync
     end
 
     def save_tags(feed, tag_collection)
-      tag_collection.each do |tag_item|
-        tag = FeedTag.new
-        tag.feed = feed
-        tag.resource = get_or_make_resource(tag_item)
-        
-        @more_transaction << tag
+      tag_collection.each do |offset,tag_list|
+        tag_list.each do |tag_item|
+          tag = FeedTag.new
+          tag.feed = feed
+          tag.resource = get_or_make_resource(tag_item)
+          
+          @more_transaction << tag
+        end
       end
     end
 
-    def parse_feed_data(item)
+    def parse_feed_data(feed, item)
       if item.has_key?('message')
         feed.data = item['message'] || ""
       elsif item.has_key?('story')
