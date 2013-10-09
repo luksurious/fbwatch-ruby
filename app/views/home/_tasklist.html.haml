@@ -6,7 +6,7 @@
     %th Duration
     %th Data
     %th Started
-    %th Stopped
+    %th Last Update
     %th
   - tasks.each do |task|
     %tr
@@ -15,6 +15,6 @@
       %td= number_to_percentage(task.progress*100, precision: 0)
       %td= format_duration(task.duration)
       %td= task.data.to_json
-      %td= task.created_at.to_formatted_s(:long)
-      %td= task.updated_at.to_formatted_s(:long)
+      %td= task.created_at.localtime.to_formatted_s(:long)
+      %td= task.updated_at.localtime.to_formatted_s(:long)
       %td= yield task

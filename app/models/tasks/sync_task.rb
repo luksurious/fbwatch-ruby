@@ -10,11 +10,13 @@ module Tasks
     FEED_KEY_LAST = 'feed_last_link'
 
     DATA_KEY_RESUME = 'unfinished_resources'
+    DATA_KEY_FAILING = 'failing_resource'
+    DATA_KEY_FAILURES = 'failures'
+    DATA_TIME = 'data_time'
+    SAVE_TIME = 'save_time'
+    TIME_SPLIT = 'time_split'
 
     ERROR_ALREADY_SYNCING = 'ERROR_ALREADY_SYNCING'
-
-    DATA_TIME = 'DATA_TIME'
-    SAVE_TIME = 'SAVE_TIME'
 
     def initialize(koala, options = {})
       @koala = koala
@@ -28,6 +30,7 @@ module Tasks
 
     def use_existing_task(task)
       @task = task
+      init_data
     end
 
     def create_new_task(options)
@@ -49,10 +52,13 @@ module Tasks
       @task.data = data
       @task.save!
 
-      @task.data[DATA_TIME] = 0
-      @task.data[SAVE_TIME] = 0
-      
-      @total_parts = 1 # that is for a single resource
+      init_data
+    end
+
+    def init_data
+      @task.data[DATA_TIME] ||= 0
+      @task.data[SAVE_TIME] ||= 0
+      @task.data[TIME_SPLIT] ||= []
     end
 
     def run
@@ -81,7 +87,7 @@ module Tasks
       end
       
       @task.running = false
-      @task.duration = Time.now - start
+      @task.data[TIME_SPLIT].push('%.2f' % (Time.now - start))
       @task.save!
 
       return result
@@ -97,7 +103,6 @@ module Tasks
           resources = Resource.where(id: @task.data[DATA_KEY_RESUME])
           @total_parts = resources.length
           @progress_modifier = 1.0 - @task.progress
-          @start_progress = @task.progress
 
           # remove resume data
           @task.data[DATA_KEY_RESUME] = nil
@@ -108,20 +113,23 @@ module Tasks
       end
 
       def task_resumed
-        @task.progress != 0.0
+        @resumed ||= @task.progress != 0.0
       end
 
       def part_done
+        @total_parts ||= 1 # that is for a single resource
         # doing it that way to come by a full 1.0 if we encounter disabled resources in a collection
         @parts_done ||= 0
         @parts_done += 1
+
+        @start_progress ||= @task.progress
 
         # if resuming a query we want to gracefully start to count upwards where we left of. otherwise this is 1
         @progress_modifier ||= 1.0
 
         @task.progress = @parts_done * @progress_modifier / @total_parts
         
-        if @progress_modifier != 1.0 and @start_progress.to_i > 0
+        if task_resumed
           @task.progress += @start_progress
         end
 
@@ -144,7 +152,7 @@ module Tasks
             result = sync_resource(resource)
 
             if result.is_a?(StandardError)
-              @task.data['failing_resource'] = resource.id
+              @task.data[DATA_KEY_FAILING] = resource.id
               @task.data[DATA_KEY_RESUME] = [resource.id]
             end
           end
@@ -154,7 +162,10 @@ module Tasks
       end
 
       def sync_resource(resource, options = {})
-        return ERROR_ALREADY_SYNCING if resource_currently_syncing?(resource)
+        if resource_currently_syncing?(resource)
+          resource_failed_to_sync(resource, ERROR_ALREADY_SYNCING)
+          return ERROR_ALREADY_SYNCING
+        end
 
         setup_gatherer(resource)
 
@@ -169,16 +180,21 @@ module Tasks
         if result.is_a?(Hash)
           part_done
         else
-          @task.data['failures'] ||= {}
-          @task.data['failures'][resource.id] = result.to_s
+          resource_failed_to_sync(resource, result)
         end
 
         @task.data[DATA_TIME] += data_time
         @task.data[SAVE_TIME] += save_time
 
         @task.duration += data_time + save_time
+        @task.save!
 
         return result
+      end
+
+      def resource_failed_to_sync(resource, result)
+        @task.data[DATA_KEY_FAILURES] ||= {}
+        @task.data[DATA_KEY_FAILURES][resource.id] = result.to_s
       end
 
       def use_gatherer_to_sync(options)
@@ -231,7 +247,7 @@ module Tasks
       def time
         start = Time.now
         yield
-        Time.now - start
+        ('%.2f' % (Time.now - start)).to_f
       end
   end
 end
