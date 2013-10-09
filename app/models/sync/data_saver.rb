@@ -199,26 +199,8 @@ module Sync
       feed.facebook_id = item['id']
       feed.from = get_or_make_resource(item['from'])
       feed.data_type = item.has_key?('message') ? 'message' : 'story'
-      if item.has_key?('message')
-        feed.data = item['message'] || ""
-      elsif item.has_key?('story')
-        feed.data = item['story'] || ""
-      else
-        feed.data = ""
-      end
 
-      if item['type'] == 'link' and 
-         item.has_key?('link') and 
-         item.has_key?('name') and 
-         item.has_key?('description')
-        
-        feed.data += " -- #{item['name']}: #{item['description']} #{item['link']}" 
-      elsif item['type'] == 'photo' and
-            item.has_key?('picture')
-
-        feed.data += " -- #{item['picture']}"
-      end  
-
+      parse_feed_data(item)
 
       feed.feed_type = item['type']
       feed.created_time = item['created_time']
@@ -237,8 +219,39 @@ module Sync
       if item.has_key?('to') and item['to']['data'].length > 0
         feed.to = get_or_make_resource(item['to']['data'][0])
       end
+
+      save_tags(item)
       
       return feed
+    end
+
+    def save_tags(item)
+
+      if item.has_key?('story_tags')
+        
+      end
+    end
+
+    def parse_feed_data(item)
+      if item.has_key?('message')
+        feed.data = item['message'] || ""
+      elsif item.has_key?('story')
+        feed.data = item['story'] || ""
+      else
+        feed.data = ""
+      end
+
+      if item['type'] == 'link' and 
+         item.has_key?('link') and 
+         item.has_key?('name') and 
+         item.has_key?('description')
+        
+        feed.data += " -- #{item['name']}: #{item['description']} #{item['link']}" 
+      elsif item['type'] == 'photo' and
+            item.has_key?('picture')
+
+        feed.data += " -- #{item['picture']}"
+      end
     end
     
     def get_or_make_resource(resource)
