@@ -42,6 +42,8 @@ module Sync
         if feed[:item].has_key?('likes') and feed[:item]['likes'].has_key?('data')
           save_likes_for_feed(feed[:entity], feed[:item]["likes"]['data'])
         end
+
+        save_tags(feed)
       end
       
       # resources from previous transaction (likes, comments)
@@ -173,6 +175,8 @@ module Sync
         if comment_hash.has_key?('likes') and comment_hash['likes'].has_key?('data')
           save_likes_for_feed(comment, comment_hash["likes"]['data'])
         end
+
+        save_tags(comment, comment_hash['message_tags']) if comment_hash.has_key?('message_tags')
         
         @more_transaction.push(comment)
       end
@@ -219,16 +223,22 @@ module Sync
       if item.has_key?('to') and item['to']['data'].length > 0
         feed.to = get_or_make_resource(item['to']['data'][0])
       end
-
-      save_tags(item)
       
       return feed
     end
 
-    def save_tags(item)
+    def save_tags_for_feed(feed)
+      save_tags(feed[:entity], feed[:item]['story_tags']) if feed[:item].has_key?('story_tags')
+      save_tags(feed[:entity], feed[:item]['message_tags']) if feed[:item].has_key?('message_tags')
+    end
 
-      if item.has_key?('story_tags')
+    def save_tags(feed, tag_collection)
+      tag_collection.each do |tag_item|
+        tag = FeedTag.new
+        tag.feed = feed
+        tag.resource = get_or_make_resource(tag_item)
         
+        @more_transaction << tag
       end
     end
 
