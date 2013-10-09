@@ -233,7 +233,21 @@ module Sync
     end
 
     def save_tags(feed, tag_collection)
+      # encountered an error in data once so make sure we have real collections before calling each
+      if !tag_collection.is_a?(Hash)
+        Rails.logger.warn "Invalid tag_collection supplied for save_tags: #{tag_collection.inspect}"
+        Rails.logger.debug "-- feed: #{feed.inspect}"
+        return
+      end
+
       tag_collection.each do |offset,tag_list|
+
+        if !tag_list.is_a?(Array)
+          Rails.logger.warn "Invalid tag_list supplied for save_tags: #{tag_list.inspect}"
+          Rails.logger.debug "-- feed: #{feed.inspect}"
+          next
+        end
+
         tag_list.each do |tag_item|
           tag = FeedTag.new
           tag.feed = feed

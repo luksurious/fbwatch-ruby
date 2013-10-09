@@ -33,6 +33,4 @@ Fbwatch::Application.configure do
   config.assets.debug = true
 
   config.eager_load = false
-
-  config.logstasher.enabled = true
 end

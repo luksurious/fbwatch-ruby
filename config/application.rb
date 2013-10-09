@@ -67,5 +67,7 @@ module Fbwatch
     end
 
     config.action_view.logger = nil
+
+    config.log_formatter = Logger::Formatter.new
   end
 end
