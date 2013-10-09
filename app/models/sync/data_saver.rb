@@ -93,7 +93,7 @@ module Sync
       # overwrite existing values
       existing_data.each do |item|
         if new_data.has_key?(item.key)
-          item.value = new_data[item.key].is_a?(Hash) ? ActiveSupport::JSON.encode(new_data[item.key]) : new_data[item.key]
+          item.value = new_data[item.key]
           
           @more_transaction.push(item)
 
@@ -112,7 +112,7 @@ module Sync
         end
         basic_data = Basicdata.new
         basic_data.key = k
-        basic_data.value = (v.is_a?(Hash) or v.is_a?(Array)) ? ActiveSupport::JSON.encode(v) : v
+        basic_data.value = v
         basic_data.resource = @resource
         
         @more_transaction.push(basic_data)
