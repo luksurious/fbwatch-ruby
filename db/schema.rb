@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20131008000246) do
+ActiveRecord::Schema.define(version: 20131009002043) do
 
   create_table "basicdata", force: true do |t|
     t.integer  "resource_id"
@@ -110,7 +110,7 @@ ActiveRecord::Schema.define(version: 20131008000246) do
     t.integer  "resource_id"
     t.integer  "resource_group_id"
     t.string   "type"
-    t.decimal  "progress",          precision: 2, scale: 1
+    t.decimal  "progress",          precision: 3, scale: 2
     t.integer  "duration"
     t.text     "data"
     t.boolean  "running"
