@@ -1,0 +1,13 @@
+%h1 Information on Tasks
+
+- @tasks.each do |type,tasks| 
+  %h2= "#{type.capitalize} Tasks"
+  %h3 Active Tasks
+  = render 'home/tasklist', tasks: tasks[:active]
+  
+  %h3 Halted Tasks
+  = render layout: 'home/tasklist', locals: {tasks: tasks[:halted]} do |task|
+    = link_to 'Resume', resume_task_path(task), method: :patch, class: 'btn btn-primary btn-small'
+
+  %h3 Finished Tasks
+  = render 'home/tasklist', tasks: tasks[:finished]

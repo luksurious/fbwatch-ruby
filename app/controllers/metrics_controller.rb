@@ -3,7 +3,7 @@ class MetricsController < ApplicationController
     @username = params[:username]
     @resource = Resource.find_by_username(@username)
 
-    MetricsManager.new(resource: @resource).run_resource_metrics
+    Metrics::MetricsManager.new(resource: @resource).run_resource_metrics
 
     redirect_to resource_details_path(@resource.username), notice: "Resource metrics updated"
   end
@@ -11,7 +11,7 @@ class MetricsController < ApplicationController
   def group
     resource_group = ResourceGroup.find(params[:id])
 
-    metrics = MetricsManager.new(group: resource_group)
+    metrics = Metrics::MetricsManager.new(group: resource_group)
     metrics.run_group_metrics
     metrics.run_resource_metrics
 

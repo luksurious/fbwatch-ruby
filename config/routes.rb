@@ -4,6 +4,9 @@ Fbwatch::Application.routes.draw do
   
   get "apitest", to: 'apitest#index'
 
+  get "tasks", to: 'home#tasks', as: 'tasks'
+  patch 'tasks/resume/:id', to: 'home#resume_task', as: 'resume_task'
+
   # sync actions
   get "sync/all", to: 'sync#all', as: 'sync_all'
   get "sync(/:name)", to: 'sync#resource', :constraints => { :name => /[^\/]+/ }, as: 'sync'

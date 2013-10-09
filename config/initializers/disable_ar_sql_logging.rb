@@ -1,3 +1,2 @@
-class ActiveRecord::ConnectionAdapters::AbstractAdapter
-  def log_info(*args); end
-end
+ActiveRecord::Base.logger = Rails.logger.clone
+ActiveRecord::Base.logger.level = Logger::INFO

@@ -58,8 +58,8 @@ class SyncController < ApplicationController
 
       result = sync_task.run
 
-      if result.is_a?(Koala::Facebook::APIError)
-        flash[:error] << "A connection error occured: #{result.fb_error_message}"
+      if result.is_a?(StandardError)
+        flash[:error] << "A connection error occured: #{result.message}"
       elsif result == Tasks::SyncTask::ERROR_ALREADY_SYNCING
         flash[:warning] << "#{entity_name} is already being synced right now. Please be patient and wait for the operation to finish."
       end

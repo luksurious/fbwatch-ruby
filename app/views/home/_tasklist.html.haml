@@ -1,0 +1,20 @@
+%table.table.table-striped
+  %tr
+    %th Resource
+    %th Group
+    %th Progress
+    %th Duration
+    %th Data
+    %th Started
+    %th Stopped
+    %th
+  - tasks.each do |task|
+    %tr
+      %td= task.resource.name unless task.resource.nil?
+      %td= task.resource_group.group_name unless task.resource_group.nil?
+      %td= number_to_percentage(task.progress*100, precision: 0)
+      %td= format_duration(task.duration)
+      %td= task.data.to_json
+      %td= task.created_at.to_formatted_s(:long)
+      %td= task.updated_at.to_formatted_s(:long)
+      %td= yield task
