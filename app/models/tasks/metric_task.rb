@@ -10,8 +10,7 @@ module Tasks
     def init_data
     end
 
-    private
-
+    protected
       def task_run
 
         if @task.resource.is_a?(Resource)

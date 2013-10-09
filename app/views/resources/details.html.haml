@@ -22,7 +22,7 @@
   =link_to @resource.link, @resource.link
 %p
   %b Last synced:
-  = @resource.last_synced.localtime
+  = @resource.last_synced.localtime if @resource.last_synced.is_a?(Time)
 %p
   %b Active:
   = @resource.active

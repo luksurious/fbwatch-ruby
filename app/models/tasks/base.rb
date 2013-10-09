@@ -1,6 +1,7 @@
 module Tasks
   class Base
     attr_accessor :task
+    
     def initialize(options = {})
       if options[:task].is_a?(Task)
         use_existing_task(options[:task])

@@ -1,8 +1,6 @@
 module Tasks
-  class SyncTask
-    attr_accessor :gatherer, :task
-
-    NAME = 'sync'
+  class SyncTask < Base
+    attr_accessor :gatherer
     
     ALL = 'all'
 
@@ -18,41 +16,14 @@ module Tasks
 
     ERROR_ALREADY_SYNCING = 'ERROR_ALREADY_SYNCING'
 
+    def name
+      'sync'
+    end
+
     def initialize(koala, options = {})
       @koala = koala
 
-      if options[:task].is_a?(Task)
-        use_existing_task(options[:task])
-      else
-        create_new_task(options)
-      end
-    end
-
-    def use_existing_task(task)
-      @task = task
-      init_data
-    end
-
-    def create_new_task(options)
-      resource = options[:resource] || nil
-      resource_group = options[:resource_group] || nil
-
-      if !options[:data].nil? and !options[:data].is_a?(Hash)
-        Rails.logger.warn "Invalid :data value #{options[:data]}, expected Hash"
-        options[:data] = {}
-      end
-      data = options[:data] || {}
-
-      @task = Task.new
-      @task.resource = resource
-      @task.resource_group = resource_group
-      @task.type = NAME
-      @task.progress = 0.0
-      @task.duration = 0
-      @task.data = data
-      @task.save!
-
-      init_data
+      super(options)
     end
 
     def init_data
@@ -61,39 +32,32 @@ module Tasks
       @task.data[TIME_SPLIT] ||= []
     end
 
-    def run
-      start = Time.now
-      
-      @task.running = true
-      @task.save!
+    protected
+      def task_run
+        start = Time.now
 
-      if task_resumed
-        result = resume
+        if @task.resource.is_a?(Resource)
+          result = sync_resource(@task.resource, @task.data)
 
-      elsif @task.resource.is_a?(Resource)
-        result = sync_resource(@task.resource, @task.data)
+        elsif @task.resource_group.is_a?(ResourceGroup)
+          @total_parts = @task.resource_group.resources.length
+          result = sync_resource_collection(@task.resource_group.resources)
 
-      elsif @task.resource_group.is_a?(ResourceGroup)
-        @total_parts = @task.resource_group.resources.length
-        result = sync_resource_collection(@task.resource_group.resources)
+        elsif @task.resource_group == ALL
+          resources = Resource.where(active: true)
+          @total_parts = resources.length
+          result = sync_resource_collection(resources)
 
-      elsif @task.resource_group == ALL
-        resources = Resource.where(active: true)
-        @total_parts = resources.length
-        result = sync_resource_collection(resources)
+        else
+          raise 'Invalid options provided for SyncTask to run'
+        end
+        
+        @task.data[TIME_SPLIT].push('%.2f' % (Time.now - start))
+        @task.save!
 
-      else
-        raise 'Invalid options provided for SyncTask to run'
+        return result
       end
-      
-      @task.running = false
-      @task.data[TIME_SPLIT].push('%.2f' % (Time.now - start))
-      @task.save!
 
-      return result
-    end
-
-    private
       def resume
         if @task.resource.is_a?(Resource)
           # syncing of a single resource failed. just do it again
@@ -110,30 +74,6 @@ module Tasks
 
           result = sync_resource_collection(resources)
         end
-      end
-
-      def task_resumed
-        @resumed ||= @task.progress != 0.0
-      end
-
-      def part_done
-        @total_parts ||= 1 # that is for a single resource
-        # doing it that way to come by a full 1.0 if we encounter disabled resources in a collection
-        @parts_done ||= 0
-        @parts_done += 1
-
-        @start_progress ||= @task.progress
-
-        # if resuming a query we want to gracefully start to count upwards where we left of. otherwise this is 1
-        @progress_modifier ||= 1.0
-
-        @task.progress = @parts_done * @progress_modifier / @total_parts
-        
-        if task_resumed
-          @task.progress += @start_progress
-        end
-
-        @task.save!
       end
 
       def sync_resource_collection(collection)
