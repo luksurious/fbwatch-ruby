@@ -114,7 +114,7 @@ module Sync
         resume_query = fb_graph_call if result == false
 
         unless @error.nil?
-          if is_unknown_oauthexception?(@error)
+          if is_strange_facebook_error?(@error)
             # unknown FB error, try changing the query
             fb_graph_call = change_query_for_unknown_error(fb_graph_call)
           else
@@ -155,8 +155,9 @@ module Sync
       }
     end
 
-    def is_unknown_oauthexception?(error)
-      error.has_key?('type') and error['type'] == 'OAuthException' and error.has_key?('code') and error['code'] == 1
+    def is_strange_facebook_error?(error)
+      (error.has_key?('type') and error['type'] == 'OAuthException' and error.has_key?('code') and error['code'] == 1) or
+      (error['message'].nil?) # we have encountered a strange issue where simply the request fails. this can be due to a too high item "limit"
     end
 
     def get_all_comments_and_likes_for(data)
