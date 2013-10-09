@@ -45,6 +45,7 @@ module Tasks
       @task.resource_group = resource_group
       @task.type = NAME
       @task.progress = 0.0
+      @task.duration = 0
       @task.data = data
       @task.save!
 
@@ -174,6 +175,8 @@ module Tasks
 
         @task.data[DATA_TIME] += data_time
         @task.data[SAVE_TIME] += save_time
+
+        @task.duration += data_time + save_time
 
         return result
       end
