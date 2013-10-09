@@ -1,9 +1,6 @@
 
 class SyncController < ApplicationController
   before_action :assert_auth
-
-  @@feed_prev_link_key = 'feed_previous_link'
-  @@feed_last_link_key = 'feed_last_link'
   
   def resource
     @username = params[:name]
@@ -15,19 +12,27 @@ class SyncController < ApplicationController
     
     pages = params[:p].to_i
     page_limit = nil
+    data = {}
     if params[:test] == "1"
-      pages = 1
-      page_limit = 25
+      data = { pages: 1, page_limit: 25 }
     end
 
-    @result = sync_resource(@resource, pages: pages, page_limit: page_limit)
+    @result = sync(resource: @resource, data: data)
     
-    redirect_to resource_details_path(@username)
+    redirect_to resource_details_path(@resource.username)
   end
 
   def all
-    resources = Resource.where({ :active => true }).all
-    sync_resource_collection(resources)
+    sync(resource_group: Tasks::SyncTask::ALL)
+
+    redirect_to resources_index_path
+  end
+  
+  def group
+    resource_group = ResourceGroup.find(params[:id])
+    sync(resource_group: resource_group)
+    
+    redirect_to resource_group_details_path(resource_group)
   end
   
   def clear
@@ -44,94 +49,39 @@ class SyncController < ApplicationController
 
     redirect_to resource_details_path(params[:name])
   end
-  
-  def group
-    resource_group = ResourceGroup.find(params[:id])
-    sync_resource_collection(resource_group.resources)
-  end
 
   private
-    def sync_resource_collection(collection, redirect = root_path)
-      resource_names = []
-      
-      collection.each do |resource|
-        next if resource.active == false
+    def sync(options = {})
+      entity_name = get_entity_name(options)
 
-        sync_resource(resource)
-        
-        resource_names << resource.name
-      end
-      
-      redirect_to redirect, :notice => "Synced resources: " + resource_names.join(", ")
-    end
+      sync_task = Tasks::SyncTask.new(session[:facebook], options)
 
-    def sync_resource(resource, options = {})
-      return false if resource_currently_syncing?(resource)
+      result = sync_task.run
 
-      gatherer = setup_gatherer(resource)
-
-      result = nil
-      data_time = SyncHelper.time do
-        result = use_gatherer_to_sync(gatherer, options)
+      if result.is_a?(StandardError)
+        flash[:error] << "A connection error occured: #{result.message}"
+      elsif result == Tasks::SyncTask::ERROR_ALREADY_SYNCING
+        flash[:warning] << "#{entity_name} is already being synced right now. Please be patient and wait for the operation to finish."
       end
 
-      save_time = SyncHelper.time do
-        DataSaver.new(@@feed_prev_link_key, @@feed_last_link_key).save_resource(resource, result)
-      end
+      flash[:error].concat(sync_task.gatherer.flash[:error])
+      flash[:notice].concat(sync_task.gatherer.flash[:notice])
 
+      data_time = sync_task.task.data[Tasks::SyncTask::DATA_TIME]
+      save_time = sync_task.task.data[Tasks::SyncTask::SAVE_TIME]
       total_time = data_time + save_time
-      flash[:notice] << "Syncing of #{resource.username} took #{data_time}s + #{save_time}s = #{total_time}s, total calls: #{gatherer.no_of_queries}"
+      flash[:notice] << "Syncing of #{entity_name} took #{data_time}s + #{save_time}s = #{total_time}s, total calls: #{sync_task.gatherer.no_of_queries}"
 
       return result
     end
 
-    def use_gatherer_to_sync(gatherer, options)
-      gatherer.page_limit = options[:page_limit] unless options[:page_limit].blank?
-
-      begin
-        result = gatherer.start_fetch((options[:pages] || -1).to_i)
-      rescue Koala::Facebook::APIError => e 
-        # if we reach this point the exception was thrown at the first call to get the basic information for a resource
-        # i.e. not during the loop of getting the feed, this is important because if an error occurs during said loop
-        # we want to be able to resume getting data at the point where it occured and not have to reload everything
-        # this usually occurs if the request limit is reached (#17) or for any other permanent error
-        flash[:error] << "A connection error occured: #{e.fb_error_message}"
-        Rails.logger.error "A connection error occured: #{e.fb_error_message}"
+    def get_entity_name(options)
+      if options[:resource].is_a?(Resource)
+        return options[:resource].username
+      elsif options[:resource_group].is_a?(ResourceGroup)
+        return options[:resource_group].group_name
+      elsif options[:resource_group] == Tasks::SyncTask::ALL
+        return 'all'
       end
-
-
-      flash[:error].concat(gatherer.flash[:error])
-      flash[:notice].concat(gatherer.flash[:notice])
-
-      return result
-    end
-
-    def setup_gatherer(resource)
-      gatherer = UserDataGatherer.new(resource.username, session[:facebook])
-
-      # set query to resume; might be best to push to resource table
-      resource_config = Basicdata.where({ resource_id: resource, key: [@@feed_prev_link_key, @@feed_last_link_key] })
-      link_set = false
-      resource_config.each do |link_hash|
-        if link_hash.key == @@feed_last_link_key and link_hash.value != ""
-          gatherer.prev_feed_link = link_hash.value
-          link_set = true
-        elsif link_hash.key == @@feed_prev_link_key and link_set == false
-          gatherer.prev_feed_link = link_hash.value
-        end
-      end
-
-      return gatherer
-    end
-
-    def resource_currently_syncing?(resource)
-      if resource.last_synced.is_a?(Time) and resource.last_synced > DateTime.now
-        flash[:warning] << "Resource #{resource.username} is already being synced right now. Please be patient and wait for the operation to finish."
-        return true
-      end
-    
-      resource.last_synced = Time.now.tomorrow
-      resource.save!
-      return false
     end
 end
