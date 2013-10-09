@@ -9,7 +9,11 @@ module Metrics
     end
 
     def resource_combinations
-      @resource_group.resources.to_a.combination(2).to_a
+      if @resource_group.resources.length > 1
+        return @resource_group.resources.to_a.combination(2).to_a
+      end
+      
+      []
     end
 
     def analyze
