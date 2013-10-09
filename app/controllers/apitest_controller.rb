@@ -4,10 +4,10 @@ class ApitestController < ApplicationController
   def index  
     if params.has_key?(:query)
       @query = params[:query]
-      fetcher = UserDataGatherer.new("apitest", session[:facebook])
+      fetcher = Sync::UserDataGatherer.new("apitest", session[:facebook])
       begin
         @result = fetcher.dispatch_api_query(@query)
-      rescue UserDataGatherer::OAuthException => e
+      rescue => e
         flash[:error] << e.message
       end
       flash[:error].concat(fetcher.flash[:error])
