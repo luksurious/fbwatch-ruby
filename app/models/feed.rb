@@ -15,8 +15,23 @@ class Feed < ActiveRecord::Base
   def to_fb_hash
     hash = as_json
     
+    # basic renames
+    hash['id'] = hash['facebook_id']
+    hash['from'] = self.from.to_fb_hash if !self.from.nil?
+    hash['to'] = self.to.to_fb_hash if !self.to.nil? and self.feed_type == 'comment'
+    
+    # split data back according to type
+    if hash['data_type'] == 'story'
+      hash['story'] = hash['data']
+    elsif hash['data_type'] == 'message' or hash['data_type'] == 'comment'
+      hash['message'] = hash['data']
+    end
+
+    hash['type'] = hash['feed_type']
+    
+    # add likes
     hash["likes"] = {
-      count: hash["like_count"],
+      count: hash['like_count'] || 0,
       data: []
     }
     self.likes.each do |like|
@@ -25,37 +40,37 @@ class Feed < ActiveRecord::Base
       
       hash['likes'][:data].push(like_hash)
     end
-    hash.delete('like_count')
+    hash['likes'][:count] = hash['likes'][:data].length
 
+    # add comments
     hash["comments"] = {
-      count: hash["comment_count"],
+      count: hash["comment_count"] || 0,
       data: []
     }
     self.children.each do |comment|
       comment_hash = comment.to_fb_hash
-      comment_hash.delete('parent_id')
       hash['comments'][:data].push(comment_hash)
     end
+    hash['comments'][:count] = hash['comments'][:data].length
+
+    if self.feed_type == 'comment'
+      hash.delete('updated_time')
+    end
+
+    # remove internal data
+    hash.delete('data')
+    hash.delete('feed_type')
+    hash.delete('like_count')
     hash.delete('comment_count')
-    
-    hash['from'] = self.from.to_fb_hash if !self.from.nil?
-    hash['to'] = self.to.to_fb_hash if !self.to.nil?
-    hash.delete('from_id')
-    hash.delete('to_id')
-    hash.delete('resource_id')
-    hash['id'] = hash['facebook_id']
+    hash.delete('data_type')
     hash.delete('facebook_id')
     hash.delete('created_at')
     hash.delete('updated_at')
-    
-    if hash['data_type'] == 'story'
-      hash['story'] = hash['data']
-      hash.delete('data')
-    elsif hash['data_type'] == 'message' or hash['data_type'] == 'comment'
-      hash['message'] = hash['data']
-      hash.delete('data')
-    end
-    
+    hash.delete('from_id')
+    hash.delete('to_id')
+    hash.delete('resource_id')
+    hash.delete('parent_id')
+
     return hash
   end
 end

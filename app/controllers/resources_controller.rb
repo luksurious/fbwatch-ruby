@@ -231,14 +231,17 @@ class ResourcesController < ApplicationController
       json[ basic_hash.key ] = basic_hash.value
     end
     json.delete('feed_previous_link')
+    json.delete('feed_last_link')
 
     # add feed items
     feed_struct = []
     @feeds.each do |feed_item|
+      # feed items with a parent are comments and injected in the corresponding item
+      next unless feed_item.parent_id.nil?
+
       feed_hash = feed_item.to_fb_hash
       
-      feed_struct.push(feed_hash) if feed_hash['parent_id'].nil?
-      feed_hash.delete('parent_id')
+      feed_struct.push(feed_hash)
     end
     
     json["feed"] = feed_struct
