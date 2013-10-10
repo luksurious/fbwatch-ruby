@@ -243,7 +243,7 @@ class ResourcesController < ApplicationController
     likes_start = Time.now
     # go through all likes to setup
     all_likes = {}
-    likes.find_each do |like|
+    likes.each do |like|
       all_likes[like.feed_id] ||= []
       all_likes[like.feed_id] << like
     end
@@ -251,7 +251,7 @@ class ResourcesController < ApplicationController
 
     tags_start = Time.now
     all_tags = {}
-    tags.find_each do |tag|
+    tags.each do |tag|
       all_tags[tag.feed_id] ||= []
       all_tags[tag.feed_id] << tag
     end
