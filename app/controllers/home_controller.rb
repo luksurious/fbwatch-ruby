@@ -8,7 +8,6 @@ class HomeController < ApplicationController
   def index_groups
     @resource_groups = ResourceGroup.order(:group_name)
     @resource_group = ResourceGroup.new
-    @total_groups = ResourceGroup.count
 
     respond_to do |format|
       format.html { render template: "home/groups" }

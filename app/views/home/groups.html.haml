@@ -8,9 +8,9 @@
 
 %h2 Resource Groups
 Total:
-= @total_groups
+= @resource_groups.length
 
 - @resource_groups.each do |group|
-  %h3
-    = link_to group.group_name, resource_group_details_path(group)
-  = render("partials/reslist", resources: group.resources)
+  %h3= link_to group.group_name, resource_group_details_path(group)
+  %p
+    %i= "Resources: #{group.resources.count}"
