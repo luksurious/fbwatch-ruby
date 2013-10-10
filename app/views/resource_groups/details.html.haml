@@ -1,6 +1,12 @@
 Details for the resource group
 %h1= @resource_group.group_name
 
+- if @tasks.count > 0
+  %p Note one or more tasks are currently running on this group!
+  %ul
+  - @tasks.each do |task|
+    %li= "#{task.type}"
+
 %p= link_to 'Destroy', @resource_group, method: :delete, data: { confirm: 'Are you sure?' }, class: 'btn btn-small btn-danger'
 
 %p= link_to 'Sync this group', sync_group_path(@resource_group), method: :patch, class: 'btn'
