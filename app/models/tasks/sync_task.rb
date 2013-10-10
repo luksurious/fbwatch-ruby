@@ -16,7 +16,7 @@ module Tasks
 
     ERROR_ALREADY_SYNCING = 'ERROR_ALREADY_SYNCING'
 
-    def name
+    def self.type_name
       'sync'
     end
 
@@ -175,9 +175,7 @@ module Tasks
       end
 
       def resource_currently_syncing?(resource)
-        if resource.last_synced.is_a?(Time) and resource.last_synced > DateTime.now
-          return true
-        end
+        return true if resource.currently_syncing?
       
         resource.last_synced = Time.now.tomorrow
         resource.save!

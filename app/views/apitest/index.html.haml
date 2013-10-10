@@ -15,8 +15,9 @@
   %pre
     = @result.to_yaml
 
-%form{action: "", method: "GET"}
-  Query:
-  %input{type: "text", name: "query"}
-  %br
-  %button.btn Run
+%form{action: "", method: "GET", role: 'form'}
+  .form-group
+    %label{for: 'api_query'}
+      Query:
+    %input.form-control{type: "text", name: "query", id: 'api_query'}
+  %button.btn.btn-default{type: 'submit'} Run

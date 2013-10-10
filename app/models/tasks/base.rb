@@ -1,6 +1,10 @@
 module Tasks
   class Base
     attr_accessor :task
+
+    def self.get_active_for(options)
+      Task.where(resource_group_id: options[:resource_group] || nil, resource_id: options[:resource] || nil, running: true, type: type_name)
+    end
     
     def initialize(options = {})
       if options[:task].is_a?(Task)
@@ -28,7 +32,7 @@ module Tasks
       @task = Task.new
       @task.resource = resource
       @task.resource_group = resource_group
-      @task.type = name
+      @task.type = self.class.type_name
       @task.progress = 0.0
       @task.duration = 0
       @task.data = data

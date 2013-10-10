@@ -39,4 +39,24 @@ class Resource < ActiveRecord::Base
   def dummy?
     self.feed.count == 0
   end
+
+  def currently_syncing?
+    (self.last_synced.is_a?(Time) and self.last_synced > DateTime.now) or 
+      Tasks::SyncTask.get_active_for(resource: self).count > 0
+  end
+
+  def clear
+    self.last_synced = nil
+    # resource.active = false
+    ActiveRecord::Base.transaction do 
+      Like.joins(:feed).where(feeds: {resource_id: self.id}).readonly(false).destroy_all
+      FeedTag.joins(:feed).where(feeds: {resource_id: self.id}).readonly(false).destroy_all
+
+      self.feed.destroy_all
+      self.basicdata.destroy_all
+      self.metrics.destroy_all
+      self.group_metrics.destroy_all
+      self.save
+    end
+  end
 end

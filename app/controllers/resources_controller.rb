@@ -16,14 +16,16 @@ class ResourcesController < ApplicationController
     @resource.deactivate
     @resource.save
     
-    redirect_to resources_index_path, :notice => "Disabled #{@resource.username}"
+    flash[:notice] << "Disabled #{@resource.username}"
+    redirect_to :back
   end
   
   def enable
     @resource.activate
     @resource.save
 
-    redirect_to resources_index_path, :notice => "Enabled #{@resource.username}"
+    flash[:notice] << "Enabled #{@resource.username}"
+    redirect_to :back
   end
 
   # GET /resources
@@ -54,7 +56,8 @@ class ResourcesController < ApplicationController
   # GET /resources/1.json
   def details
     if @resource.nil?
-      redirect_to resources_index_path, alert: "Resource #{params[:username]} not found"
+      flash[:alert] << "Resource #{params[:username]} not found"
+      redirect_to :back
       return
     end
 
@@ -84,6 +87,12 @@ class ResourcesController < ApplicationController
       end
 
       @all_groups = ResourceGroup.all
+
+      @tasks = Task.where(resource_id: @resource.id, running: true).count
+
+      if @resource.currently_syncing?
+        flash[:info] << "This resource is currently syncing"
+      end
     end
     
     respond_to do |format|
@@ -126,7 +135,7 @@ class ResourcesController < ApplicationController
     
     respond_to do |format|
       if success
-        format.html { redirect_to resources_index_path, notice: 'Resource was successfully created.' }
+        format.html { redirect_to :back, notice: 'Resource was successfully created.' }
         format.json { render json: @resource, status: :created, location: @resource }
       else
         format.html { render :new }
@@ -191,10 +200,11 @@ class ResourcesController < ApplicationController
   # DELETE /resources/1
   # DELETE /resources/1.json
   def destroy
+    @resource.clear
     @resource.destroy
 
     respond_to do |format|
-      format.html { redirect_to resources_url }
+      format.html { redirect_to :back }
       format.json { head :no_content }
     end
   end

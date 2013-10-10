@@ -10,7 +10,14 @@
   - resources.each do |res|
     %tr
       %td= link_to "#{res.name} (#{res.username})", { controller: 'resources', action: 'details', username: res.username }
-      %td= res.active
+      %td
+        = res.active
+        - if res.active
+          = link_to(sync_disable_path(res.username), class: "btn btn-default btn-sm", title: 'Disable') do
+            %span.glyphicon.glyphicon-remove
+        - else
+          = link_to(sync_enable_path(res.username), class: "btn btn-default btn-sm", title: 'Enable') do
+            %span.glyphicon.glyphicon-ok
       %td
         - if res.last_synced.is_a?(Time) and res.last_synced > DateTime.now
           %i currently syncing
@@ -24,11 +31,7 @@
         - else
           = "partial, #{number_with_delimiter(res.feed.count)} items"
       %td
-        - if res.active
-          = link_to "Stop Syncing", sync_disable_path(res.username), class: "btn btn-small"
-        - else
-          = link_to "Enable Syncing", sync_enable_path(res.username), class: "btn btn-small"
-        %br
         = link_to "Sync now", sync_path(res.username), class: "btn btn-primary"
         = yield res
-        %p= link_to 'Destroy', res, :method => :delete, :data => { :confirm => 'Are you sure?' }
+        = link_to(res, :method => :delete, :data => { :confirm => 'Are you sure?' }, class: 'btn btn-danger btn-xs', title: 'Delete resource completely') do
+          %span.glyphicon.glyphicon-trash

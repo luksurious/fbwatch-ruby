@@ -2,7 +2,11 @@ class ResourceGroupsController < ApplicationController
   before_action :set_resource_group, only: [:update, :destroy, :details, :activate, :deactivate, :remove_resource]
 
   def details
-    @tasks = Task.where(resource_group_id: @resource_group.id, running: true)
+    @tasks = Task.where(resource_group_id: @resource_group.id, running: true).count
+
+    if @resource_group.currently_syncing?
+      flash[:info] << "This group is currently syncing"
+    end
   end
 
   def remove_resource
@@ -45,7 +49,7 @@ class ResourceGroupsController < ApplicationController
 
     @resource_group.save
 
-    redirect_to root_path
+    redirect_to :back
   end
 
   # POST /resource_groups
@@ -82,6 +86,7 @@ class ResourceGroupsController < ApplicationController
   # DELETE /resource_groups/1.json
   def destroy
     @resource_group.destroy
+    
     respond_to do |format|
       format.html { redirect_to root_path }
       format.json { head :no_content }

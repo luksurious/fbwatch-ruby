@@ -26,7 +26,7 @@ module Sync
     end
 
     def flash
-      @flash ||= {error: [], notice: []}
+      @flash ||= {alert: [], notice: []}
     end
     
     def start_fetch(pages = nil)

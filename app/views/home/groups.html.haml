@@ -3,8 +3,8 @@
 %h2 Create new resource group
 = simple_form_for(@resource_group) do |f|
   = f.error_notification
-  = f.input :group_name, label: "Name"
-  = f.button :submit, 'Add'
+  = f.input :group_name, label: "Name", class: 'form-control'
+  = f.button :submit, 'Add', class: 'btn-default'
 
 %h2 Resource Groups
 Total:

@@ -1,3 +1,10 @@
+GIT
+  remote: git://github.com/thomas-mcdonald/bootstrap-sass.git
+  revision: ab2f7dd92491bd490e545c18d32e966567b84a3b
+  specs:
+    bootstrap-sass (3.0.0.0)
+      sass (~> 3.2)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -34,8 +41,6 @@ GEM
       erubis (>= 2.6.6)
     binding_of_caller (0.7.2)
       debug_inspector (>= 0.0.1)
-    bootstrap-sass (2.3.2.2)
-      sass (~> 3.2)
     builder (3.1.4)
     bullet (4.6.0)
       uniform_notifier
@@ -88,7 +93,7 @@ GEM
       ruby_parser (~> 3.0)
       sexp_processor (~> 4.0)
     formatador (0.2.4)
-    guard (2.0.3)
+    guard (2.0.4)
       formatador (>= 0.2.4)
       listen (~> 2.0)
       lumberjack (~> 1.0)
@@ -131,7 +136,7 @@ GEM
     libnotify (0.8.0)
       ffi (>= 1.0.11)
     libv8 (3.16.14.3)
-    listen (2.0.3)
+    listen (2.0.4)
       celluloid (>= 0.15.2)
       rb-fsevent (>= 0.9.3)
       rb-inotify (>= 0.9)
@@ -343,7 +348,7 @@ PLATFORMS
 DEPENDENCIES
   better_errors
   binding_of_caller
-  bootstrap-sass
+  bootstrap-sass!
   bullet
   byebug
   capybara (= 2.1.0)

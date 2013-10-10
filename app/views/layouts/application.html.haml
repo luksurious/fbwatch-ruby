@@ -12,9 +12,8 @@
     = yield(:head)
   %body
     %header.navbar.navbar-inverse.navbar-fixed-top
-      %nav.navbar-inner
-        .container
-          = render 'layouts/navigation'
+      %nav.container
+        = render 'layouts/navigation'
     #main{:role => "main"}
       .container
         .content

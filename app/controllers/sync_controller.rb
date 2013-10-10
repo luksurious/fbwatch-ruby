@@ -7,7 +7,8 @@ class SyncController < ApplicationController
     @resource = Resource.find_by_username(@username)
     
     if @resource.nil?
-      redirect_to root_path, :notice => "Username not found"
+      flash[:info] << 'Username not found'
+      redirect_to root_path
     end
     
     pages = params[:p].to_i
@@ -25,7 +26,7 @@ class SyncController < ApplicationController
   def all
     sync(resource_group: Tasks::SyncTask::ALL)
 
-    redirect_to resources_index_path
+    redirect_to :back
   end
   
   def group
@@ -38,7 +39,7 @@ class SyncController < ApplicationController
   def clear
     resource = Resource.find_by_username(params[:name])
     
-    clear_resource(resource)
+    resource.clear
 
     flash[:notice] << "Successfully cleared resource #{resource.name}"
     redirect_to resource_details_path(params[:name])
@@ -48,7 +49,7 @@ class SyncController < ApplicationController
     resource_group = ResourceGroup.find(params[:id])
     
     resource_group.resources.each do |resource|
-      clear_resource(resource)
+      resource.clear
     end
 
     flash[:notice] << "Successfully cleared group #{resource_group.group_name}"
@@ -56,20 +57,6 @@ class SyncController < ApplicationController
   end
 
   private
-    def clear_resource(resource)
-      resource.last_synced = nil
-      # resource.active = false
-      ActiveRecord::Base.transaction do 
-        Like.joins(:feed).where(feeds: {resource_id: resource.id}).readonly(false).destroy_all
-        FeedTag.joins(:feed).where(feeds: {resource_id: resource.id}).readonly(false).destroy_all
-
-        resource.feed.destroy_all
-        resource.basicdata.destroy_all
-        resource.metrics.destroy_all
-        resource.group_metrics.destroy_all
-        resource.save
-      end
-    end
 
     def sync(options = {})
       entity_name = get_entity_name(options)

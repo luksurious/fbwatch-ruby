@@ -1,8 +1,11 @@
-%h1 Details for Resource
+%h1= "Details for resource #{@resource.name}"
 
-= link_to "Sync now", sync_path(@resource.username), class: "btn btn-primary"
-= link_to "Sync test", sync_path(@resource.username, test: 1), class: "btn"
-= link_to "Clear all", sync_clear_path(@resource.username), class: "btn"
+- if @tasks > 0
+  %p Note one or more tasks are currently running on this resource!
+
+= link_to "Sync now", sync_path(@resource.username), class: "btn btn-primary #{@resource.currently_syncing? ? 'disabled' : ''}"
+= link_to "Sync test", sync_path(@resource.username, test: 1), class: "btn btn-default #{@resource.currently_syncing? ? 'disabled' : ''}"
+= link_to "Clear all", sync_clear_path(@resource.username), class: "btn btn-default #{@resource.currently_syncing? ? 'disabled' : ''}"
 
 %h2 Basic Data
 %p
@@ -29,7 +32,7 @@
 
 %h2 Metrics
 %h3 Resource Metrics
-= link_to "Re-Calc", run_metrics_path(@resource.username), method: :patch, class: "btn"
+= link_to "Re-Calc", run_metrics_path(@resource.username), method: :patch, class: "btn btn-default"
 %ul
 - @metrics.each do |item|
   %li

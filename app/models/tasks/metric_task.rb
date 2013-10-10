@@ -3,7 +3,7 @@ module Tasks
     @@resource_metrics = ['ResourceStats']
     @@group_metrics = ['SharedResourcesMetric']
 
-    def name
+    def self.type_name
       'metric'
     end
 
