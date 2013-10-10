@@ -27,4 +27,16 @@ class Resource < ActiveRecord::Base
   def deactivate
     self.active = false
   end
+
+  def sync_complete?
+    resume_query = Basicdata.where({resource_id: self.id, key: Tasks::SyncTask::FEED_KEY_LAST}).first
+    last_query = Basicdata.where({resource_id: self.id, key: Tasks::SyncTask::FEED_KEY_PREV}).first
+
+    !resume_query.nil? and resume_query.value.blank? and 
+      !last_query.nil? and !last_query.value.blank?
+  end
+
+  def dummy?
+    self.feed.count == 0
+  end
 end
