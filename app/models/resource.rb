@@ -13,8 +13,7 @@ class Resource < ActiveRecord::Base
   def to_fb_hash
     { 
       id: self.facebook_id, 
-      name: self.name, 
-      username: self.username
+      name: self.name
     }
   end
 

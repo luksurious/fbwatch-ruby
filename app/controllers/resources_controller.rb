@@ -60,9 +60,7 @@ class ResourcesController < ApplicationController
 
     @basicdata = Basicdata.where(resource_id: @resource.id)
     
-    if params[:format] == 'json'
-      @feeds = Feed.includes(:to, :from, :likes).order("updated_time DESC").find_all_by_resource_id(@resource.id)
-    else
+    if params[:format] != 'json'
       @offset = params[:p].to_i || 0
       
       filter_hash = {resource_id: @resource.id}
@@ -218,6 +216,13 @@ class ResourcesController < ApplicationController
   end
 
   def build_detail_json
+    load_start = Time.now
+    feeds = Feed.includes(:to, :from, likes: [:resource], feed_tags: [:resource]).order("parent_id ASC, updated_time DESC").where(resource_id: @resource.id).load
+    likes = Like.includes(:resource).joins(:feed).where(feeds: {resource_id: @resource.id})
+    tags = FeedTag.includes(:resource).joins(:feed).where(feeds: {resource_id: @resource.id})
+    load_end = Time.now
+
+    build_start = Time.now
     # build basic structure
     json = {
       id: @resource.facebook_id,
@@ -226,25 +231,57 @@ class ResourcesController < ApplicationController
       link: @resource.link
     }
     
+    bdata_start = Time.now
     # add all special values from the basicdata store
     @basicdata.each do |basic_hash|
       json[ basic_hash.key ] = basic_hash.value
     end
     json.delete('feed_previous_link')
     json.delete('feed_last_link')
+    bdata_end = Time.now
 
+    likes_start = Time.now
+    # go through all likes to setup
+    all_likes = {}
+    likes.find_each do |like|
+      all_likes[like.feed_id] ||= []
+      all_likes[like.feed_id] << like
+    end
+    likes_end = Time.now
+
+    tags_start = Time.now
+    all_tags = {}
+    tags.find_each do |tag|
+      all_tags[tag.feed_id] ||= []
+      all_tags[tag.feed_id] << tag
+    end
+    tags_end = Time.now
+
+    # pre-select all comments
+    comments = {}
+
+    feed_start = Time.now
     # add feed items
     feed_struct = []
-    @feeds.each do |feed_item|
+    feeds.each do |feed_item|
       # feed items with a parent are comments and injected in the corresponding item
-      next unless feed_item.parent_id.nil?
+      if !feed_item.parent_id.nil?
+        comments[feed_item.parent_id] ||= []
+        comments[feed_item.parent_id] << feed_item
+        next
+      end
 
-      feed_hash = feed_item.to_fb_hash
+      feed_hash = feed_item.to_fb_hash(comments: comments, likes: all_likes, tags: all_tags)
       
       feed_struct.push(feed_hash)
     end
+    feed_end = Time.now
     
     json["feed"] = feed_struct
+
+    build_end = Time.now
+
+    Rails.logger.info "Load time: #{load_end-load_start}, Basicdata time: #{bdata_end-bdata_start}, likes time: #{likes_end-likes_start}, tags time: #{tags_end-tags_start}, feed time: #{feed_end-feed_start}, build time: #{build_end-build_start}"
     
     return json
   end

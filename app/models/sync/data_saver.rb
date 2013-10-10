@@ -233,6 +233,9 @@ module Sync
     end
 
     def save_tags(feed, tag_collection)
+      if tag_collection.is_a?(Array)
+        tag_collection = {0: tag_collection}
+      end
       # encountered an error in data once so make sure we have real collections before calling each
       if !tag_collection.is_a?(Hash)
         Rails.logger.warn "Invalid tag_collection supplied for save_tags: #{tag_collection.inspect}"
