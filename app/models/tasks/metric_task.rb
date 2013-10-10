@@ -19,7 +19,7 @@ module Tasks
           result = calc_metrics_for_resource(@task.resource)
 
         elsif @task.resource_group.is_a?(ResourceGroup)
-          @total_parts = @task.resource_group.resources.length * (@@resource_metrics.length + @@group_metrics.length)
+          @total_parts = @task.resource_group.resources.length * @@resource_metrics.length + @@group_metrics.length
 
           result = []
 
@@ -37,43 +37,27 @@ module Tasks
       end
 
       def run_group_metrics
-        metrics_transaction = []
-
-        @@group_metrics.each do |metric_class|
-          # begin
-          #   require_relative "#{metric_class.underscore}"
-          # rescue LoadError
-          #   Rails.logger.error("Failed to load metric class #{metric_class}")
-          # end
-
-          metric_class = "Metrics::#{metric_class}"
-
-          klass = metric_class.constantize.new(@task.resource_group)
-
-          metrics = klass.analyze
-          metrics_transaction.concat(metrics) if metrics.is_a?(Array)
-
-          part_done
-        end
-
-        metrics_transaction.each do |obj| 
-          obj.save if obj.is_a?(ActiveRecord::Base)
-        end
+        run_metric_collection(metrics: @@group_metrics, resource_group: @task.resource_group)
       end
 
       def calc_metrics_for_resource(resource)
+        run_metric_collection(metrics: @@resource_metrics, resource: resource)
+      end
+
+      def run_metric_collection(options)
+        collection = options[:metrics] || []
+        entity = options[:resource] || options[:resource_group]
+
+        if entity.nil?
+          Rails.logger.warn "Missing entity in MetricTask with provided options: #{options}"
+          return
+        end
+
         metrics_transaction = []
 
-        @@resource_metrics.each do |metric_class|
-          # begin
-          #   require_relative "#{metric_class.underscore}"
-          # rescue LoadError
-          #   Rails.logger.error("Failed to load metric class #{metric_class}")
-          #   next
-          # end
-
+        collection.each do |metric_class|
           metric_class = "Metrics::#{metric_class}"
-          klass = metric_class.constantize.new(resource)
+          klass = metric_class.constantize.new(entity)
 
           metrics = klass.analyze
           metrics_transaction.concat(metrics) if metrics.is_a?(Array)
@@ -87,6 +71,7 @@ module Tasks
       end
 
       def resume
+        raise 'MetricTasks cannot be resumed at this moment'
       end
   end
 end
