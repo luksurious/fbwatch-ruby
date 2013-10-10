@@ -36,6 +36,7 @@ Fbwatch::Application.routes.draw do
   post 'group/mass', to: 'resource_groups#mass_assign', as: 'resource_group_mass_assign'
   patch 'group/:id/activate', to: 'resource_groups#activate', as: 'activate_group'
   patch 'group/:id/deactivate', to: 'resource_groups#deactivate', as: 'deactivate_group'
+  patch 'group/:id/clear', to: 'sync#clear_group', as: 'clear_group'
   patch 'group/:id/sync', to: 'sync#group', as: 'sync_group'
   delete 'group/:id/resource/:resource_id', to: 'resource_groups#remove_resource', as: 'remove_resource_from_group'
 end

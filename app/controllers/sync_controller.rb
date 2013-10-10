@@ -38,19 +38,39 @@ class SyncController < ApplicationController
   def clear
     resource = Resource.find_by_username(params[:name])
     
-    resource.last_synced = nil
-    # resource.active = false
-    ActiveRecord::Base.transaction do 
-      Feed.where(resource_id: resource).destroy_all
-      Basicdata.where(resource_id: resource).destroy_all
-      Like.where(resource_id: resource).destroy_all
-      resource.save
+    clear_resource(resource)
+
+    flash[:notice] << "Successfully cleared resource #{resource.name}"
+    redirect_to resource_details_path(params[:name])
+  end
+  
+  def clear_group
+    resource_group = ResourceGroup.find(params[:id])
+    
+    resource_group.resources.each do |resource|
+      clear_resource(resource)
     end
 
-    redirect_to resource_details_path(params[:name])
+    flash[:notice] << "Successfully cleared group #{resource_group.group_name}"
+    redirect_to resource_group_details_path(resource_group)
   end
 
   private
+    def clear_resource(resource)
+      resource.last_synced = nil
+      # resource.active = false
+      ActiveRecord::Base.transaction do 
+        Like.joins(:feed).where(feeds: {resource_id: resource.id}).readonly(false).destroy_all
+        FeedTag.joins(:feed).where(feeds: {resource_id: resource.id}).readonly(false).destroy_all
+
+        resource.feed.destroy_all
+        resource.basicdata.destroy_all
+        resource.metrics.destroy_all
+        resource.group_metrics.destroy_all
+        resource.save
+      end
+    end
+
     def sync(options = {})
       entity_name = get_entity_name(options)
 
@@ -59,13 +79,13 @@ class SyncController < ApplicationController
       result = sync_task.run
 
       if result.is_a?(StandardError)
-        flash[:error] << "A connection error occured: #{result.message}"
+        flash[:alert] << "A connection error occured: #{result.message}"
       elsif result == Tasks::SyncTask::ERROR_ALREADY_SYNCING
         flash[:warning] << "#{entity_name} is already being synced right now. Please be patient and wait for the operation to finish."
       end
 
       if sync_task.gatherer.is_a?(Sync::UserDataGatherer)
-        flash[:error].concat(sync_task.gatherer.flash[:error])
+        flash[:alert].concat(sync_task.gatherer.flash[:alert])
         flash[:notice].concat(sync_task.gatherer.flash[:notice])
         
         data_time = sync_task.task.data[Tasks::SyncTask::DATA_TIME]

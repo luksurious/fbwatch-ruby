@@ -20,4 +20,16 @@ module ApplicationHelper
 
     format("%02d:%02d:%02d", hours, minutes, seconds) #=> "01:00:00"
   end
+
+  def flash_to_bootstrap_class(name)
+    @conversion_table = {
+      notice: 'success',
+      info: 'info',
+      alert: 'danger',
+      error: 'danger',
+      warning: 'warning'
+    }
+
+    @conversion_table[name]
+  end
 end

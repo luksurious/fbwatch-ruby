@@ -5,7 +5,10 @@ class Resource < ActiveRecord::Base
   validates :facebook_id, :uniqueness => true
   
   has_many :basicdata
+  # wrong naming scheme for feed (singular)
   has_many :feed
+  
+  has_many :metrics
 
   has_and_belongs_to_many :resource_groups
   has_and_belongs_to_many :group_metrics

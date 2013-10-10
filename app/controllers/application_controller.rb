@@ -5,9 +5,14 @@ class ApplicationController < ActionController::Base
   before_filter :setup_flash
 
   def setup_flash
+    flash[:info] ||= []
     flash[:notice] ||= []
-    flash[:error] ||= []
+    flash[:alert] ||= []
     flash[:warning] ||= []
   end
-
+  
+  def redirect_to(*args)
+    flash.keep
+    super
+  end
 end

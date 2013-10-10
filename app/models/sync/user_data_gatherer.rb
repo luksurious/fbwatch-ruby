@@ -77,7 +77,7 @@ module Sync
           my_logger.info "-- result: #{result.to_s}"
           Rails.logger.error "Error in resource #{@username}: #{result['error']['message']}"
 
-          flash[:error] << result.to_yaml
+          flash[:alert] << result.to_yaml
 
           @error = result['error']
         elsif @last_result != result

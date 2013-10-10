@@ -8,6 +8,7 @@ Details for the resource group
 %p
   = link_to 'Activate all', activate_group_path(@resource_group), method: :patch, class: 'btn btn-small'
   = link_to 'Deactivate all', deactivate_group_path(@resource_group), method: :patch, class: 'btn btn-small'
+  = link_to 'Clear all', clear_group_path(@resource_group), method: :patch, class: 'btn btn-small'
 
 %p= link_to 'Calculate Metrics', group_metrics_path(@resource_group), method: :patch, class: 'btn'
 

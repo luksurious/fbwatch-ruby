@@ -8,9 +8,9 @@ class ApitestController < ApplicationController
       begin
         @result = fetcher.dispatch_api_query(@query)
       rescue => e
-        flash[:error] << e.message
+        flash[:alert] << e.message
       end
-      flash[:error].concat(fetcher.flash[:error])
+      flash[:alert].concat(fetcher.flash[:alert])
       flash[:notice].concat(fetcher.flash[:notice])
     end
     
