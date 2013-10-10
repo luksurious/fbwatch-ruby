@@ -234,7 +234,7 @@ module Sync
 
     def save_tags(feed, tag_collection)
       if tag_collection.is_a?(Array)
-        tag_collection = {0: tag_collection}
+        tag_collection = {0 => tag_collection}
       end
       # encountered an error in data once so make sure we have real collections before calling each
       if !tag_collection.is_a?(Hash)
