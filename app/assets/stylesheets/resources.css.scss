@@ -1,3 +1,25 @@
 // Place all the styles related to the Resources controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
+
+.feed-table {
+    table-layout:fixed;
+    .col-date {
+        width: 8%;
+    }
+    .col-data  {
+        width: 50%;
+        .res-data {
+            word-wrap: break-word;
+        }
+    }
+    .col-type {
+        width: 8%;
+    }
+    .col-from, .col-to {
+        width: 10%;
+    }
+    .col-comments, .col-likes {
+        width: 7%;
+    }
+}

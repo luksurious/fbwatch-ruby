@@ -125,8 +125,6 @@ module Tasks
 
         @task.data[DATA_TIME] += data_time
         @task.data[SAVE_TIME] += save_time
-
-        @task.duration += data_time + save_time
         @task.save!
 
         return result
@@ -142,16 +140,12 @@ module Tasks
 
         begin
           result = @gatherer.start_fetch((options["pages"] || -1).to_i)
-        rescue Koala::Facebook::APIError => e
+        rescue => e
           # if we reach this point the exception was thrown at the first call to get the basic information for a resource
           # i.e. not during the loop of getting the feed, this is important because if an error occurs during said loop
           # we want to be able to resume getting data at the point where it occured and not have to reload everything
           # this usually occurs if the request limit is reached (#17) or for any other permanent error
-          Rails.logger.error "A connection error occured: #{e.fb_error_message}"
-          return e
-        rescue => e
-          # another nasty error occured
-          Rails.logger.error "A connection error occured: #{e.message}"
+          Utility.log_exception(e, mail: true, info: "A connection error occured in resource #{@gatherer.username}")
           return e
         end
 

@@ -1,20 +1,21 @@
-%table.table.table-striped
+%table.table.table-striped.tasks-table
   %tr
-    %th Resource
-    %th Group
-    %th Progress
-    %th Duration
-    %th Data
-    %th Started
-    %th Last Update
-    %th
+    %th.col-res Resource
+    %th.col-res-group Group
+    %th.col-progress Progress
+    %th.col-duration Duration
+    %th.col-data Data
+    %th.col-started Started
+    %th.col-updated Last Update
+    %th.col-yield
   - tasks.each do |task|
     %tr
-      %td= task.resource.name unless task.resource.nil?
-      %td= task.resource_group.group_name unless task.resource_group.nil?
-      %td= number_to_percentage(task.progress*100, precision: 0)
-      %td= format_duration(task.duration)
-      %td= task.data.to_json
-      %td= task.created_at.localtime.to_formatted_s(:long)
-      %td= task.updated_at.localtime.to_formatted_s(:long)
-      %td= yield task
+      %td.col-res= task.resource.name unless task.resource.nil?
+      %td.col-res-group= task.resource_group.group_name unless task.resource_group.nil?
+      %td.col-progress= number_to_percentage(task.progress*100, precision: 0)
+      %td.col-duration= format_duration(task.duration)
+      %td.col-data
+        .task-data= task.data.to_json
+      %td.col-started= task.created_at.localtime.to_formatted_s(:long)
+      %td.col-updated= task.updated_at.localtime.to_formatted_s(:long)
+      %td.col-yield= yield task

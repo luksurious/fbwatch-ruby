@@ -66,8 +66,7 @@ module Sync
       begin
         res.save
       rescue => e
-        Rails.logger.error(Time.now.to_s + ": An exception occured while trying to save #{res.inspect}: #{e.message}")
-        Rails.logger.info(e.backtrace.join("\n"))
+        Utility.log_exception(e, mail: true, info: "An exception occured while trying to save #{res.inspect}")
       end
     end
     

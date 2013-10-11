@@ -45,7 +45,8 @@ module Tasks
     def init_data; end
 
     def run
-      start = Time.now
+      @start_duration = @task.duration
+      @start = Time.now
       
       @task.running = true
       @task.save!
@@ -57,11 +58,11 @@ module Tasks
           result = task_run
         end
       rescue => error
-        Rails.logger.error "Rescued from unexpected error in task #{@task.inspect}: #{error.class} - #{error.message}\n-- " << error.backtrace.join("\n  ")
+        Utility.log_exception(error, mail: true, info: "Rescued from unexpected error in task #{@task.inspect}")
       end
       
       @task.running = false
-      @task.duration += (Time.now - start)
+      @task.duration = @start_duration + (Time.now - @start)
       @task.save!
 
       return result
@@ -89,6 +90,7 @@ module Tasks
           @task.progress += @start_progress
         end
 
+        @task.duration = @start_duration + (Time.now - @start)
         @task.save!
       end
   end

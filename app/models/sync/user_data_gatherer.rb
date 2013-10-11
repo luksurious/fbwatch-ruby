@@ -19,7 +19,7 @@ module Sync
       @call_history_index = :default
     end
     attr_writer :prev_feed_link, :page_limit
-    attr_reader :no_of_queries
+    attr_reader :no_of_queries, :username
 
     def my_logger
       @my_logger ||= Logger.new("#{Rails.root}/log/#{@username}.log")

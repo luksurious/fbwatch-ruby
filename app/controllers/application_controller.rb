@@ -20,7 +20,7 @@ class ApplicationController < ActionController::Base
   end
 
   def error_not_found(exception)
-    Utility.log_exception(exception, mail: false) # , request: request
+    Utility.log_exception(exception, mail: false)
     flash[:alert] << exception.message
     respond_to do |type|
       type.html { render :template => "errors/error_404", :status => 404 }
@@ -30,7 +30,7 @@ class ApplicationController < ActionController::Base
   end
 
   def error_render_method(exception)
-    Utility.log_exception(exception, mail: true)
+    Utility.log_exception(exception, mail: true, request: request)
     flash[:alert] << exception.message
     respond_to do |type|
       type.html { render :template => "errors/error_500", :status => 500 }
