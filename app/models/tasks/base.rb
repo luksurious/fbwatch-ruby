@@ -50,10 +50,14 @@ module Tasks
       @task.running = true
       @task.save!
 
-      if task_resumed
-        result = resume
-      else
-        result = task_run
+      begin
+        if task_resumed
+          result = resume
+        else
+          result = task_run
+        end
+      rescue => error
+        Rails.logger.error "Rescued from unexpected error in task #{@task.inspect}: #{error.class} - #{error.message}\n-- " << error.backtrace.join("\n  ")
       end
       
       @task.running = false
