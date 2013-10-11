@@ -5,7 +5,7 @@ git pull
 
 echo ""
 echo "# Updating dependencies"
-bundle install
+bundle install --deployment
 
 echo ""
 echo "# Precompiling assets"

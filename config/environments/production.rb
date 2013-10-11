@@ -80,6 +80,6 @@ end
 Fbwatch::Application.config.middleware.use ExceptionNotification::Rack,
   :email => {
     :email_prefix => "[FBWatch] ",
-    :sender_address => %{"Rails Notifier" <luksuriousb@gmail.com>},
+    :sender_address => ENV['MAILER_FROM'],
     :exception_recipients => %w{luksuriousb@gmail.com}
   }
