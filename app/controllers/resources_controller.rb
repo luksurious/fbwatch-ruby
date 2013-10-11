@@ -138,11 +138,11 @@ class ResourcesController < ApplicationController
     else
       # TODO error handling
     end
-
     
     respond_to do |format|
       if success
-        format.html { redirect_to :back, notice: 'Resource was successfully created.' }
+        flash[:notice] << 'Resource was successfully created.'
+        format.html { redirect_to :back }
         format.json { render json: @resource, status: :created, location: @resource }
       else
         format.html { render :new }
@@ -195,7 +195,8 @@ class ResourcesController < ApplicationController
   def update
     respond_to do |format|
       if @resource.update_attributes(resource_params)
-        format.html { redirect_to @resource, notice: 'Resource was successfully updated.' }
+        flash[:notice] << 'Resource was successfully updated.'
+        format.html { redirect_to @resource }
         format.json { head :no_content }
       else
         format.html { render action: "edit" }

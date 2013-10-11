@@ -59,7 +59,8 @@ class ResourceGroupsController < ApplicationController
 
     respond_to do |format|
       if @resource_group.save
-        format.html { redirect_to resource_group_details_path(@resource_group), notice: 'Resource group was successfully created.' }
+        flash[:notice] << 'Resource group was successfully created.'
+        format.html { redirect_to resource_group_details_path(@resource_group) }
         format.json { render action: 'show', status: :created, location: @resource_group }
       else
         format.html { render action: 'new' }
@@ -73,7 +74,8 @@ class ResourceGroupsController < ApplicationController
   def update
     respond_to do |format|
       if @resource_group.update(resource_group_params)
-        format.html { redirect_to @resource_group, notice: 'Resource group was successfully updated.' }
+        flash[:notice] << 'Resource group was successfully updated.'
+        format.html { redirect_to @resource_group }
         format.json { head :no_content }
       else
         format.html { render action: 'edit' }

@@ -1,11 +1,15 @@
+require 'sidekiq/web'
+
 Fbwatch::Application.routes.draw do
   # general actions
   root :to => 'home#index_groups'
   
   get "apitest", to: 'apitest#index'
 
-  get "tasks", to: 'home#tasks', as: 'tasks'
-  patch 'tasks/resume/:id', to: 'home#resume_task', as: 'resume_task'
+  # index
+  get "tasks", to: 'tasks#index', as: 'tasks'
+  patch 'tasks/:id/resume', to: 'tasks#resume_task', as: 'resume_task'
+  patch 'tasks/:id/error', to: 'tasks#mark_error', as: 'mark_task_error'
 
   # sync actions
   get "sync/all", to: 'sync#all', as: 'sync_all'
@@ -40,4 +44,7 @@ Fbwatch::Application.routes.draw do
   patch 'group/:id/clear', to: 'sync#clear_group', as: 'clear_group'
   patch 'group/:id/sync', to: 'sync#group', as: 'sync_group'
   delete 'group/:id/resource/:resource_id', to: 'resource_groups#remove_resource', as: 'remove_resource_from_group'
+
+
+  mount Sidekiq::Web, at: '/sidekiq'
 end

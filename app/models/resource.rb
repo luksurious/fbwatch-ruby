@@ -41,8 +41,7 @@ class Resource < ActiveRecord::Base
   end
 
   def currently_syncing?
-    (self.last_synced.is_a?(Time) and self.last_synced > DateTime.now) or 
-      Tasks::SyncTask.get_active_for(resource: self).count > 0
+    self.last_synced.is_a?(Time) and self.last_synced > DateTime.now
   end
 
   def clear

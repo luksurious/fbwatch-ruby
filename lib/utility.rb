@@ -8,10 +8,7 @@ module Utility
     extra_info = args[:info] || nil
     show_trace = args[:trace] || true
 
-    bc = ActiveSupport::BacktraceCleaner.new
-    bc.add_filter { |line| line.gsub(Rails.root.to_s, '<root>') }
-    bc.add_silencer { |line| line.index('<root>').nil? and line.index('/') == 0 }
-    bc.add_silencer { |line| line.index('<root>/vendor/') == 0 }
+    bc = Rails.backtrace_cleaner
     e.set_backtrace(bc.clean(e.backtrace))
 
     Rails.logger.error extra_info if extra_info

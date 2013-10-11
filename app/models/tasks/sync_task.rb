@@ -1,6 +1,6 @@
 module Tasks
   class SyncTask < Base
-    attr_accessor :gatherer
+    attr_accessor :gatherer, :koala
     
     ALL = 'all'
 
@@ -20,8 +20,10 @@ module Tasks
       'sync'
     end
 
-    def initialize(koala, options = {})
-      @koala = koala
+    def initialize(koala_or_options, options = {})
+      @koala = koala_or_options if koala_or_options.is_a?(Koala::Facebook::API)
+
+      options = koala_or_options if koala_or_options.is_a?(Hash)
 
       super(options)
     end

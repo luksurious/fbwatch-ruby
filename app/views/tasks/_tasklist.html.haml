@@ -10,10 +10,13 @@
     %th.col-yield
   - tasks.each do |task|
     %tr
-      %td.col-res= task.resource.name unless task.resource.nil?
-      %td.col-res-group= task.resource_group.group_name unless task.resource_group.nil?
-      %td.col-progress= number_to_percentage(task.progress*100, precision: 0)
-      %td.col-duration= format_duration(task.duration)
+      %td.col-res= link_to task.resource.name, resource_details_path(task.resource.username) unless task.resource.nil?
+      %td.col-res-group= link_to task.resource_group.group_name, resource_group_details_path(task.resource_group) unless task.resource_group.nil?
+      %td.col-progress
+        = number_to_percentage(task.progress*100, precision: 0)
+        - if task.error
+          %span.glyphicon.glyphicon-remove{title: 'This task has failed.'}
+      %td.col-duration= format_duration(task.real_duration)
       %td.col-data
         .task-data= task.data.to_json
       %td.col-started= task.created_at.localtime.to_formatted_s(:long)

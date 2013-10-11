@@ -1,25 +1,3 @@
 // Place all the styles related to the home controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
-
-.tasks-table {
-    table-layout:fixed;
-    .col-res, .col-res-group {
-        width: 8%;
-    }
-    .col-data {
-        width: 40%;
-        .task-data {
-            word-wrap: break-word;
-        }
-    }
-    .col-progress, .col-duration {
-        width: 7%;
-    }
-    .col-started, .col-updated {
-        width: 10%;
-    }
-    .col-yield {
-        width: 10%;
-    }
-}

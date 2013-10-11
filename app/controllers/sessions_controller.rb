@@ -10,7 +10,8 @@ class SessionsController < ApplicationController
   def failure
     # TODO: tell if code expired or something else happened
     
-    redirect_to login_path, alert: "Authentication failed, please try again."
+    flash[:alert] <<  "Authentication failed, please try again."
+    redirect_to login_path
   end
 
   protected

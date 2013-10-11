@@ -21,6 +21,9 @@ gem 'therubyracer', :platforms => :ruby
 gem 'json'
 gem 'turbolinks'
 gem 'jbuilder'
+gem 'sidekiq'
+gem 'sinatra', require: false
+gem 'slim'
 
 gem 'logstasher'
 

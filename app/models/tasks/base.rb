@@ -58,6 +58,7 @@ module Tasks
           result = task_run
         end
       rescue => error
+        result = error
         Utility.log_exception(error, mail: true, info: "Rescued from unexpected error in task #{@task.inspect}")
       end
       
