@@ -1,7 +1,7 @@
 require 'uri'
 
 class ResourcesController < ApplicationController
-  before_action :set_resource_by_id, only: [:add_to_group, :show, :edit, :update, :destroy]
+  before_action :set_resource_by_id, only: [:add_to_group, :show, :edit, :update, :destroy, :clear_last_synced]
   before_action :set_resource_by_username, only: [:details, :disable, :enable, :update, :destroy]
 
 
@@ -50,6 +50,13 @@ class ResourcesController < ApplicationController
       format.html # show.html.erb
       format.json { render json: @resource }
     end
+  end
+
+  def clear_last_synced
+    @resource.last_synced = nil
+    @resource.save!
+
+    redirect_to resource_details_path(@resource.username)
   end
   
   # GET /resources/1

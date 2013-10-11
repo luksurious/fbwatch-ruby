@@ -2,7 +2,7 @@ class ApplicationController < ActionController::Base
   protect_from_forgery
   include SessionsHelper
 
-  rescue_from Exception, :with => :error_render_method
+  rescue_from StandardError, :with => :error_render_method
   rescue_from ActiveRecord::RecordNotFound, with: :error_not_found
 
   before_filter :setup_flash
@@ -20,6 +20,7 @@ class ApplicationController < ActionController::Base
   end
 
   def error_not_found(exception)
+    Utility.log_exception(exception, mail: false) # , request: request
     flash[:alert] << exception.message
     respond_to do |type|
       type.html { render :template => "errors/error_404", :status => 404 }
@@ -29,6 +30,7 @@ class ApplicationController < ActionController::Base
   end
 
   def error_render_method(exception)
+    Utility.log_exception(exception, mail: true)
     flash[:alert] << exception.message
     respond_to do |type|
       type.html { render :template => "errors/error_500", :status => 500 }

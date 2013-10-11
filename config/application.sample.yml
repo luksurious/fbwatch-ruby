@@ -8,3 +8,12 @@
 
 FACEBOOK_KEY: ##
 FACEBOOK_SECRET: ##
+
+MAILER_FROM: "FBWatch <psycholuke@gmail.com>"
+MAILER_ADDRESS: "smtp.gmail.com"
+MAILER_PORT: 587
+MAILER_DOMAIN: "gmail.com"
+MAILER_USER_NAME: "psycholuke@gmail.com"
+MAILER_PASSWORD: ""
+MAILER_AUTHENTICATION: "plain"
+MAILER_ENABLE_STARTTLS_AUTO: true

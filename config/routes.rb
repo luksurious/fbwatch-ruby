@@ -20,6 +20,7 @@ Fbwatch::Application.routes.draw do
   get "resource/:username/enable", to: 'resources#enable', :constraints => { :username => /[^\/]+/ }, as: 'sync_enable'
   get 'resource/:username(/:p)', to: 'resources#details', :constraints => { :username => /[^\/]+/, :p => /[0-9]+/ }, as: 'resource_details'
   post 'resource/:id/groups', to: 'resources#add_to_group', as: 'add_resource_to_group'
+  patch 'resource/:id/clear_last_synced', to: 'resources#clear_last_synced', as: 'clear_last_synced'
 
   # metrics
   patch 'resource/:username/metrics', to: 'metrics#resource', :constraints => { :username => /[^\/]+/ }, as: 'run_metrics'

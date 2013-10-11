@@ -24,6 +24,8 @@ gem 'jbuilder'
 
 gem 'logstasher'
 
+gem 'exception_notification'
+
 group :development, :test do
   gem 'byebug'
   gem 'sqlite3'

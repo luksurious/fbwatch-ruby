@@ -17,6 +17,7 @@ module Fbwatch
     # -- all .rb files in that directory are automatically loaded.
 
     # Custom directories with classes and modules you want to be autoloadable.
+    config.autoload_paths += %W(#{config.root}/lib)
     # config.autoload_paths += Dir[Rails.root.join('app', 'models', '{**}')]
     # config.eager_load_paths += Dir[Rails.root.join('app', 'models', '{**}')]
     # config.eager_load_paths += Dir[Rails.root.join('app', 'models', 'metrics')]

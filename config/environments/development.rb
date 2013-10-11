@@ -33,4 +33,20 @@ Fbwatch::Application.configure do
   config.assets.debug = true
 
   config.eager_load = false
+
+  config.action_mailer.delivery_method = :smtp
+  # Defaults to:
+  # config.action_mailer.sendmail_settings = {
+  #   :location => '/usr/sbin/sendmail',
+  #   :arguments => '-i -t'
+  # }
+  config.action_mailer.perform_deliveries = true
+  config.action_mailer.raise_delivery_errors = true
 end
+
+Fbwatch::Application.config.middleware.use ExceptionNotification::Rack,
+  :email => {
+    :email_prefix => "[FBWatch] ",
+    :sender_address => %{"Rails Notifier" <fbwatch@lukas-brueckner.de>},
+    :exception_recipients => %w{lukas.b@live.de}
+  }
