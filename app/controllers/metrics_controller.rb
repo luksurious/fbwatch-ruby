@@ -5,7 +5,7 @@ class MetricsController < ApplicationController
 
     metric_task = Tasks::MetricTask.new(resource: @resource)
 
-    TaskWorker.perform_async(metric_task.task.id)
+    TaskWorker.perform_async('task' => metric_task.task.id)
 
     flash[:notice] << "Resource metrics are being updated"
     redirect_to resource_details_path(@resource.username)
@@ -16,7 +16,7 @@ class MetricsController < ApplicationController
 
     metric_task = Tasks::MetricTask.new(resource_group: resource_group)
 
-    TaskWorker.perform_async(metric_task.task.id)
+    TaskWorker.perform_async('task' => metric_task.task.id)
 
     flash[:notice] << "Group and resource metrics are being updated"
     redirect_to resource_group_details_path(resource_group)

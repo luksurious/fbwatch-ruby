@@ -4,7 +4,7 @@ class SyncTaskWorker < TaskWorker
   def perform(options)
     koala = Koala::Facebook::API.new(options['token'])
 
-    super(options['task']) do |task|
+    super(options) do |task|
       task.koala = koala
     end
   end
