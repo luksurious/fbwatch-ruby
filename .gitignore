@@ -24,3 +24,5 @@ config/database.yml
 /log
 fbwatch.sublime-workspace
 fbwatch.sublime-project
+
+script/sidekiq

@@ -1,5 +1,7 @@
 module Metrics
   class MetricBase
+    attr_accessor :metrics
+
     def initialize(options)
       @id = options[:id]
       @resource = options[:resource]
@@ -34,14 +36,10 @@ module Metrics
         metric.resources.delete(res) unless options[:resources].include?(res)
       end
 
-      # @metrics.push(metric)
-      if !metric.save
-        Rails.logger.error "Couldn't save metric #{options[:name]} (errors: #{metric.errors.full_messages}"
-      end
-    end
-
-    def get_metrics
-      return @metrics
+      @metrics.push(metric)
+      #if !metric.save
+      #  Rails.logger.error "Couldn't save metric #{options[:name]} (errors: #{metric.errors.full_messages}"
+      #end
     end
   end
 end

@@ -45,8 +45,6 @@ module Metrics
       feed_type_stats('video')
       feed_type_stats('swf')
       feed_type_stats('checkin')
-
-      return get_metrics
     end
 
     def feed_type_stats(type)

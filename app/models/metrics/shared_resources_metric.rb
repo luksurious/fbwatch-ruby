@@ -37,10 +37,7 @@ module Metrics
         # intersection of users having either liked on or posted on (or being posted on) both feeds
         mixed_result = Resource.find_by_sql [any_intersection_sql, combination[0].id, combination[0].id, combination[1].id, combination[1].id]
         make_group_metric_model(name: 'shared_resources_any', token: token, value: mixed_result.to_json, resources: combination)
-
       end
-
-      # get_metrics
     end
 
     def vars_for_render(options)

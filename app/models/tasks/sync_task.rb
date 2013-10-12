@@ -142,13 +142,16 @@ module Tasks
 
         begin
           result = @gatherer.start_fetch((options["pages"] || -1).to_i)
-        rescue => e
+        rescue Koala::Facebook::APIError => e
           # if we reach this point the exception was thrown at the first call to get the basic information for a resource
           # i.e. not during the loop of getting the feed, this is important because if an error occurs during said loop
           # we want to be able to resume getting data at the point where it occured and not have to reload everything
           # this usually occurs if the request limit is reached (#17) or for any other permanent error
-          Utility.log_exception(e, mail: @send_mail, info: "A connection error occured in resource #{@gatherer.username}")
-          return e
+          Utility.log_exception(e, mail: @send_mail, info: "A connection error occured in task #{@task.inspect}")
+          return RecoverableError.new(cause: e, task: @task)
+        rescue => exception
+          Utility.log_exception(exception, mail: @send_mail, info: "A connection error occured in task #{@task.inspect}")
+          return BreakingError.new(cause: exception, task: @task)
         end
 
         return result

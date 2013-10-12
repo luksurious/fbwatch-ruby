@@ -1,4 +1,25 @@
 module Tasks
+  class Error < StandardError
+    def initialize(options)
+      message = options[:message]
+
+      if options[:cause].is_a?(StandardError)
+        message = options[:cause].message if message.nil?
+
+        self.cause = options[:cause]
+        self.set_backtrace(self.cause.backtrace)
+      end
+
+      self.task = options[:task]
+
+      super(message)
+    end
+  end
+
+  class RetriableError < Error; end
+  class BreakingError < Error; end
+
+
   class Base
     attr_accessor :task, :send_mail
 
@@ -60,7 +81,7 @@ module Tasks
           result = task_run
         end
       rescue => error
-        result = error
+        result = BreakingError.new(cause: error, task: @task)
         Utility.log_exception(error, mail: @send_mail, info: "Rescued from unexpected error in task #{@task.inspect}")
       end
       

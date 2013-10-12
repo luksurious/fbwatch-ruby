@@ -27,8 +27,6 @@ module Metrics
 
       feeds_i_tag = Feed.joins(:feed_tags).where(feed_tags: {resource_id: @resource.id}).where.not(resource_id: @resource.id).group('feeds.resource_id').count(:id)
       make_metric_model('feeds_i_tag', 'Feeds I am tagged', feeds_i_tag)
-
-      return get_metrics
     end
   end
 end

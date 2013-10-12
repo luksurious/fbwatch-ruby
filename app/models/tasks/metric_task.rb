@@ -59,8 +59,13 @@ module Tasks
           metric_class = "Metrics::#{metric_class}"
           klass = metric_class.constantize.new(entity)
 
-          metrics = klass.analyze
-          metrics_transaction.concat(metrics) if metrics.is_a?(Array)
+          begin
+            klass.analyze
+          rescue => ex
+            Utility.log_exception(ex, mail: @send_mail, info: @task.inspect)
+          end
+
+          metrics_transaction.concat(klass.metrics) if klass.metrics.is_a?(Array)
 
           part_done
         end
