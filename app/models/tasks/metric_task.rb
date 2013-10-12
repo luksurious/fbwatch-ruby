@@ -1,6 +1,6 @@
 module Tasks
   class MetricTask < Base
-    @@resource_metrics = ['ResourceStats']
+    @@resource_metrics = ['ResourceStats', 'SingleUsersMetric']
     @@group_metrics = ['SharedResourcesMetric']
 
     def self.type_name
