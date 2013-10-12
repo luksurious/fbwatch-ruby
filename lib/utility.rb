@@ -23,4 +23,17 @@ module Utility
     env = args[:request] ? args[:request].env : nil
     ExceptionNotifier.notify_exception(e, env: env, :data => {:message => "Exception: #{extra_info}"})
   end
+
+  def self.save_resource_gracefully(res)
+    unless res.is_a?(ActiveRecord::Base) 
+      Rails.logger.warn("Invalid object provided for saving: #{res.inspect}")
+      return
+    end
+
+    begin
+      res.save
+    rescue => e
+      Utility.log_exception(e, mail: true, info: "An exception occured while trying to save #{res.inspect}")
+    end
+  end
 end

@@ -12,10 +12,10 @@ class TaskWorker
     result = klass.run
 
     # if result is an error raise it again to have it retried in an hour
-    if result.is_a?(StandardError)
+    if result.is_a?(Tasks::RetriableError)
       task.running = true
       task.save
-      raise result
+      raise result, result.message, result.backtrace
     end
   end
 

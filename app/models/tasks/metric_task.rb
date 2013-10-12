@@ -71,12 +71,12 @@ module Tasks
         end
 
         metrics_transaction.each do |obj| 
-          obj.save if obj.is_a?(ActiveRecord::Base)
+          Utility.save_resource_gracefully(obj)
         end
       end
 
       def resume
-        raise 'MetricTasks cannot be resumed at this moment'
+        raise BreakingError.new(message: 'MetricTasks cannot be resumed at this moment')
       end
   end
 end

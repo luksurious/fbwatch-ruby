@@ -23,15 +23,15 @@ module Sync
       save_feed
 
       ActiveRecord::Base.transaction do 
-        @res_transaction.each { |k,res| save_resource_gracefully(res) }
-        @more_transaction.each { |res| save_resource_gracefully(res) }
+        @res_transaction.each { |k,res| Utility.save_resource_gracefully(res) }
+        @more_transaction.each { |res| Utility.save_resource_gracefully(res) }
       end
       @res_transaction = {}
       @more_transaction = []
 
       ActiveRecord::Base.transaction do 
         @feed_transaction.each do |feed| 
-          save_resource_gracefully(feed[:entity])
+          Utility.save_resource_gracefully(feed[:entity])
         end
       end
 
@@ -48,26 +48,13 @@ module Sync
       
       # resources from previous transaction (likes, comments)
       ActiveRecord::Base.transaction do 
-        @res_transaction.each { |k,res| save_resource_gracefully(res) }
+        @res_transaction.each { |k,res| Utility.save_resource_gracefully(res) }
       end
       
       ActiveRecord::Base.transaction do 
-        @more_transaction.each { |res| save_resource_gracefully(res) }
+        @more_transaction.each { |res| Utility.save_resource_gracefully(res) }
       end
 
-    end
-
-    def save_resource_gracefully(res)
-      unless res.is_a?(ActiveRecord::Base) 
-        Rails.logger.warn(Time.now.to_s + ": Invalid object provided for saving: " + res.to_s)
-        return
-      end
-
-      begin
-        res.save
-      rescue => e
-        Utility.log_exception(e, mail: true, info: "An exception occured while trying to save #{res.inspect}")
-      end
     end
     
     def update_resource
