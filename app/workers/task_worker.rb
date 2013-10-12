@@ -5,7 +5,7 @@ class TaskWorker
     task = Task.find(options['task'])
 
     task_class = "Tasks::" << "#{task.type}_task".camelize
-    klass = task_class.constantize.new(task: task)
+    klass = task_class.constantize.new(task: task, send_mail: false)
     
     yield klass if block_given?
 

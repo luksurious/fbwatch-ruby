@@ -1,6 +1,6 @@
 module Tasks
   class Base
-    attr_accessor :task
+    attr_accessor :task, :send_mail
 
     def self.get_active_for(options)
       Task.where(resource_group_id: options[:resource_group] || nil, resource_id: options[:resource] || nil, running: true, type: type_name)
@@ -12,6 +12,8 @@ module Tasks
       else
         create_new_task(options)
       end
+
+      @send_mail = options[:send_mail] || false
     end
 
     def use_existing_task(task)
@@ -59,7 +61,7 @@ module Tasks
         end
       rescue => error
         result = error
-        Utility.log_exception(error, mail: true, info: "Rescued from unexpected error in task #{@task.inspect}")
+        Utility.log_exception(error, mail: @send_mail, info: "Rescued from unexpected error in task #{@task.inspect}")
       end
       
       @task.running = false
