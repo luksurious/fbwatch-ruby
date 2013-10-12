@@ -3,8 +3,8 @@ class SyncTaskWorker < TaskWorker
   sidekiq_options :retry => 100
 
   sidekiq_retry_in do |count|
-    # retry every minute since in case of request limit reached it might be ok by then
-    1.minute.to_i
+    # retry every 5 minutes since in case of request limit reached it might be ok by then
+    5.minute.to_i
   end
   
   # I need :facebook => access_token
