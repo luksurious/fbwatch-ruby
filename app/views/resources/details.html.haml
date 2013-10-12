@@ -1,89 +1,102 @@
-%h1= "Details for resource #{@resource.name}"
-
-- if @tasks > 0
-  %p Note one or more tasks are currently running on this resource!
+%h1
+  %small Details for
+  = @resource.name
 
 = link_to "Sync now", sync_path(@resource.username), class: "btn btn-primary #{@resource.currently_syncing? ? 'disabled' : ''}"
 = link_to "Sync test", sync_path(@resource.username, test: 1), class: "btn btn-default #{@resource.currently_syncing? ? 'disabled' : ''}"
 = link_to "Clear all", sync_clear_path(@resource.username), class: "btn btn-default #{@resource.currently_syncing? ? 'disabled' : ''}"
 
-%h2 Basic Data
-%p
-  %b ID:
-  = @resource.id
-%p
-  %b Name:
-  = @resource.name
-%p
-  %b Username:
-  = @resource.username
-%p
-  %b Facebook ID:
-  = @resource.facebook_id
-%p
-  %b Link:
-  =link_to @resource.link, @resource.link
-%p
-  %b Last synced:
-  = @resource.last_synced.localtime if @resource.last_synced.is_a?(Time)
-  = link_to(clear_last_synced_path(@resource), method: :patch, title: 'Clear this field') do
-    %span.glyphicon.glyphicon-trash
-%p
-  %b Active:
-  = @resource.active
+- if @tasks.count > 0
+  %h3 Active Tasks
+  .tasks
+    - @tasks.each do |task|
+      .well
+        = render 'tasks/task', task: task
+
+.row
+  .col-md-6
+    %h2
+      %a{'data-toggle' => 'collapse', 'data-target' => "\#res-group-basic"} Basic Data
+    %section#res-group-basic.collapse
+      %p
+        %b ID:
+        = @resource.id
+      %p
+        %b Name:
+        = @resource.name
+      %p
+        %b Username:
+        = @resource.username
+      %p
+        %b Facebook ID:
+        = @resource.facebook_id
+      %p
+        %b Link:
+        =link_to @resource.link, @resource.link
+      %p
+        %b Last synced:
+        = @resource.last_synced.localtime if @resource.last_synced.is_a?(Time)
+        = link_to(clear_last_synced_path(@resource), method: :patch, title: 'Clear this field') do
+          %span.glyphicon.glyphicon-trash
+      %p
+        %b Active:
+        = @resource.active
+      = link_to 'Edit', edit_resource_path(@resource)
+      %p
+        %em Note that this edit functionality is not well supported.
+  .col-md-6
+    %h2
+      %a{'data-toggle' => 'collapse', 'data-target' => "\#res-group-about"} Additional Data
+    %section#res-group-about.collapse
+      - @basicdata.each do |item|
+        %p
+          %b= item['key']
+          = item['value']
+
 
 %h2 Metrics
-%h3 Resource Metrics
-= link_to "Re-Calc", run_metrics_path(@resource.username), method: :patch, class: "btn btn-default"
-%ul
-- @metrics.each do |item|
-  %li
-    %b= item['description']
-    = item['value']
+.row
+  .col-md-6
+    %h3 Resource Metrics
+    = link_to "Re-Calc", run_metrics_path(@resource.username), method: :patch, class: "btn btn-default"
+    %ul
+    - @metrics.each do |item|
+      %li
+        %b= item['description']
+        = item['value']
+  .col-md-6
+    %h3 Group Metrics
+    %i updating of group metrics can be done on the group page
+    %ul
+      - @resource.resource_groups.each do |group|
+        %li
+          = link_to group.group_name, resource_group_details_path(group)
+        - unless @group_metrics[group.id].nil?
+          - @group_metrics[group.id].each do |metric|
+            %ul
+              %li= render "metrics/#{metric.name}", metric.vars_for_render
 
-%h3 Group Metrics
-%i updating of group metrics can be done on the group page
-%ul
-  - @resource.resource_groups.each do |group|
-    %li
-      = link_to group.group_name, resource_group_details_path(group)
-    - unless @group_metrics[group.id].nil?
-      - @group_metrics[group.id].each do |metric|
-        %ul
-          %li= render "metrics/#{metric.name}", metric.vars_for_render
-
-= form_tag(add_resource_to_group_path(@resource)) do
-  Add to group
-  %p= collection_select(:resource, :resource_groups, @all_groups, :id, :group_name)
-  %p= submit_tag("Add")
+    = form_tag(add_resource_to_group_path(@resource)) do
+      .form-group
+        %label{for: 'resource_resource_groups'}
+          Add to group:
+        = collection_select(:resource, :resource_groups, @all_groups, :id, :group_name, {}, {:class => 'form-control'})
+      %button.btn.btn-default{type: 'submit'} Add
 
 
-%h2 Additional Data
-- @basicdata.each do |item|
-  %p
-    %b= item['key']
-    = item['value']
 
 %h2 Feed
+= "Total Items #{@filter_count}"
 .filter
-  %h6 Filter:
-  %ul
-    %li= link_to 'All', resource_details_path(@resource.username, 0)
+  %ul.nav.nav-pills
+    %li
+      %span Filter:
+    %li= link_to 'All (but comments)', resource_details_path(@resource.username, 0)
     %li= link_to 'Posts', resource_details_path(@resource.username, 0, f: "message")
-    %li= link_to 'Comments', resource_details_path(@resource.username, 0, f: "comment")
     %li= link_to 'Stories', resource_details_path(@resource.username, 0, f: "story")
+    %li= link_to 'Comments', resource_details_path(@resource.username, 0, f: "comment")
 
-.paging
-  %h6 Paging
-  %ul
-    %li= "Total Items #{@filter_count}"
-    %li= "Page #{@offset+1} of #{@total_pages}"
-    %li 
-      - if @offset > 0
-        = link_to 'Previous', resource_details_path(@resource.username, @offset-1, f: @filter)
-      \|
-      - if @total_pages > (@offset+1)
-        = link_to 'Next', resource_details_path(@resource.username, @offset+1, f: @filter)
+= render 'resources/feeds_paging', offset: @offset, username: @resource.username, filter: @filter, total_pages: @total_pages
 
 %table.table.feed-table
   %tr
@@ -109,13 +122,4 @@
       %td.col-comments= item['comment_count']
       %td.col-likes= item['like_count']
 
-.paging
-  - if @offset > 0
-    = link_to 'Previous', resource_details_path(@resource.username, @offset-1, f: @filter)
-  \|
-  - if @total_pages > (@offset+1)
-    = link_to 'Next', resource_details_path(@resource.username, @offset+1, f: @filter)
-
-= link_to 'Edit', edit_resource_path(@resource)
-\|
-= link_to 'Back', root_path
+= render 'resources/feeds_paging', offset: @offset, username: @resource.username, filter: @filter, total_pages: @total_pages

@@ -8,7 +8,7 @@ class Task < ActiveRecord::Base
   @inheritance_column = 'class_type'
 
   def real_duration
-    return self.duration unless self.running
+    return self.duration unless self.running and self.progress < 1
 
     self.duration + (Time.now - self.updated_at)
   end

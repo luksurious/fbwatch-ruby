@@ -14,6 +14,12 @@
         .glyphicon {
             color: #d2322d;
         }
+        .progress {
+            margin-bottom: 0;
+        }
+        .progress-bar[aria-valuenow='0.0'] span {
+            color: black;
+        }
     }
     .col-duration {
         width: 7%;

@@ -1,20 +1,22 @@
-Details for the resource group
-%h1= @resource_group.group_name
+%h1
+  %small Details for
+  = @resource_group.group_name
 
 - if @tasks > 0
   %p Note one or more tasks are currently running on this group!
-
-%p= link_to 'Delete group', @resource_group, method: :delete, data: { confirm: 'Are you sure?' }, class: 'btn btn-sm btn-danger'
-
-%p= link_to 'Sync this group', sync_group_path(@resource_group), method: :patch, class: "btn btn-default #{@resource_group.currently_syncing? ? 'disabled' : ''}"
-
-%p
-  = link_to 'Activate all', activate_group_path(@resource_group), method: :patch, class: "btn btn-default btn-sm #{@resource_group.currently_syncing? ? 'disabled' : ''}"
-  = link_to 'Deactivate all', deactivate_group_path(@resource_group), method: :patch, class: "btn btn-default btn-sm #{@resource_group.currently_syncing? ? 'disabled' : ''}"
-  = link_to 'Clear all', clear_group_path(@resource_group), method: :patch, class: "btn btn-default btn-sm #{@resource_group.currently_syncing? ? 'disabled' : ''}"
-
-%p= link_to 'Calculate Metrics', group_metrics_path(@resource_group), method: :patch, class: 'btn btn-default'
-
+.btn-group
+  = link_to 'Sync this group', sync_group_path(@resource_group), method: :patch, class: "btn btn-primary #{@resource_group.currently_syncing? ? 'disabled' : ''}"
+  = link_to 'Calculate Metrics', group_metrics_path(@resource_group), method: :patch, class: 'btn btn-info'
+.btn-group
+  %button.btn.btn-default.dropdown-toggle{type: 'button', 'data-toggle' => 'dropdown'}
+    Edit group
+    %span.caret
+  %ul.dropdown-menu{role: 'menu'}
+    %li= link_to 'Delete group', @resource_group, method: :delete, data: { confirm: 'Are you sure?' }, class: "#{@resource_group.currently_syncing? ? 'disabled' : ''}"
+    %li= link_to 'Activate all', activate_group_path(@resource_group), method: :patch, class: "#{@resource_group.currently_syncing? ? 'disabled' : ''}"
+    %li= link_to 'Deactivate all', deactivate_group_path(@resource_group), method: :patch, class: "#{@resource_group.currently_syncing? ? 'disabled' : ''}"
+    %li= link_to 'Clear all', clear_group_path(@resource_group), method: :patch, class: "#{@resource_group.currently_syncing? ? 'disabled' : ''}"
+%br
 = render layout: "partials/reslist", locals: { resources: @resource_group.resources } do |res|
   = link_to(remove_resource_from_group_path(@resource_group, res), method: :delete, class: 'btn btn-sm btn-danger', title: 'Remove from group') do
     %span.glyphicon.glyphicon-remove

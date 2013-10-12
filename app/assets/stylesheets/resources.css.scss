@@ -23,3 +23,30 @@
         width: 7%;
     }
 }
+
+.nav-pills > li > span {
+    border-radius: 5px;
+}
+.nav > li > span {
+    position: relative;
+    display: block;
+    padding: 10px 15px;
+}
+.paging a {
+    font-weight: bold;
+}
+.task {
+    > span.label {
+        float: left;
+        margin-right: 20px;
+        height:20px;
+        line-height: 20px;
+        padding-top:0;
+        padding-bottom: 0;
+    }
+    .progress {
+        margin-bottom: 0;
+        float: left;
+        width: 500px;
+    }   
+}

@@ -1,7 +1,7 @@
 class TaskWorker
   include Sidekiq::Worker
   # set the retry count to a rather high value in case we have a very large task which gets a lot of connection issues
-  :sidekiq_options retry: 100
+  sidekiq_options :retry => 100
 
   sidekiq_retry_in do |count|
     # retry every minute since in case of request limit reached it might be ok by then

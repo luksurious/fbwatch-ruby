@@ -75,7 +75,11 @@ class ResourcesController < ApplicationController
       
       filter_hash = {resource_id: @resource.id}
       @filter = params[:f]
-      filter_hash[:data_type] = @filter if !@filter.nil? and !@filter.empty?
+      if !@filter.nil? and !@filter.empty?
+        filter_hash[:data_type] = @filter
+      else
+        filter_hash[:parent_id] = nil
+      end
 
       @feeds = Feed.includes(:to, :from).order("updated_time DESC").where(filter_hash).limit(100).offset(@offset * 100)
       @filter_count = Feed.where(filter_hash).count
@@ -95,7 +99,10 @@ class ResourcesController < ApplicationController
 
       @all_groups = ResourceGroup.all
 
-      @tasks = Task.where(resource_id: @resource.id, running: true).count
+      @tasks = Task.where(resource_id: @resource.id, running: true)
+      if @tasks.count > 0
+        flash[:info] << "Note one or more tasks are currently running on this resource!"
+      end
 
       if @resource.currently_syncing?
         flash[:info] << "This resource is currently syncing"
