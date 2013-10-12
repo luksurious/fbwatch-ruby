@@ -31,6 +31,7 @@ class TasksController < ApplicationController
 
     SyncTaskWorker.perform_async('token' => session[:facebook].access_token, 'task' => @task.id)
     
+    flash[:notice] << 'This task is now resumed.'
     redirect_to tasks_path and return
   end
 
