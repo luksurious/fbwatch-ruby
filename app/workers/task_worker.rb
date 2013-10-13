@@ -4,6 +4,8 @@ class TaskWorker
   def perform(options)
     task = Task.find(options['task'])
 
+    return false if task.error
+
     task_class = "Tasks::" << "#{task.type}_task".camelize
     klass = task_class.constantize.new(task: task, send_mail: false)
     
