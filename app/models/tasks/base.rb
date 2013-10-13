@@ -1,5 +1,7 @@
 module Tasks
   class Error < StandardError
+    attr_accessor :cause, :task
+    
     def initialize(options)
       message = options[:message]
 
@@ -82,6 +84,8 @@ module Tasks
         end
       rescue => error
         result = BreakingError.new(cause: error, task: @task)
+        @task.error = true
+        @task.save!
         Utility.log_exception(error, mail: @send_mail, info: "Rescued from unexpected error in task #{@task.inspect}")
       end
       

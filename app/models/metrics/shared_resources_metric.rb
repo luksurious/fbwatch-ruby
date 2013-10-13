@@ -2,15 +2,9 @@ require 'digest/md5'
 
 module Metrics
   class SharedResourcesMetric < MetricBase
-    def initialize(resource_group)
-      @resource_group = resource_group
-
-      super(resource_group: @resource_group, class: self.class)
-    end
-
     def resource_combinations
-      if @resource_group.resources.length > 1
-        return @resource_group.resources.to_a.combination(2).to_a
+      if self.resource_group.resources.length > 1
+        return self.resource_group.resources.to_a.combination(2).to_a
       end
       
       []

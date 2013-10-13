@@ -46,9 +46,8 @@ module Tasks
 
       def run_metric_collection(options)
         collection = options[:metrics] || []
-        entity = options[:resource] || options[:resource_group]
 
-        if entity.nil?
+        if options[:resource].nil? and options[:resource_group].nil?
           Rails.logger.warn "Missing entity in MetricTask with provided options: #{options}"
           return
         end
@@ -57,11 +56,13 @@ module Tasks
 
         collection.each do |metric_class|
           metric_class = "Metrics::#{metric_class}"
-          klass = metric_class.constantize.new(entity)
+          klass = metric_class.constantize.new(options)
 
           begin
             klass.analyze
           rescue => ex
+            @task.error = true
+            @task.save!
             Utility.log_exception(ex, mail: @send_mail, info: @task.inspect)
           end
 
