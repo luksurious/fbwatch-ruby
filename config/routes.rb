@@ -25,6 +25,7 @@ Fbwatch::Application.routes.draw do
   get 'resource/:username(/:p)', to: 'resources#details', :constraints => { :username => /[^\/]+/, :p => /[0-9]+/ }, as: 'resource_details'
   post 'resource/:id/groups', to: 'resources#add_to_group', as: 'add_resource_to_group'
   patch 'resource/:id/clear_last_synced', to: 'resources#clear_last_synced', as: 'clear_last_synced'
+  get 'resources/search/name', to: 'resources#search_for_name', as: 'search_resource_names'
 
   # metrics
   patch 'resource/:username/metrics', to: 'metrics#resource', :constraints => { :username => /[^\/]+/ }, as: 'run_metrics'
@@ -44,6 +45,7 @@ Fbwatch::Application.routes.draw do
   patch 'group/:id/clear', to: 'sync#clear_group', as: 'clear_group'
   patch 'group/:id/sync', to: 'sync#group', as: 'sync_group'
   delete 'group/:id/resource/:resource_id', to: 'resource_groups#remove_resource', as: 'remove_resource_from_group'
+  post 'group/:id/add', to: 'resource_groups#add_resource', as: 'resource_group_add_resource'
 
 
   mount Sidekiq::Web, at: '/sidekiq'

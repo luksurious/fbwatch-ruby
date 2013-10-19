@@ -5,7 +5,9 @@
 = simple_form_for(@resource) do |f|
   = f.error_notification
   = f.input :username, label: "Facebook URL"
-  %span.help-block= link_to 'Batch Input', 'javascript:void(0);', id: 'make-input-batch'
+  %span.help-block
+    %a#make-input-batch{href: 'javascript:void(0);'} Batch Input
+  = f.input :resource_groups, collection: (ResourceGroup.all.map { |group| [group.group_name, group.id] }), label: 'Add to group'
   = f.button :submit, 'Add', class: 'btn-default'
 
 %h2 Current Resources

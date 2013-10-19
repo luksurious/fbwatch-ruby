@@ -118,6 +118,11 @@ module Tasks
           @task.progress += @start_progress
         end
 
+        # because of precision a task might appear to be done when it's not really
+        if @task.progress == 1.0 and @parts_done < @total_parts
+          @task.progress = 0.99
+        end
+
         @task.duration = @start_duration + (Time.now - @start)
         @task.save!
       end

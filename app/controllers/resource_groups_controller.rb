@@ -1,8 +1,11 @@
 class ResourceGroupsController < ApplicationController
-  before_action :set_resource_group, only: [:update, :destroy, :details, :activate, :deactivate, :remove_resource]
+  before_action :set_resource_group, only: [:update, :destroy, :details, :activate, :deactivate, :remove_resource, :add_resource]
 
   def details
-    @tasks = Task.where(resource_group_id: @resource_group.id, running: true).count
+    @tasks = Task.where(resource_group_id: @resource_group.id, running: true)
+    if @tasks.count > 0
+      flash[:info] << "Note one or more tasks are currently running on this resource!"
+    end
 
     if @resource_group.currently_syncing?
       flash[:info] << "This group is currently syncing"
@@ -49,6 +52,14 @@ class ResourceGroupsController < ApplicationController
 
     @resource_group.save
 
+    redirect_to :back
+  end
+
+  def add_resource
+    res = Resource.find(params[:resource])
+    @resource_group.resources << res if res.is_a?(Resource)
+
+    flash[:notice] << "#{res.name} was successfully added to #{@resource_group.group_name}"
     redirect_to :back
   end
 
