@@ -1,7 +1,7 @@
 %p{class: "metric-key-#{name}"}
   %strong= friendly_name
   %ul
-  - data.each do |pair|
-    %li
-      = link_to "#{pair[:resource].name}", resource_details_path(pair[:resource].username)
-      = pair[:amount]
+    - data.each do |pair|
+      %li
+        = link_to "#{pair[:resource].name}", resource_details_path(pair[:resource].username)
+        = pair[:amount]
