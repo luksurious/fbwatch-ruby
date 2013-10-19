@@ -9,6 +9,7 @@ gem 'sass-rails',   '>= 3.2.3'
 gem 'coffee-rails', '>= 3.2.1'
 gem 'uglifier', '>= 1.0.3'
 gem 'jquery-rails'
+gem 'select2-rails'
 gem 'bootstrap-sass', github: 'thomas-mcdonald/bootstrap-sass'
 gem 'haml-rails', '>= 0.3.4'
 gem 'haml'
@@ -24,8 +25,7 @@ gem 'jbuilder'
 gem 'sidekiq'
 gem 'sinatra', require: false
 gem 'slim'
-
-gem 'logstasher'
+gem 'kaminari'
 
 gem 'exception_notification'
 

@@ -33,7 +33,7 @@ class ResourcesController < ApplicationController
   def index
     @offset = params[:p].to_i || 0
 
-    @resources = Resource.order('active DESC, last_synced IS NULL, last_synced DESC, created_at ASC').limit(100).offset(@offset * 100)
+    @resources = Resource.order('active DESC, last_synced IS NULL, last_synced DESC, created_at ASC').page(@offset+1).per(100)
     @resource = Resource.new
     @total_res = Resource.count
 
@@ -81,7 +81,7 @@ class ResourcesController < ApplicationController
         filter_hash[:parent_id] = nil
       end
 
-      @feeds = Feed.includes(:to, :from).order("updated_time DESC").where(filter_hash).limit(100).offset(@offset * 100)
+      @feeds = Feed.includes(:to, :from).order("updated_time DESC").where(filter_hash).page(@offset+1).per(100)
       @filter_count = Feed.where(filter_hash).count
       @total_pages = (@filter_count / 100.0).ceil
 
@@ -188,6 +188,8 @@ class ResourcesController < ApplicationController
     success = false
     begin
       success = @resource.save
+      group = ResourceGroup.find(params[:resource][:resource_groups])
+      @resource.resource_groups << group unless group.nil?
     rescue => e
       if e.is_a? ActiveRecord::RecordNotUnique
         alert = 'This resource seems to be already in the database!'
@@ -224,6 +226,19 @@ class ResourcesController < ApplicationController
     respond_to do |format|
       format.html { redirect_to :back }
       format.json { head :no_content }
+    end
+  end
+
+  def search_for_name
+    @resources = Resource.select([:id, :username, :name]).
+                          where("name like :q OR username like :q", q: "%#{params[:q]}%").
+                          order('name, username').page(params[:page]).per(params[:per])
+
+    resources_count = Resource.select([:id, :username, :name]).
+                          where("name like :q OR username like :q", q: "%#{params[:q]}%").count
+
+    respond_to do |format|
+      format.json { render json: {total: resources_count, resources: @resources.map { |e| {id: e.id, text: "#{e.name} (#{e.username})"} }} }
     end
   end
   
