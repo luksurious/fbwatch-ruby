@@ -1,11 +1,36 @@
+require 'digest/md5'
+
 module Metrics
   class MetricBase
+    @@resource_metrics = ['ResourceStats', 'SingleUsersMetric']
+    @@group_metrics = ['SharedResourcesMetric', 'GroupMentions']
+
+    def self.single_metrics
+      @@resource_metrics
+    end
+
+    def self.group_metrics
+      @@group_metrics
+    end
+
     attr_accessor :metrics, :resource, :resource_group
 
     def initialize(options = {})
       set_options(options)
 
       @metrics = []
+    end
+
+    def resource_combinations(size)
+      if !self.resource_group.nil? and self.resource_group.resources.length > 1
+        return self.resource_group.resources.to_a.combination(size).to_a
+      end
+      
+      []
+    end
+
+    def get_combination_token(combination)
+      Digest::MD5.hexdigest(combination.map{ |res| "#{res.id}.#{res.username}"  }.join('_'))
     end
 
     def set_options(options)

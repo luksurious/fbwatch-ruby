@@ -1,0 +1,8 @@
+%p{class: "metric-key-#{name}"}
+  %strong Mentioned keywords
+  for 
+  - res = Resource.find(value['for'])
+  = link_to res.name, resource_details_path(res.username)
+  %ul
+    - value['has'].each do |k,v|
+      %li= "#{k}: #{v}"

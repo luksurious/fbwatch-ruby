@@ -3,9 +3,9 @@ class MetricsController < ApplicationController
     @username = params[:username]
     @resource = Resource.find_by_username(@username)
 
-    metric_task = Tasks::MetricTask.new(resource: @resource)
+    metric_task = Tasks::MetricTask.new(resource: @resource).run
 
-    TaskWorker.perform_async('task' => metric_task.task.id)
+    #TaskWorker.perform_async('task' => metric_task.task.id)
 
     flash[:notice] << "Resource metrics are being updated"
     redirect_to resource_details_path(@resource.username)
@@ -14,9 +14,9 @@ class MetricsController < ApplicationController
   def group
     resource_group = ResourceGroup.find(params[:id])
 
-    metric_task = Tasks::MetricTask.new(resource_group: resource_group)
+    metric_task = Tasks::MetricTask.new(resource_group: resource_group).run
 
-    TaskWorker.perform_async('task' => metric_task.task.id)
+    #TaskWorker.perform_async('task' => metric_task.task.id)
 
     flash[:notice] << "Group and resource metrics are being updated"
     redirect_to resource_group_details_path(resource_group)

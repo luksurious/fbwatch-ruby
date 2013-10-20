@@ -1,8 +1,8 @@
 require 'uri'
 
 class ResourcesController < ApplicationController
-  before_action :set_resource_by_id, only: [:add_to_group, :show, :edit, :update, :destroy, :clear_last_synced]
-  before_action :set_resource_by_username, only: [:details, :disable, :enable, :update, :destroy]
+  before_action :set_resource_by_id, only: [:add_to_group, :show, :edit, :update, :destroy, :clear_last_synced, :change_keywords]
+  before_action :set_resource_by_username, only: [:details, :disable, :enable, :update, :destroy, :show_clean_up, :do_clean_up]
 
 
   def add_to_group
@@ -58,6 +58,48 @@ class ResourcesController < ApplicationController
 
     redirect_to resource_details_path(@resource.username)
   end
+
+  def show_clean_up
+    # note apparently the exact same post/comment can appear multiple times on a users feed
+    # this will remove those duplicates cause for our use case the content is more important
+    duplicate_feeds = Feed.select(:facebook_id, :created_time, :from_id, :to_id, :resource_id).
+         group(:facebook_id, :created_time, :from_id, :to_id, :resource_id).
+         having('count(facebook_id) > 1 AND resource_id = ?', @resource.id)
+
+    @feeds = []
+    duplicate_feeds.each do |dupe|
+      @feeds.concat(Feed.where(facebook_id: dupe.facebook_id, created_time: dupe.created_time, from_id: dupe.from_id, to_id: dupe.to_id, resource_id: dupe.resource_id).to_a)
+    end
+  end
+
+  def do_clean_up
+    duplicate_feeds = Feed.select(:facebook_id, :created_time, :from_id, :to_id, :resource_id).
+         group(:facebook_id, :created_time, :from_id, :to_id, :resource_id).
+         having('count(facebook_id) > 1 AND resource_id = ?', @resource.id)
+
+    duplicate_feeds.each do |dupe|
+      dupes = Feed.where(facebook_id: dupe.facebook_id, created_time: dupe.created_time, from_id: dupe.from_id, to_id: dupe.to_id, resource_id: dupe.resource_id)
+
+      dupes.shift
+
+      dupes.each do |res|
+        res.destroy
+      end
+    end
+
+    flash[:notice] << "Duplicates have been removed"
+
+    redirect_to resource_details_path(@resource.username)
+  end
+
+  def change_keywords
+    keywords = Basicdata.where(resource_id: @resource.id, key: 'keywords').first_or_initialize
+    keywords.value = params[:basicdata][:value]
+    keywords.save!
+
+    flash[:notice] << "Keyword updated"
+    redirect_to :back
+  end
   
   # GET /resources/1
   # GET /resources/1.json
@@ -93,10 +135,11 @@ class ResourcesController < ApplicationController
 
         @group_metrics[metric.resource_group_id] << metric
       end
+
       @group_metrics.each do |key,group|
         
         @group_metrics[key] = group.sort do |a,b|
-          "#{b.name}_#{b.sort_value}" <=> "#{a.name}_#{a.sort_value}"
+          b.sort_value <=> a.sort_value
         end
       end
 
@@ -110,6 +153,8 @@ class ResourcesController < ApplicationController
       if @resource.currently_syncing?
         flash[:info] << "This resource is currently syncing"
       end
+
+      @keywords = @basicdata.where(key: 'keywords').first_or_initialize
     end
     
     respond_to do |format|

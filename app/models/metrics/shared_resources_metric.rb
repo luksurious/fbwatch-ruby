@@ -1,35 +1,27 @@
-require 'digest/md5'
-
 module Metrics
   class SharedResourcesMetric < MetricBase
-    def resource_combinations
-      if self.resource_group.resources.length > 1
-        return self.resource_group.resources.to_a.combination(2).to_a
-      end
-      
-      []
-    end
-
     def analyze
-      resource_combinations.each do |combination|
+      resource_combinations(2).each do |combination|
 
         # calc shared resources
+        token = get_combination_token(combination)
 
         # users posting on or posted on by owner for both resources
         post_result = Resource.find_by_sql [post_intersection_sql, combination[0].id, combination[1].id]
-        shared_resources = post_result.to_json
-
-        # save metric
-        token = Digest::MD5.hexdigest(combination.map{ |res| "#{res.id}.#{res.username}"  }.join('_'))
-        make_group_metric_model(name: 'shared_resources', token: token, value: shared_resources, resources: combination)
+        make_group_metric_model(name: 'shared_resources', token: token, value: post_result.to_json, resources: combination)
 
 
         # users having liked a post/comment on both feeds
         like_result = Resource.find_by_sql [like_intersection_sql, combination[0].id, combination[1].id]
         make_group_metric_model(name: 'shared_resources_likes', token: token, value: like_result.to_json, resources: combination)
 
+
+        # users having liked a post/comment on both feeds
+        tag_result = Resource.find_by_sql [tag_intersection_sql, combination[0].id, combination[1].id]
+        make_group_metric_model(name: 'shared_resources_tagged', token: token, value: tag_result.to_json, resources: combination)
+
         # intersection of users having either liked on or posted on (or being posted on) both feeds
-        mixed_result = Resource.find_by_sql [any_intersection_sql, combination[0].id, combination[0].id, combination[1].id, combination[1].id]
+        mixed_result = Resource.find_by_sql [any_intersection_sql, combination[0].id, combination[0].id, combination[0].id, combination[1].id, combination[1].id, combination[1].id]
         make_group_metric_model(name: 'shared_resources_any', token: token, value: mixed_result.to_json, resources: combination)
       end
     end
@@ -51,8 +43,8 @@ module Metrics
     end
 
     def sort_value(value)
-      res_array = shared_resources_array(value)
-      res_array.size
+      res_array = shared_resources_array(value) || []
+      res_array.size 
     end
 
     def empty?(value)
@@ -97,9 +89,22 @@ module Metrics
         ON A.id = B.id"
       end
 
+      def tag_intersection_sql
+        "SELECT A.id FROM (
+          SELECT DISTINCT resources.id FROM resources INNER JOIN feed_tags ON feed_tags.resource_id = resources.id INNER JOIN feeds ON feeds.id = feed_tags.feed_id
+          WHERE feeds.resource_id = ?) A
+        INNER JOIN
+        (SELECT DISTINCT resources.id FROM resources INNER JOIN feed_tags ON feed_tags.resource_id = resources.id INNER JOIN feeds ON feeds.id = feed_tags.feed_id
+          WHERE feeds.resource_id = ?) B
+        ON A.id = B.id"
+      end
+
       def any_intersection_sql
         "SELECT DISTINCT A.id FROM (
           SELECT DISTINCT resources.id FROM resources INNER JOIN likes ON likes.resource_id = resources.id INNER JOIN feeds ON feeds.id = likes.feed_id
+          WHERE feeds.resource_id = ?
+          UNION
+          SELECT DISTINCT resources.id FROM resources INNER JOIN feed_tags ON feed_tags.resource_id = resources.id INNER JOIN feeds ON feeds.id = feed_tags.feed_id
           WHERE feeds.resource_id = ?
           UNION
           SELECT DISTINCT resources.id 
@@ -113,7 +118,10 @@ module Metrics
         (
           SELECT DISTINCT resources.id FROM resources INNER JOIN likes ON likes.resource_id = resources.id INNER JOIN feeds ON feeds.id = likes.feed_id
           WHERE feeds.resource_id = ?
-            UNION
+          UNION
+          SELECT DISTINCT resources.id FROM resources INNER JOIN feed_tags ON feed_tags.resource_id = resources.id INNER JOIN feeds ON feeds.id = feed_tags.feed_id
+          WHERE feeds.resource_id = ?
+          UNION
           SELECT DISTINCT resources.id
           FROM resources 
             INNER JOIN feeds 

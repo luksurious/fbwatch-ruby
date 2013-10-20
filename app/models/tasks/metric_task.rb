@@ -1,8 +1,5 @@
 module Tasks
   class MetricTask < Base
-    @@resource_metrics = ['ResourceStats', 'SingleUsersMetric']
-    @@group_metrics = ['SharedResourcesMetric']
-
     def self.type_name
       'metric'
     end
@@ -11,15 +8,23 @@ module Tasks
     end
 
     protected
+      def resource_metrics
+        Metrics::MetricBase.single_metrics
+      end
+
+      def group_metrics
+        Metrics::MetricBase.group_metrics
+      end
+
       def task_run
 
         if @task.resource.is_a?(Resource)
-          @total_parts = @@resource_metrics.length
+          @total_parts = resource_metrics.length
 
           result = calc_metrics_for_resource(@task.resource)
 
         elsif @task.resource_group.is_a?(ResourceGroup)
-          @total_parts = @task.resource_group.resources.length * @@resource_metrics.length + @@group_metrics.length
+          @total_parts = @task.resource_group.resources.length * resource_metrics.length + group_metrics.length
 
           result = []
 
@@ -37,11 +42,11 @@ module Tasks
       end
 
       def run_group_metrics
-        run_metric_collection(metrics: @@group_metrics, resource_group: @task.resource_group)
+        run_metric_collection(metrics: group_metrics, resource_group: @task.resource_group)
       end
 
       def calc_metrics_for_resource(resource)
-        run_metric_collection(metrics: @@resource_metrics, resource: resource)
+        run_metric_collection(metrics: resource_metrics, resource: resource)
       end
 
       def run_metric_collection(options)
