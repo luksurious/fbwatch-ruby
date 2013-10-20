@@ -40,6 +40,20 @@ module Metrics
       feed_type_stats('video')
       feed_type_stats('swf')
       feed_type_stats('checkin')
+
+      # data_type = message, so we don't get comments on photos the user is tagged later on
+      first_activity = Feed.where(resource_id: self.resource.id, data_type: 'message').order(:created_time).pluck(:created_time).first
+      make_metric_model('first_feed_activity', first_activity)
+
+      # data_type = message, so we don't get "x has joined facebook" (which is a story)
+      first_post = Feed.where(resource_id: self.resource.id, from_id: self.resource.id, data_type: 'message').order(:created_time).pluck(:created_time).first
+      make_metric_model('first_feed_post', first_post)
+
+      latest_activity = Feed.where(resource_id: self.resource.id).order(:created_time).pluck(:created_time).last
+      make_metric_model('latest_feed_activity', latest_activity)
+
+      latest_post = Feed.where(resource_id: self.resource.id, from_id: self.resource.id).order(:created_time).pluck(:created_time).last
+      make_metric_model('latest_feed_post', latest_post)
     end
 
     def feed_type_stats(type)
@@ -94,7 +108,11 @@ module Metrics
       'total_else_swf' => 'Total SWFs by self on other Feeds',
       'total_checkin' => 'Total Checkins',
       'total_own_checkin' => 'Total Checkins by self',
-      'total_else_checkin' => 'Total Checkins by self on other Feeds'
+      'total_else_checkin' => 'Total Checkins by self on other Feeds',
+      'first_feed_activity' => 'First related activity',
+      'first_feed_post' => 'First own post',
+      'latest_feed_activity' => 'Last feed/message activity',
+      'latest_feed_post' => 'Last post'
     }
   end
 end

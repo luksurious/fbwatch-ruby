@@ -52,6 +52,12 @@
         %p
           %b= item['key']
           = item['value']
+      %p
+        = simple_form_for(@keywords, url: keywords_path(@resource), method: :patch) do |f|
+          = f.error_notification
+          = f.input :key, as: :hidden
+          = f.input :value, as: :string, label: 'Modify keywords (comma seperated)'
+          = f.button :submit, 'Save', class: 'btn-default'
 
 
 %h2 Metrics
