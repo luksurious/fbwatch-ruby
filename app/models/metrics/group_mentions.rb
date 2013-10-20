@@ -28,6 +28,15 @@ module Metrics
       end
     end
 
+    def sort_value(value)
+      mentions = 0
+      value['has'].each do |k,v|
+        mentions += v
+      end
+
+      mentions
+    end
+
     private
       def get_keywords
         if @keywords.nil?

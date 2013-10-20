@@ -4,6 +4,7 @@
 
 = link_to "Sync now", sync_path(@resource.username), class: "btn btn-primary #{@resource.currently_syncing? ? 'disabled' : ''}"
 = link_to "Sync test", sync_path(@resource.username, test: 1), class: "btn btn-default #{@resource.currently_syncing? ? 'disabled' : ''}"
+= link_to "Clean up feed", clean_up_resource_path(@resource.username), class: "btn btn-default #{@resource.currently_syncing? ? 'disabled' : ''}"
 = link_to "Clear all", sync_clear_path(@resource.username), class: "btn btn-default #{@resource.currently_syncing? ? 'disabled' : ''}"
 
 - if @tasks.count > 0
