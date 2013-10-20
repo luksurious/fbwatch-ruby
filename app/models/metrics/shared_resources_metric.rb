@@ -29,8 +29,7 @@ module Metrics
     def vars_for_render(options)
       value = options[:value] || []
 
-      shared_resources_raw = shared_resources_array(value)
-      shared_resources = shared_resources_raw.map { |hash| Resource.find(hash['id']) }
+      shared_resources = value.map { |hash| Resource.find(hash['id']) }
 
       # return a hash
       {
@@ -38,17 +37,13 @@ module Metrics
       }
     end
 
-    def shared_resources_array(value)
-      @res_array ||= JSON.load(value)
-    end
-
     def sort_value(value)
-      res_array = shared_resources_array(value) || []
+      res_array = value || []
       res_array.size 
     end
 
     def empty?(value)
-      shared_resources_array(value).empty?
+      value.empty?
     end
 
     private
