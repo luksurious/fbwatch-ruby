@@ -63,7 +63,7 @@
 
 %h2 
   %a{'data-toggle' => 'collapse', 'data-target' => "\#res-group-metrics"} Metrics
-.row#res-group-metrics
+#res-group-metrics.row.collapse.in
   .col-md-6
     %h3 Resource Metrics
     = link_to "Re-Calc", run_metrics_path(@resource.username), method: :patch, class: "btn btn-default"
@@ -73,9 +73,11 @@
 
   .col-md-6
     %h3 Group Metrics
-    %em.text-muted updating of group metrics can be done on the group page
-    - @resource.resource_groups.each do |group|
-      = link_to group.group_name, resource_group_details_path(group)
+    %p
+      %em.text-muted updating of group metrics can be done on the group page
+    %p
+      Member of 
+      = raw(@resource.resource_groups.map do |group| link_to group.group_name, resource_group_details_path(group) end.join(', '))
     %ul  
       - @group_metrics.each do |class_name, group|
         %li= render "metrics/#{class_name}", collection: group, klass: Metrics::ModelHelper.make_klass(class_name).set(group)
@@ -140,7 +142,7 @@
         %span.type= " (#{item['feed_type']})"
       .data= item['data']
       .footer
-        %span.likes= item['like_count']
-        %span.comments= item['comment_count']
+        %span.likes= "item['like_count'] likes"
+        %span.comments= "item['comment_count'] comments"
 
 = render 'resources/feeds_paging', offset: @offset, username: @resource.username, filter: @filter, total_pages: @total_pages
