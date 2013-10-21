@@ -51,6 +51,29 @@ module Metrics
       value.empty?
     end
 
+    def metrics_by_token
+      if @metrics_by_token.nil?
+        @metrics_by_token ||= @metrics.group_by { |item| item.resources_token }
+
+        @metrics_by_token.each do |token, group|
+          aggregate = 0
+          group.each { |item| aggregate += item.sort_value }
+
+          @metrics_by_token[token] = {
+            involved: group[0].resources,
+            aggregate: aggregate,
+            details: group
+          }
+        end
+
+        @metrics_by_token = @metrics_by_token.values.sort do |a, b|
+          b[:aggregate] <=> a[:aggregate]
+        end
+      end
+
+      @metrics_by_token
+    end
+
     @@friendly_names = {
       'shared_resources' => 'posted',
       'shared_resources_likes' => 'liked',
