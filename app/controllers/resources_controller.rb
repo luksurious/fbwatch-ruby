@@ -130,17 +130,17 @@ class ResourcesController < ApplicationController
 
       @group_metrics = {}
       @resource.group_metrics.each do |metric|
-        @group_metrics[metric.resource_group_id] ||= []
+        @group_metrics[metric.metric_class] ||= []
 
-        @group_metrics[metric.resource_group_id] << metric
+        @group_metrics[metric.metric_class] << metric
       end
 
-      @group_metrics.each do |key,group|
+      # @group_metrics.each do |key,group|
         
-        @group_metrics[key] = group.sort do |a,b|
-          b.sort_value <=> a.sort_value
-        end
-      end
+      #   @group_metrics[key] = group.sort do |a,b|
+      #     b.sort_value <=> a.sort_value
+      #   end
+      # end
 
       @all_groups = ResourceGroup.all
 

@@ -33,6 +33,7 @@ module Metrics
 
       # return a hash
       {
+        friendly_name: @@friendly_names[options[:name]],
         shared_resources: shared_resources
       }
     end
@@ -45,6 +46,13 @@ module Metrics
     def empty?(value)
       value.empty?
     end
+
+    @@friendly_names = {
+      'shared_resources' => 'posted',
+      'shared_resources_likes' => 'liked',
+      'shared_resources_tagged' => 'tagged',
+      'shared_resources_any' => 'any'
+    }
 
     private
       def post_intersection_sql

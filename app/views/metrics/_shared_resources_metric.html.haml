@@ -1,0 +1,17 @@
+Connection via Shared Resources
+%ul
+  - collection.each do |metric|
+    %li
+      %p
+        %strong= metric.vars_for_render[:friendly_name]
+      %p
+        %strong= metric.vars_for_render[:shared_resources].size
+        with 
+        = raw print_res_list_excl_self(metric.vars_for_render[:involved_resources], @resource)
+        %small
+          %a.text-muted{'data-toggle' => 'collapse', 'data-target' => "\##{metric.vars_for_render[:name]}-#{metric.vars_for_render[:token]}"} show
+        - unless metric.vars_for_render[:shared_resources].empty?
+          .collapse{id: "#{metric.vars_for_render[:name]}-#{metric.vars_for_render[:token]}"}
+            (
+            = raw print_res_list(metric.vars_for_render[:shared_resources])
+            )
