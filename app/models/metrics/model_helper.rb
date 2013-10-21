@@ -2,14 +2,20 @@ module Metrics
   module ModelHelper
     # in order to use this mixin, make sure the model has a field 'metric_class',
     # 'value' and 'name'
+    def self.make_klass(class_name)
+      options = {}
+      yield options if block_given?
+
+      class_name = class_name.camelize
+      class_name = "Metrics::#{class_name}" if class_name.index('::').nil?
+      class_name.constantize.new(options)
+    end
+
     def klass
       if @klass.nil?
-        options = {}
-        yield options if block_given?
-
-        class_name = self.metric_class.camelize
-        class_name = "Metrics::#{class_name}" if class_name.index('::').nil?
-        @klass = class_name.constantize.new(options)
+        @klass = ModelHelper.make_klass(self.metric_class) do |options|
+          yield options if block_given?
+        end
       end
       @klass
     end

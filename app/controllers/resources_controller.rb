@@ -4,7 +4,6 @@ class ResourcesController < ApplicationController
   before_action :set_resource_by_id, only: [:add_to_group, :show, :edit, :update, :destroy, :clear_last_synced, :change_keywords]
   before_action :set_resource_by_username, only: [:details, :disable, :enable, :update, :destroy, :show_clean_up, :do_clean_up]
 
-
   def add_to_group
     @resource.resource_groups << ResourceGroup.find(params[:resource][:resource_groups])
     @resource.save
@@ -127,21 +126,21 @@ class ResourcesController < ApplicationController
       @filter_count = Feed.where(filter_hash).count
       @total_pages = (@filter_count / 100.0).ceil
 
-      @metrics = Metric.where(resource_id: @resource.id)
+      @metrics = Metric.where(resource_id: @resource.id).order(:metric_class).group_by(&:metric_class)
 
       @group_metrics = {}
       @resource.group_metrics.each do |metric|
-        @group_metrics[metric.resource_group_id] ||= []
+        @group_metrics[metric.metric_class] ||= []
 
-        @group_metrics[metric.resource_group_id] << metric
+        @group_metrics[metric.metric_class] << metric
       end
 
-      @group_metrics.each do |key,group|
+      # @group_metrics.each do |key,group|
         
-        @group_metrics[key] = group.sort do |a,b|
-          b.sort_value <=> a.sort_value
-        end
-      end
+      #   @group_metrics[key] = group.sort do |a,b|
+      #     b.sort_value <=> a.sort_value
+      #   end
+      # end
 
       @all_groups = ResourceGroup.all
 

@@ -14,7 +14,8 @@ class GroupMetric < ActiveRecord::Base
 
   def vars_for_render
     {
-      involved_resources: self.resources
+      involved_resources: self.resources,
+      token: self.resources_token
     }.merge(super)
   end
 end

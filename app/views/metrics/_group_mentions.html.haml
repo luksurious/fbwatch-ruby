@@ -1,0 +1,12 @@
+Mentions
+%ul
+  - collection.each do |metric|
+    %li
+      %p{class: "metric-key-#{metric.vars_for_render[:name]}"}
+        %strong Mentioned keywords
+        for 
+        - res = Resource.find(metric.vars_for_render[:value]['for'])
+        = link_to res.name, resource_details_path(res.username)
+        %ul
+          - metric.vars_for_render[:value]['has'].each do |k,v|
+            %li= "#{k}: #{v}"
