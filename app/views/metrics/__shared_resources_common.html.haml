@@ -1,12 +1,11 @@
 %p
+  %strong= shared_resources.size
   with 
-  - involved_resources_string = involved_resources.map { |res| 
-  -  next if res == @resource
-  -  link_to res.name, resource_details_path(res.username) }.compact.join(', ')
-  = raw "#{involved_resources_string}: #{shared_resources.size}"
+  = raw print_res_list_excl_self(involved_resources, @resource)
+  %small
+    %a.text-muted{'data-toggle' => 'collapse', 'data-target' => "\##{name}-#{token}"} show
   - unless shared_resources.empty?
-    %br
-    %span
+    .collapse{id: "#{name}-#{token}"}
       (
-      = raw shared_resources.map { |res| link_to res.name, resource_details_path(res.username) }.join(', ')
+      = raw print_res_list(shared_resources)
       )
