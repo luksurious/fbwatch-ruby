@@ -68,8 +68,8 @@
     %h3 Resource Metrics
     = link_to "Re-Calc", run_metrics_path(@resource.username), method: :patch, class: "btn btn-default"
     %ul
-    - @metrics.each do |item|
-      %li= render "metrics/#{item.view_name}", item.vars_for_render
+    - @metrics.each do |class_name, group|
+      %li= render "metrics/#{class_name}", collection: group, klass: Metrics::ModelHelper.make_klass(class_name).set(group)
 
   .col-md-6
     %h3 Group Metrics

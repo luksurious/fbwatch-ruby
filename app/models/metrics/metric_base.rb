@@ -2,7 +2,7 @@ require 'digest/md5'
 
 module Metrics
   class MetricBase
-    @@resource_metrics = ['ResourceStats', 'SingleUsersMetric']
+    @@resource_metrics = ['ResourceStats', 'SingleUsersMetric', 'FeedTimeline']
     @@group_metrics = ['SharedResourcesMetric', 'GroupMentions']
 
     def self.single_metrics
@@ -72,6 +72,11 @@ module Metrics
       #if !metric.save
       #  Rails.logger.error "Couldn't save metric #{options[:name]} (errors: #{metric.errors.full_messages}"
       #end
+    end
+
+    def set(collection)
+      @metrics = collection
+      self
     end
   end
 end
