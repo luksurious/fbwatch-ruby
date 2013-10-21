@@ -72,15 +72,14 @@
 
   .col-md-6
     %h3 Group Metrics
-    %i updating of group metrics can be done on the group page
-    %ul
-      - @resource.resource_groups.each do |group|
-        %li
-          = link_to group.group_name, resource_group_details_path(group)
-        - unless @group_metrics[group.id].nil?
-          - @group_metrics[group.id].each do |metric|
-            %ul
-              %li= render "metrics/#{metric.view_name}", metric.vars_for_render
+    %em.text-muted updating of group metrics can be done on the group page
+    - @resource.resource_groups.each do |group|
+      %h4
+        = link_to group.group_name, resource_group_details_path(group)
+      - unless @group_metrics[group.id].nil?
+        - @group_metrics[group.id].each do |metric|
+          %ul
+            %li= render "metrics/#{metric.view_name}", metric.vars_for_render
 
     = form_tag(add_resource_to_group_path(@resource)) do
       .form-group
