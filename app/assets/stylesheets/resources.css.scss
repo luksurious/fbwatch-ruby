@@ -52,21 +52,8 @@
         width: 500px;
     }   
 }
-/*#timeline {
-    li.first {
-        .circle {
-            right:auto;
-        }
-        label {
-            left:0;
-        }
+#fb-timeline .event {
+    .heading {
+        font-size: 90%;
     }
-    li.now {
-        .circle {
-            left:auto;
-        }
-        label {
-            right:0;
-        }
-    }
-}*/
+}
