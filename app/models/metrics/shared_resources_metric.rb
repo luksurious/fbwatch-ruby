@@ -27,15 +27,19 @@ module Metrics
     end
 
     def vars_for_render(options)
-      value = options[:value] || []
+      if @vars_for_render.nil?
+        value = options[:value] || []
 
-      shared_resources = value.map { |hash| Resource.find(hash['id']) }
+        ids_to_load = value.map { |hash| hash['id'] }
+        shared_resources = Resource.find(ids_to_load)
 
-      # return a hash
-      {
-        friendly_name: @@friendly_names[options[:name]],
-        shared_resources: shared_resources
-      }
+        # return a hash
+        @vars_for_render = {
+          friendly_name: @@friendly_names[options[:name]],
+          shared_resources: shared_resources
+        }
+      end
+      @vars_for_render
     end
 
     def sort_value(value)
