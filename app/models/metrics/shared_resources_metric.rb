@@ -27,15 +27,19 @@ module Metrics
     end
 
     def vars_for_render(options)
-      value = options[:value] || []
+      if @vars_for_render.nil?
+        value = options[:value] || []
 
-      shared_resources = value.map { |hash| Resource.find(hash['id']) }
+        ids_to_load = value.map { |hash| hash['id'] }
+        shared_resources = Resource.find(ids_to_load)
 
-      # return a hash
-      {
-        friendly_name: @@friendly_names[options[:name]],
-        shared_resources: shared_resources
-      }
+        # return a hash
+        @vars_for_render = {
+          friendly_name: @@friendly_names[options[:name]],
+          shared_resources: shared_resources
+        }
+      end
+      @vars_for_render
     end
 
     def sort_value(value)
@@ -45,6 +49,29 @@ module Metrics
 
     def empty?(value)
       value.empty?
+    end
+
+    def metrics_by_token
+      if @metrics_by_token.nil?
+        @metrics_by_token ||= @metrics.group_by { |item| item.resources_token }
+
+        @metrics_by_token.each do |token, group|
+          aggregate = 0
+          group.each { |item| aggregate += item.sort_value }
+
+          @metrics_by_token[token] = {
+            involved: group[0].resources,
+            aggregate: aggregate,
+            details: group
+          }
+        end
+
+        @metrics_by_token = @metrics_by_token.values.sort do |a, b|
+          b[:aggregate] <=> a[:aggregate]
+        end
+      end
+
+      @metrics_by_token
     end
 
     @@friendly_names = {

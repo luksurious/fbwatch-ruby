@@ -21,12 +21,16 @@ module Metrics
     end
 
     def vars_for_render
-      custom_vars = klass.vars_for_render(value: self.value, name: self.name) if klass.class.method_defined? :vars_for_render
+      if @vars_for_render.nil?
+        custom_vars = klass.vars_for_render(value: self.value, name: self.name) if klass.class.method_defined? :vars_for_render
 
-      {
-        name: self.name,
-        value: self.value
-      }.merge(custom_vars || {})
+        @vars_for_render = {
+          name: self.name,
+          value: self.value
+        }.merge(custom_vars || {})
+      end
+
+      @vars_for_render
     end
 
     def sort_value
