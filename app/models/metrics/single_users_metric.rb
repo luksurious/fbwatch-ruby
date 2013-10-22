@@ -4,25 +4,26 @@ module Metrics
 
     def analyze
       fans = Resource.joins('INNER JOIN feeds ON feeds.from_id = resources.id').where(feeds: {resource_id: self.resource.id}).
-                      where.not(id: self.resource.id).limit(10).group('resources.id').count(:id)
+                      where.not(id: self.resource.id).limit(10).group('resources.id').order('COUNT(resources.id) DESC').count(:id)
       make_metric_model('fans', fans)
 
       fans_self = Resource.joins('INNER JOIN feeds ON feeds.resource_id = resources.id').where(feeds: {from_id: self.resource.id}).
-                           where.not(feeds: {resource_id: self.resource.id}).limit(10).group('resources.id').count(:id)
+                           where.not(feeds: {resource_id: self.resource.id}).limit(10).group('resources.id').order('COUNT(resources.id) DESC').count(:id)
       make_metric_model('fans_self', fans_self)
 
-      fans_like = Like.joins(:feed).where(feeds: {resource_id: self.resource.id}).limit(10).group('likes.resource_id').count(:id)
+      fans_like = Like.joins(:feed).where(feeds: {resource_id: self.resource.id}).limit(10).group('likes.resource_id').order('COUNT(likes.id) DESC').count(:id)
       make_metric_model('fans_like', fans_like)
 
       feeds_i_like = Feed.joins(:likes).where(likes: {resource_id: self.resource.id}).
-                          where.not(resource_id: self.resource.id).limit(10).group('feeds.resource_id').count(:id)
+                          where.not(resource_id: self.resource.id).limit(10).group('feeds.resource_id').order('COUNT(feeds.id) DESC').count(:id)
       make_metric_model('feeds_i_like', feeds_i_like)
 
-      fans_tag = FeedTag.joins(:feed).where(feeds: {resource_id: self.resource.id}).limit(10).group('feed_tags.resource_id').count(:id)
+      fans_tag = FeedTag.joins(:feed).where(feeds: {resource_id: self.resource.id}).limit(10).
+                         group('feed_tags.resource_id').order('COUNT(feed_tags.id) DESC').count(:id)
       make_metric_model('fans_tag', fans_tag)
 
       feeds_i_tag = Feed.joins(:feed_tags).where(feed_tags: {resource_id: self.resource.id}).
-                         where.not(resource_id: self.resource.id).limit(10).group('feeds.resource_id').count(:id)
+                         where.not(resource_id: self.resource.id).limit(10).group('feeds.resource_id').order('COUNT(feeds.id) DESC').count(:id)
       make_metric_model('feeds_i_tag', feeds_i_tag)
     end
 
