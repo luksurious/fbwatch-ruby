@@ -3,9 +3,9 @@ class MetricsController < ApplicationController
     @username = params[:username]
     @resource = Resource.find_by_username(@username)
 
-    metric_task = Tasks::MetricTask.new(resource: @resource).run
+    metric_task = Tasks::MetricTask.new(resource: @resource)
 
-    #TaskWorker.perform_async('task' => metric_task.task.id)
+    TaskWorker.perform_async('task' => metric_task.task.id)
 
     flash[:notice] << "Resource metrics are being updated"
     redirect_to resource_details_path(@resource.username)
