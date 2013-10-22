@@ -2,7 +2,7 @@ class ApplicationController < ActionController::Base
   protect_from_forgery
   include SessionsHelper
 
-  #rescue_from StandardError, :with => :error_render_method
+  rescue_from StandardError, :with => :error_render_method
   rescue_from ActiveRecord::RecordNotFound, with: :error_not_found
 
   before_filter :setup_flash
