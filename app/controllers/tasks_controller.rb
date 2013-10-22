@@ -22,9 +22,7 @@ class TasksController < ApplicationController
   def resume_task
     # check if resumable
     if @task.type != 'sync' or # right now only sync is possible
-       @task.progress >= 1 or
-       (!@task.resource_group.nil? and
-          @task.data[Tasks::SyncTask::DATA_KEY_RESUME].empty?)
+       @task.progress >= 1
       flash[:warning] << "Cannot resume task \##{@task.id}, not resumable"
       redirect_to tasks_path and return
     end
