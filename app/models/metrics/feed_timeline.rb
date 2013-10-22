@@ -21,7 +21,7 @@ module Metrics
         @timeline = {}
 
         @metrics.each do |item|
-          @timeline[item.name] = DateTime.parse(item.value).to_time
+          @timeline[item.name] = DateTime.parse(item.value).to_time if item.value.is_a?(String)
         end
       end
 
@@ -49,23 +49,23 @@ module Metrics
     end
 
     def first_activity_width
-      @first_activity_width ||= ((first_post - first_activity) / timeline_base * 75.0).ceil
+      @first_activity_width ||= ((first_post - first_activity) / timeline_base * 75.0).ceil unless first_activity.nil?
     end
 
     def first_post_width
-      @first_post_width ||= ((last_post - first_post) / timeline_base * 75.0).floor
+      @first_post_width ||= ((last_post - first_post) / timeline_base * 75.0).floor unless last_post.nil?
     end
 
     def last_post_width
-      @last_post_width ||= ((last_activity - last_post) / timeline_base * 75.0).ceil
+      @last_post_width ||= ((last_activity - last_post) / timeline_base * 75.0).ceil unless last_activity.nil?
     end
 
     def last_activity_width
-      @last_activity_width ||= 25 - ((Time.now - last_activity) / 1.month * 25).ceil
+      @last_activity_width ||= 25 - ((Time.now - last_activity) / 1.month * 25).ceil unless last_activity.nil?
     end
 
     def idle_width
-      @idle_width ||= 25 - last_activity_width
+      @idle_width ||= 25 - last_activity_width unless last_activity_width.nil?
     end
   end
 end
