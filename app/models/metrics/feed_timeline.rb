@@ -61,7 +61,7 @@ module Metrics
     end
 
     def last_activity_width
-      @last_activity_width ||= ((Time.now - last_activity) / 1.month * 25).ceil
+      @last_activity_width ||= 25 - ((Time.now - last_activity) / 1.month * 25).ceil
     end
 
     def idle_width
