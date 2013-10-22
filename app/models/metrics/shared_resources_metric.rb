@@ -8,21 +8,21 @@ module Metrics
 
         # users posting on or posted on by owner for both resources
         post_result = Resource.find_by_sql [post_intersection_sql, combination[0].id, combination[1].id]
-        make_group_metric_model(name: 'shared_resources', token: token, value: post_result, resources: combination)
+        make_group_metric_model(name: 'shared_resources', token: token, value: post_result.map { |x| {'id' => x.id} }, resources: combination)
 
 
         # users having liked a post/comment on both feeds
         like_result = Resource.find_by_sql [like_intersection_sql, combination[0].id, combination[1].id]
-        make_group_metric_model(name: 'shared_resources_likes', token: token, value: like_result, resources: combination)
+        make_group_metric_model(name: 'shared_resources_likes', token: token, value: like_result.map { |x| {'id' => x.id} }, resources: combination)
 
 
         # users having liked a post/comment on both feeds
         tag_result = Resource.find_by_sql [tag_intersection_sql, combination[0].id, combination[1].id]
-        make_group_metric_model(name: 'shared_resources_tagged', token: token, value: tag_result, resources: combination)
+        make_group_metric_model(name: 'shared_resources_tagged', token: token, value: tag_result.map { |x| {'id' => x.id} }, resources: combination)
 
         # intersection of users having either liked on or posted on (or being posted on) both feeds
         mixed_result = Resource.find_by_sql [any_intersection_sql, combination[0].id, combination[0].id, combination[0].id, combination[1].id, combination[1].id, combination[1].id]
-        make_group_metric_model(name: 'shared_resources_any', token: token, value: mixed_result, resources: combination)
+        make_group_metric_model(name: 'shared_resources_any', token: token, value: mixed_result.map { |x| {'id' => x.id} }, resources: combination)
       end
     end
 

@@ -36,7 +36,7 @@ module Tasks
         create_new_task(options)
       end
 
-      @send_mail = options[:send_mail] || false
+      @send_mail = options[:send_mail] || true
     end
 
     def use_existing_task(task)
