@@ -29,12 +29,12 @@ module Metrics
     end
 
     def query_google_keywords(keywords)
-      query_parameters = []
+      query_parameter = ""
       keywords.each do |group|
-        query_parameters << '("' << group.join('" OR "') << '")'
+        query_parameter << '("' << group.join('"|"') << '") '
       end
 
-      Rails.logger.debug("Calling google with query: #{query_parameters.join(' AND ')}")
+      Rails.logger.debug("Calling google with query: #{query_parameter}")
 
       uri = URI.parse("http://www.google.com/search?hl=en&q=#{URI.escape(query_parameter)}&filter=0")
       response = Net::HTTP.get_response(uri)
