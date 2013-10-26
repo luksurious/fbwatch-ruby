@@ -1,9 +1,6 @@
 module Metrics
   class GroupMentions < MetricBase
     def analyze
-      # get keywords to search for
-      keywords = get_keywords
-
       self.resource_group.resources.each do |res|
         # search feed for each keyword
         keywords.each do |partner, list|
@@ -37,28 +34,5 @@ module Metrics
       mentions
     end
 
-    private
-      def get_keywords
-        if @keywords.nil?
-          @keywords = {}
-          self.resource_group.resources.each do |res|
-            custom_keywords = Basicdata.where(resource_id: res.id, key: 'keywords').pluck(:value).first
-
-            @keywords[res.id] = [
-              res.name,
-              res.username,
-              res.facebook_id
-            ]
-
-            unless custom_keywords.nil?
-              custom_keywords.split(',').each do |key|
-                @keywords[res.id] << key.strip
-              end
-            end
-          end
-        end
-
-        @keywords
-      end
   end
 end

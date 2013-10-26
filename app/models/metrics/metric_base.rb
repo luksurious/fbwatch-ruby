@@ -3,7 +3,7 @@ require 'digest/md5'
 module Metrics
   class MetricBase
     @@resource_metrics = ['ResourceStats', 'SingleUsersMetric', 'FeedTimeline']
-    @@group_metrics = ['SharedResourcesMetric', 'GroupMentions']
+    @@group_metrics = ['SharedResourcesMetric', 'GroupMentions', 'GoogleMentions']
 
     def self.single_metrics
       @@resource_metrics
@@ -77,6 +77,29 @@ module Metrics
     def set(collection)
       @metrics = collection
       self
+    end
+
+    def keywords
+      if @keywords.nil?
+        @keywords = {}
+        self.resource_group.resources.each do |res|
+          custom_keywords = Basicdata.where(resource_id: res.id, key: 'keywords').pluck(:value).first
+
+          @keywords[res.id] = [
+            res.name,
+            res.username,
+            res.facebook_id
+          ]
+
+          unless custom_keywords.nil?
+            custom_keywords.split(',').each do |key|
+              @keywords[res.id] << key.strip
+            end
+          end
+        end
+      end
+
+      @keywords
     end
   end
 end
