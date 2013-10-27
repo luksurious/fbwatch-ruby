@@ -30,7 +30,7 @@ module Metrics
     end
 
     def get_combination_token(combination)
-      Digest::MD5.hexdigest(combination.map{ |res| "#{res.id}.#{res.username}"  }.join('_'))
+      Digest::MD5.hexdigest(combination.sort.map{ |res| "#{res.id}.#{res.username}"  }.join('_'))
     end
 
     def set_options(options)
