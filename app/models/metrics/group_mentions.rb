@@ -14,11 +14,12 @@ module Metrics
           }
 
           list.each do |keyword|
-
             count = Feed.where(resource_id: res.id).where.not(from_id: res.id).where("data LIKE '%#{keyword}%'").count
 
             mention_value[:has][keyword] = count if count > 0
           end
+
+          mention_value[:has]['__tagged__'] = FeedTag.joins(:feed).where(resource_id: partner, feeds: {resource_id: res.id}).count
 
           make_group_metric_model(name: 'mentions', token: token, value: mention_value, resources: [res]) unless mention_value[:has].blank?
         end
