@@ -57,8 +57,6 @@ module Tasks
           return
         end
 
-        metrics_transaction = []
-
         collection.each do |metric_class|
           metric_class = "Metrics::#{metric_class}"
           klass = metric_class.constantize.new(options)
@@ -71,14 +69,18 @@ module Tasks
             Utility.log_exception(ex, mail: @send_mail, info: @task.inspect)
           end
 
-          metrics_transaction.concat(klass.metrics) if klass.metrics.is_a?(Array)
+          save_metric_models(klass.metrics) if klass.metrics.is_a?(Array)
 
           part_done
         end
+      end
 
-        metrics_transaction.each do |obj| 
+      def save_metric_models(collection)
+        collection.each do |obj| 
           Utility.save_resource_gracefully(obj)
         end
+
+        collection.clear
       end
 
       def resume

@@ -7,9 +7,9 @@ class Resource < ActiveRecord::Base
   has_many :feed
   
   has_many :metrics
+  has_many :group_metrics
 
   has_and_belongs_to_many :resource_groups
-  has_and_belongs_to_many :group_metrics
   
   def to_fb_hash
     { 

@@ -3,6 +3,8 @@ module Metrics
     @@id = "single_users_metric"
 
     def analyze
+      clear
+      
       fans = Resource.joins('INNER JOIN feeds ON feeds.from_id = resources.id').where(feeds: {resource_id: self.resource.id}).
                       where.not(id: self.resource.id).limit(10).group('resources.id').order('COUNT(resources.id) DESC').count(:id)
       make_metric_model('fans', fans)

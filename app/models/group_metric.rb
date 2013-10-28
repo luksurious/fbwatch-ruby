@@ -3,7 +3,9 @@ class GroupMetric < ActiveRecord::Base
   
   serialize :value, JSON
 
+  belongs_to :resource
   belongs_to :resource_group
+
   has_and_belongs_to_many :resources, -> { order(username: :desc) }
 
   def klass
@@ -15,7 +17,7 @@ class GroupMetric < ActiveRecord::Base
   def vars_for_render
     {
       involved_resources: self.resources,
-      token: self.resources_token
+      owner: self.resource
     }.merge(super)
   end
 end
