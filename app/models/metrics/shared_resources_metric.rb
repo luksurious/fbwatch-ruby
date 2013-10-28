@@ -3,26 +3,21 @@ module Metrics
     def analyze
       resource_combinations(2).each do |combination|
 
-        # calc shared resources
-        token = get_combination_token(combination)
-
         # users posting on or posted on by owner for both resources
-        post_result = Resource.find_by_sql [post_intersection_sql, combination[0].id, combination[1].id]
-        make_group_metric_model(name: 'shared_resources', token: token, value: post_result.map { |x| {'id' => x.id} }, resources: combination)
-
+        post_result = (Resource.find_by_sql [post_intersection_sql, combination[0].id, combination[1].id]).map { |x| {'id' => x.id} }
+        make_mutual_group_metric_model(name: 'shared_resources', value: post_result, resources: combination)
 
         # users having liked a post/comment on both feeds
         like_result = Resource.find_by_sql [like_intersection_sql, combination[0].id, combination[1].id]
-        make_group_metric_model(name: 'shared_resources_likes', token: token, value: like_result.map { |x| {'id' => x.id} }, resources: combination)
-
+        make_mutual_group_metric_model(name: 'shared_resources_likes', value: like_result.map { |x| {'id' => x.id} }, resources: combination)
 
         # users having liked a post/comment on both feeds
         tag_result = Resource.find_by_sql [tag_intersection_sql, combination[0].id, combination[1].id]
-        make_group_metric_model(name: 'shared_resources_tagged', token: token, value: tag_result.map { |x| {'id' => x.id} }, resources: combination)
+        make_mutual_group_metric_model(name: 'shared_resources_tagged', value: tag_result.map { |x| {'id' => x.id} }, resources: combination)
 
         # intersection of users having either liked on or posted on (or being posted on) both feeds
         mixed_result = Resource.find_by_sql [any_intersection_sql, combination[0].id, combination[0].id, combination[0].id, combination[1].id, combination[1].id, combination[1].id]
-        make_group_metric_model(name: 'shared_resources_any', token: token, value: mixed_result.map { |x| {'id' => x.id} }, resources: combination)
+        make_mutual_group_metric_model(name: 'shared_resources_any', value: mixed_result.map { |x| {'id' => x.id} }, resources: combination)
       end
     end
 
@@ -52,8 +47,8 @@ module Metrics
     end
 
     def metrics_by_token
-      if @metrics_by_token.nil?
-        @metrics_by_token ||= @metrics.group_by { |item| item.resources_token }
+      if @metrics_by_token.blank?
+        @metrics_by_token ||= @metrics.group_by { |item| item.resources.map(&:id).sort.join('_') }
 
         @metrics_by_token.each do |token, group|
           aggregate = 0

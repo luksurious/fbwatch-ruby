@@ -1,9 +1,10 @@
-require 'digest/md5'
-
 module Metrics
   class MetricBase
     @@resource_metrics = ['ResourceStats', 'SingleUsersMetric', 'FeedTimeline']
-    @@group_metrics = ['SharedResourcesMetric', 'GroupMentions', 'GoogleMentions']
+    @@group_metrics = ['SharedResourcesMetric', 
+      'GroupMentions', 'GoogleMentions', 
+      #'Scoring'
+    ]
 
     def self.single_metrics
       @@resource_metrics
@@ -29,10 +30,6 @@ module Metrics
       []
     end
 
-    def get_combination_token(combination)
-      Digest::MD5.hexdigest(combination.sort.map{ |res| "#{res.id}.#{res.username}"  }.join('_'))
-    end
-
     def set_options(options)
       @resource = options[:resource]
       @resource_group = options[:resource_group]
@@ -55,8 +52,8 @@ module Metrics
       metric = GroupMetric.where({ 
         metric_class: self.class_name, 
         name: options[:name], 
-        resources_token: options[:token], 
-        resource_group_id: @resource_group.id 
+        resource_group_id: @resource_group.id,
+        resource_id: options[:owner]
         }).first_or_initialize
 
       metric.value = options[:value]
@@ -72,6 +69,21 @@ module Metrics
       #if !metric.save
       #  Rails.logger.error "Couldn't save metric #{options[:name]} (errors: #{metric.errors.full_messages}"
       #end
+    end
+
+    def make_mutual_group_metric_model(options)
+      options[:resources].each do |resource|
+
+        involved = options[:resources].dup
+        involved.delete(resource)
+
+        make_group_metric_model({
+          owner: resource,
+          resources: involved,
+          value: options[:value],
+          name: options[:name]
+        })
+      end
     end
 
     def set(collection)

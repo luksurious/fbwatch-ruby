@@ -8,11 +8,9 @@ module Metrics
       resource_combinations(2).each do |combination|
 
         # calc shared resources
-        token = get_combination_token(combination)
-
         web_results = query_google_keywords(keywords_for(combination))
 
-        make_group_metric_model(name: 'google_mentions', token: token, value: web_results, resources: combination)
+        make_mutual_group_metric_model(name: 'google_mentions', value: web_results, resources: combination)
       end
     end
 

@@ -5,30 +5,24 @@ module Metrics
         # search feed for each keyword
         keywords.each do |partner, list|
           # save each keyword count
-          combination = [res, Resource.find(partner)]
-          token = get_combination_token(combination)
-          
-          mention_value = {
-            for: partner,
-            has: {}
-          }
+          mention_value = {}
 
           list.each do |keyword|
             count = Feed.where(resource_id: res.id).where.not(from_id: res.id).where("data LIKE '%#{keyword}%'").count
 
-            mention_value[:has][keyword] = count if count > 0
+            mention_value[keyword] = count if count > 0
           end
 
-          mention_value[:has]['__tagged__'] = FeedTag.joins(:feed).where(resource_id: partner, feeds: {resource_id: res.id}).count
+          mention_value['__tagged__'] = FeedTag.joins(:feed).where(resource_id: partner, feeds: {resource_id: res.id}).count
 
-          make_group_metric_model(name: 'mentions', token: token, value: mention_value, resources: [res]) unless mention_value[:has].blank?
+          make_group_metric_model(name: 'mentions', owner: res, value: mention_value, resources: [Resource.find(partner)]) unless mention_value.blank?
         end
       end
     end
 
     def sort_value(value)
       mentions = 0
-      value['has'].each do |k,v|
+      value.each do |k,v|
         mentions += v
       end
 

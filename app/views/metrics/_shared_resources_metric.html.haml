@@ -3,7 +3,7 @@ Connection via Shared Resources
   - klass.metrics_by_token.each do |group|
     %li
       with 
-      = raw print_res_list_excl_self(group[:involved], @resource)
+      = raw print_res_list(group[:involved])
       %strong= group[:aggregate]
     - group[:details].each do |metric|
       %ul

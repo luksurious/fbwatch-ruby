@@ -5,5 +5,5 @@ Google Mentions
       %p{class: "metric-key-#{metric.vars_for_render[:name]}"}
         %strong Mentioned keywords
         for 
-        = raw print_res_list_excl_self(metric.vars_for_render[:involved_resources], @resource)
+        = raw print_res_list(metric.vars_for_render[:involved_resources])
         = metric.vars_for_render[:value]

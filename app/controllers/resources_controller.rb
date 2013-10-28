@@ -128,13 +128,8 @@ class ResourcesController < ApplicationController
 
       @metrics = Metric.where(resource_id: @resource.id).order(:metric_class).group_by(&:metric_class)
 
-      @group_metrics = {}
-      @resource.group_metrics.each do |metric|
-        @group_metrics[metric.metric_class] ||= []
-
-        @group_metrics[metric.metric_class] << metric
-      end
-
+      @group_metrics = @resource.group_metrics.group_by(&:metric_class)
+      
       @all_groups = ResourceGroup.all
 
       @tasks = Task.where(resource_id: @resource.id, running: true)
