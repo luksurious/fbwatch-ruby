@@ -4,6 +4,7 @@ require "uri"
 module Metrics
   class GoogleMentions < MetricBase
     def analyze
+      clear
 
       resource_combinations(2).each do |combination|
 

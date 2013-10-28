@@ -3,6 +3,8 @@ module Metrics
     @@id = "resource_stats"
 
     def analyze
+      clear
+      
       total_feed = Feed.where(resource_id: self.resource.id).count
       make_metric_model('total_feed_items', total_feed)
 

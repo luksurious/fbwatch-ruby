@@ -1,6 +1,8 @@
 module Metrics
   class SharedResourcesMetric < MetricBase
     def analyze
+      clear
+      
       resource_combinations(2).each do |combination|
 
         # users posting on or posted on by owner for both resources

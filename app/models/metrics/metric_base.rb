@@ -1,9 +1,10 @@
 module Metrics
   class MetricBase
-    @@resource_metrics = ['ResourceStats', 'SingleUsersMetric', 'FeedTimeline']
+    @@resource_metrics = ['ResourceStats', 'SingleUsersMetric', 'FeedTimeline'
+    ]
     @@group_metrics = ['SharedResourcesMetric', 
       'GroupMentions', 'GoogleMentions', 
-      #'Scoring'
+      'Scoring'
     ]
 
     def self.single_metrics
@@ -30,6 +31,11 @@ module Metrics
       []
     end
 
+    def clear
+      Metric.where(metric_class: self.class_name, resource_id: @resource.id).destroy_all if @resource.is_a?(Resource)
+      GroupMetric.where(metric_class: self.class_name, resource_group_id: @resource_group.id).destroy_all if @resource_group.is_a?(ResourceGroup)
+    end
+
     def set_options(options)
       @resource = options[:resource]
       @resource_group = options[:resource_group]
@@ -48,13 +54,15 @@ module Metrics
     end
 
     def make_group_metric_model(options)
+      owner = options[:owner]
+      owner = owner.id if owner.is_a?(Resource)
+
       # TODO sanity checks maybe?
-      metric = GroupMetric.where({ 
+      metric = GroupMetric.new( 
         metric_class: self.class_name, 
         name: options[:name], 
         resource_group_id: @resource_group.id,
-        resource_id: options[:owner]
-        }).first_or_initialize
+        resource_id: owner)
 
       metric.value = options[:value]
 
@@ -78,7 +86,7 @@ module Metrics
         involved.delete(resource)
 
         make_group_metric_model({
-          owner: resource,
+          owner: resource.id,
           resources: involved,
           value: options[:value],
           name: options[:name]

@@ -1,6 +1,8 @@
 module Metrics
   class GroupMentions < MetricBase
     def analyze
+      clear
+      
       self.resource_group.resources.each do |res|
         # search feed for each keyword
         keywords.each do |partner, list|

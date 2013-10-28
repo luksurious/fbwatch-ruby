@@ -1,6 +1,8 @@
 module Metrics
   class FeedTimeline < MetricBase
     def analyze
+      clear
+      
       # data_type = message, so we don't get comments on photos the user is tagged later on
       first_activity = Feed.where(resource_id: self.resource.id, data_type: 'message').order(:created_time).pluck(:created_time).first
       make_metric_model('first_feed_activity', first_activity)
