@@ -29,6 +29,9 @@
     = hidden_field_tag(:resource, '', id: 'res_select', class: 'select2 ajax', style: 'width: 100%;', data: { source: search_resource_names_path, placeholder: 'Search for a name' })
   %button.btn.btn-default{type: 'submit'} Add
 
+%p
+  - @resource_group.metric_overview_classes.each do |group_metric|
+    = render "metrics/#{group_metric.class.name.demodulize.underscore}_group_overview", klass: group_metric
 
 = render layout: "partials/reslist", locals: { resources: @resource_group.resources } do |res|
   = link_to(remove_resource_from_group_path(@resource_group, res), method: :delete, class: 'btn btn-sm btn-danger', title: 'Remove from group') do
