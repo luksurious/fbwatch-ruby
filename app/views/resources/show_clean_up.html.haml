@@ -17,10 +17,10 @@
       %td.col-type= item['feed_type']
       %td.col-from
         - if !item.from.nil?
-          = link_to item.from.name, resource_details_path(item.from.username)
+          = link_to item.from.name, resource_overview_path(item.from.username)
       %td.col-to
         - if !item.to.nil?
-          = link_to item.to.name, resource_details_path(item.to.username)
+          = link_to item.to.name, resource_overview_path(item.to.username)
       %td.col-comments= item['comment_count']
       %td.col-likes= item['like_count']
 

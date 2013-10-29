@@ -3,7 +3,7 @@ module ResourcesHelper
     collection.map do |res|
       next unless res.is_a?(Resource)
 
-      link_to res.name, resource_details_path(res.username)
+      link_to res.name, resource_overview_path(res.username)
     end.compact.join(', ')
   end
 end

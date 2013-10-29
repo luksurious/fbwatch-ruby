@@ -10,7 +10,7 @@
     %th.col-yield
   - tasks.each do |task|
     %tr
-      %td.col-res= link_to task.resource.name, resource_details_path(task.resource.username) unless task.resource.nil?
+      %td.col-res= link_to task.resource.name, resource_overview_path(task.resource.username) unless task.resource.nil?
       %td.col-res-group= link_to task.resource_group.group_name, resource_group_details_path(task.resource_group) unless task.resource_group.nil?
       %td.col-progress
         .progress

@@ -16,5 +16,5 @@ Connection via Shared Resources
             - unless metric.vars_for_render[:shared_resources].empty?
               .collapse{id: "#{metric.vars_for_render[:name]}-#{metric.vars_for_render[:token]}"}
                 (
-                = raw metric.vars_for_render[:shared_resources].map { |res| link_to res.name, resource_details_path(res.username)}.join(', ')
+                = raw metric.vars_for_render[:shared_resources].map { |res| link_to res.name, resource_overview_path(res.username)}.join(', ')
                 )
