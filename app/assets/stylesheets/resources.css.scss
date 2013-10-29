@@ -57,3 +57,13 @@
         font-size: 90%;
     }
 }
+ul.score-charts {
+    list-style: none;
+    li {
+        display: inline-block;
+        width: 400px;
+        p {
+            text-align: center;
+        }
+    }
+}

@@ -39,6 +39,22 @@ module Metrics
       value['aggregate']
     end
 
+    def pie_chart_size(value)
+      if @base_size.nil?
+        @base_size = 0
+        @metrics.each do |metric|
+          next if self_referencing?(metric)
+          @base_size = metric.sort_value if metric.sort_value > @base_size
+        end
+      end
+
+      value / @base_size * 300
+    end
+
+    def self_referencing?(metric)
+      metric.resource == metric.resources.first and metric.resources.length == 1
+    end
+
     private
       def calc_relationship_score(metrics)
         @score = {aggregate: 0}

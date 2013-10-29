@@ -12,7 +12,7 @@ class ResourceGroup < ActiveRecord::Base
       next unless klass.show_in_overview
 
       klass.set_options(resource_group: self)
-      klass.set(GroupMetric.where(resource_id: resource.id, resource_group_id: self.id, metric_class: klass.class_name))
+      klass.set(GroupMetric.where(resource_id: resource.id, resource_group_id: self.id, metric_class: klass.class_name).sort_by(&:sort_value).reverse)
 
       res << klass
     end

@@ -26,6 +26,7 @@ gem 'sidekiq'
 gem 'sinatra', require: false
 gem 'slim'
 gem 'kaminari'
+gem 'chartkick'
 
 gem 'exception_notification'
 
