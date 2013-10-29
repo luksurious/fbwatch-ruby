@@ -27,6 +27,14 @@ module Metrics
       keywords
     end
 
+    def sort_value(value)
+      if value.class.method_defined? :to_i
+        value.to_i
+      else
+        value
+      end
+    end
+
     def query_google_keywords(keywords)
       query_parameter = ""
       keywords.each do |group|
