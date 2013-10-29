@@ -31,46 +31,51 @@ module Metrics
       #  calc geometric mean
     end
 
-    def calc_relationship_score(metrics)
-      @score = {aggregate: 0}
-
-      metrics.group_by(&:metric_class).each do |metric_class, values|
-        klass = Metrics::ModelHelper.make_klass(metric_class).set(values)
-
-        case metric_class
-          when 'shared_resources_metric'
-            analyze_shared_metrics(values)
-          when 'group_mentions'
-            analyze_mentions(values)
-        end
-      end
-
-      @score.each do |key, score|
-        @score[:aggregate] += score
-      end 
-
-      @score
-    end
-
-    def analyze_shared_metrics(values)
-      @score[:shared] = Stats.geometric_mean(values.map { |item| item.sort_value }).round(2)
-    end
-
-    def analyze_mentions(values)
-      # there should only be one metric from group_mentions
-      metric = values.first
-      
-      @score[:mentions] = metric.value.map do |k, x|
-        modifier = 1
-
-        modifier = 2 if k == '__tagged__' 
-
-        modifier * x
-      end.reduce(&:+)
+    def show_in_overview
+      true
     end
 
     def sort_value(value)
       value['aggregate']
     end
+
+    private
+      def calc_relationship_score(metrics)
+        @score = {aggregate: 0}
+
+        metrics.group_by(&:metric_class).each do |metric_class, values|
+          klass = Metrics::ModelHelper.make_klass(metric_class).set(values)
+
+          case metric_class
+            when 'shared_resources_metric'
+              analyze_shared_metrics(values)
+            when 'group_mentions'
+              analyze_mentions(values)
+          end
+        end
+
+        @score.each do |key, score|
+          @score[:aggregate] += score
+        end 
+
+        @score
+      end
+
+      def analyze_shared_metrics(values)
+        @score[:shared] = Stats.geometric_mean(values.map { |item| item.sort_value }).round(2)
+      end
+
+      def analyze_mentions(values)
+        # there should only be one metric from group_mentions
+        metric = values.first
+        
+        @score[:mentions] = metric.value.map do |k, x|
+          modifier = 1
+
+          modifier = 2 if k == '__tagged__' 
+
+          modifier * x
+        end.reduce(&:+)
+      end
   end
 end

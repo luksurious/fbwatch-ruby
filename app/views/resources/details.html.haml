@@ -1,18 +1,14 @@
 %h1
   %small Details for
   = @resource.name
+%p
+  = link_to "Show overview", resource_overview_path(@resource.username), class: "btn btn-default"
+  = link_to "Sync now", sync_path(@resource.username), class: "btn btn-primary #{@resource.currently_syncing? ? 'disabled' : ''}"
+  = link_to "Sync test", sync_path(@resource.username, test: 1), class: "btn btn-default #{@resource.currently_syncing? ? 'disabled' : ''}"
+  = link_to "Clean up feed", clean_up_resource_path(@resource.username), class: "btn btn-default #{@resource.currently_syncing? ? 'disabled' : ''}"
+  = link_to "Clear all", sync_clear_path(@resource.username), class: "btn btn-default #{@resource.currently_syncing? ? 'disabled' : ''}"
 
-= link_to "Sync now", sync_path(@resource.username), class: "btn btn-primary #{@resource.currently_syncing? ? 'disabled' : ''}"
-= link_to "Sync test", sync_path(@resource.username, test: 1), class: "btn btn-default #{@resource.currently_syncing? ? 'disabled' : ''}"
-= link_to "Clean up feed", clean_up_resource_path(@resource.username), class: "btn btn-default #{@resource.currently_syncing? ? 'disabled' : ''}"
-= link_to "Clear all", sync_clear_path(@resource.username), class: "btn btn-default #{@resource.currently_syncing? ? 'disabled' : ''}"
-
-- if @tasks.count > 0
-  %h3 Active Tasks
-  .tasks
-    - @tasks.each do |task|
-      .well
-        = render 'tasks/task', task: task
+= render 'tasks', tasks: @resource.tasks
 
 .row
   .col-md-6
@@ -42,14 +38,12 @@
       %p
         %b Active:
         = @resource.active
-      = link_to 'Edit', edit_resource_path(@resource)
-      %p
-        %em Note that this edit functionality is not well supported.
+
   .col-md-6
     %h2
       %a{'data-toggle' => 'collapse', 'data-target' => "\#res-group-about"} Additional Data
     %section#res-group-about.collapse
-      - @basicdata.each do |item|
+      - @resource.basicdata.each do |item|
         %p
           %b= item['key']
           = item['value']
