@@ -46,7 +46,7 @@ module Metrics
 
       return 0 if inner_html.nil? or inner_html.length == 0
       
-      inner_html[0].gsub(/[,\.]/, '')
+      inner_html[0].gsub(/[,\.]/, '').to_i
     end
   end
 end

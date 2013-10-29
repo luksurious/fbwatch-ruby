@@ -37,7 +37,7 @@ module Metrics
       if klass.class.method_defined? :sort_value
         klass.sort_value(self.value)
       else
-        self.value
+        self.value.to_s
       end
     end
 
