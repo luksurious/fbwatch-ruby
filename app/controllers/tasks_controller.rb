@@ -2,7 +2,7 @@ class TasksController < ApplicationController
   before_action :set_task_by_id, only: [:resume_task, :mark_error]
 
   def index
-    raw_tasks = Task.order(type: :asc, running: :asc, created_at: :asc)
+    raw_tasks = Task.order(type: :asc, running: :asc, created_at: :desc)
 
     @tasks = {}
     raw_tasks.each do |task|
