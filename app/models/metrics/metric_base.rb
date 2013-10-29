@@ -53,6 +53,10 @@ module Metrics
       @metrics.push(metric)
     end
 
+    def show_in_overview
+      false
+    end
+
     def make_group_metric_model(options)
       owner = options[:owner]
       owner = owner.id if owner.is_a?(Resource)

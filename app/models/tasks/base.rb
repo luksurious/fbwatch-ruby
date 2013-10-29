@@ -25,8 +25,15 @@ module Tasks
   class Base
     attr_accessor :task, :send_mail
 
-    def self.get_active_for(options)
-      Task.where(resource_group_id: options[:resource_group] || nil, resource_id: options[:resource] || nil, running: true, type: type_name)
+    def self.get_for(options)
+      options[:running] ||= true
+      options[:type] ||= type_name unless type_name.nil?
+
+      Task.where(options)
+    end
+
+    def self.type_name
+      nil
     end
     
     def initialize(options = {})

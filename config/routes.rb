@@ -19,16 +19,17 @@ Fbwatch::Application.routes.draw do
   # resource actions
   get 'resources(/:p)' => 'resources#index', as: 'resources_index', constraints: { p: /[0-9]+/ }
 
-  resources :resources
-  get "resource/:username/disable", to: 'resources#disable', :constraints => { :username => /[^\/]+/ }, as: 'sync_disable'
-  get "resource/:username/enable", to: 'resources#enable', :constraints => { :username => /[^\/]+/ }, as: 'sync_enable'
-  get 'resource/:username(/:p)', to: 'resources#details', :constraints => { :username => /[^\/]+/, :p => /[0-9]+/ }, as: 'resource_details'
-  post 'resource/:id/groups', to: 'resources#add_to_group', as: 'add_resource_to_group'
+  resources :resources, only: [:create, :destroy, :update]
+  get "resource/:username/disable",       to: 'resources#disable', :constraints => { :username => /[^\/]+/ }, as: 'sync_disable'
+  get "resource/:username/enable",        to: 'resources#enable', :constraints => { :username => /[^\/]+/ }, as: 'sync_enable'
+  get 'resource/:username/details(/:p)',  to: 'resources#details', :constraints => { :username => /[^\/]+/, :p => /[0-9]+/ }, as: 'resource_details'
+  get 'resource/:username',               to: 'resources#overview', :constraints => { :username => /[^\/]+/}, as: 'resource_overview'
+  post 'resource/:id/groups',             to: 'resources#add_to_group', as: 'add_resource_to_group'
   patch 'resource/:id/clear_last_synced', to: 'resources#clear_last_synced', as: 'clear_last_synced'
-  get 'resources/search/name', to: 'resources#search_for_name', as: 'search_resource_names'
-  patch 'resource/:id/keywords', to: 'resources#change_keywords', as: 'keywords'
-  get 'resource/:username/clean', to: 'resources#show_clean_up', :constraints => { :username => /[^\/]+/ }, as: 'clean_up_resource'
-  patch 'resource/:username/clean', to: 'resources#do_clean_up', :constraints => { :username => /[^\/]+/ }, as: 'do_clean_up'
+  get 'resources/search/name',            to: 'resources#search_for_name', as: 'search_resource_names'
+  patch 'resource/:id/keywords',          to: 'resources#change_keywords', as: 'keywords'
+  get 'resource/:username/clean',         to: 'resources#show_clean_up', :constraints => { :username => /[^\/]+/ }, as: 'clean_up_resource'
+  patch 'resource/:username/clean',       to: 'resources#do_clean_up', :constraints => { :username => /[^\/]+/ }, as: 'do_clean_up'
 
   # metrics
   patch 'resource/:username/metrics', to: 'metrics#resource', :constraints => { :username => /[^\/]+/ }, as: 'run_metrics'
