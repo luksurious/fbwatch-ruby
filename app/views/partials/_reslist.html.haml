@@ -9,7 +9,7 @@
     %th &nbsp;
   - resources.each do |res|
     %tr
-      %td= link_to "#{res.name} (#{res.username})", { controller: 'resources', action: 'details', username: res.username }
+      %td= link_to "#{res.name} (#{res.username})", resource_overview_path(res.username)
       %td
         = res.active
         - if res.active

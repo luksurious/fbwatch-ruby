@@ -1,3 +1,11 @@
-# Place all the behaviors and hooks related to the matching controller here.
-# All this logic will automatically be available in application.js.
-# You can use CoffeeScript in this file: http://jashkenas.github.com/coffee-script/
+###$(document).ready ->
+  $(".chart-scoring-pie").each ->
+    ctx = this.getContext("2d")
+    myNewChart = new Chart(ctx).Pie([
+      value: $(this).data('chart-data-mentions')
+      color: "#F38630"
+    ,
+      value: $(this).data('chart-data-shared')
+      color: '#69D2E7'
+    ])
+###

@@ -5,14 +5,25 @@ class ResourceGroup < ActiveRecord::Base
     Tasks::SyncTask.get_for(resource_group: self).count > 0
   end
 
-  def metric_overview_classes(resource)
+  def metric_overview_classes(resource = nil)
     res = []
     Metrics::MetricBase.group_metrics.each do |group_metric|
       klass = Metrics::ModelHelper.make_klass(group_metric)
       next unless klass.show_in_overview
 
       klass.set_options(resource_group: self)
-      klass.set(GroupMetric.where(resource_id: resource.id, resource_group_id: self.id, metric_class: klass.class_name))
+      
+      options = {
+        resource_group_id: self.id, 
+        metric_class: klass.class_name
+      }
+      options[:resource_id] = resource.id unless resource.nil?
+
+      metrics = GroupMetric.where(options).sort_by(&:sort_value).reverse
+      klass.set(metrics.map do |metric|
+        next if klass.self_referencing?(metric)
+        metric
+      end.compact)
 
       res << klass
     end

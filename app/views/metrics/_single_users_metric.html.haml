@@ -7,5 +7,5 @@ Single User Metrics
         %ul
           - metric.vars_for_render[:data].each do |pair|
             %li
-              = link_to "#{pair[:resource].name}", resource_details_path(pair[:resource].username)
+              = link_to "#{pair[:resource].name}", resource_overview_path(pair[:resource].username)
               = pair[:amount]
