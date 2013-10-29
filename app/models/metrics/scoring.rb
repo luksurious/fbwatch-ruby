@@ -32,7 +32,7 @@ module Metrics
     end
 
     def calc_relationship_score(metrics)
-      @score = {}
+      @score = {aggregate: 0}
 
       metrics.group_by(&:metric_class).each do |metric_class, values|
         klass = Metrics::ModelHelper.make_klass(metric_class).set(values)
@@ -44,6 +44,10 @@ module Metrics
             analyze_mentions(values)
         end
       end
+
+      @score.each do |key, score|
+        @score[:aggregate] += score
+      end 
 
       @score
     end
@@ -66,7 +70,7 @@ module Metrics
     end
 
     def sort_value(value)
-      value['shared'].to_f + value['mentions'].to_f
+      value['aggregate']
     end
   end
 end
