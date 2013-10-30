@@ -2,9 +2,9 @@ module Metrics
   class MetricBase
     @@resource_metrics = ['ResourceStats', 'SingleUsersMetric', 'FeedTimeline'
     ]
-    @@group_metrics = ['SharedResourcesMetric', 
-      'GroupMentions', 'GoogleMentions', 
-      'Scoring'
+    @@group_metrics = [#'SharedResourcesMetric', 
+      #'GroupMentions', 'GoogleMentions', 
+      'Scoring', 'NetworkGraph'
     ]
 
     def self.single_metrics
@@ -53,7 +53,7 @@ module Metrics
       @metrics.push(metric)
     end
 
-    def show_in_overview
+    def show_in_overview?
       false
     end
 
@@ -124,6 +124,14 @@ module Metrics
       end
 
       @keywords
+    end
+
+    def resource_metric?
+      @resource.nil? == false
+    end
+
+    def group_metric?
+      @resource_group.nil? == false
     end
   end
 end

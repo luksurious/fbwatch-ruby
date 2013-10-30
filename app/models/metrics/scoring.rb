@@ -18,20 +18,17 @@ module Metrics
             metrics_by_target[involved.id] << metric
           end
         end
-        # calc directional score
 
+        # calc directional score
         metrics_by_target.each do |target_id, metrics|
           score = calc_relationship_score(metrics)
           
           make_group_metric_model(name: 'relationship_score', value: score, resources: [Resource.find(target_id)], owner: res_id)
         end
       end
-
-      # shared resources metrics
-      #  calc geometric mean
     end
 
-    def show_in_overview
+    def show_in_overview?
       true
     end
 
@@ -43,16 +40,12 @@ module Metrics
       if @base_size.nil?
         @base_size = 0
         @metrics.each do |metric|
-          next if self_referencing?(metric)
+          next if metric.self_referencing?
           @base_size = metric.sort_value if metric.sort_value > @base_size
         end
       end
 
       value / @base_size * 300
-    end
-
-    def self_referencing?(metric)
-      metric.resource == metric.resources.first and metric.resources.length == 1
     end
 
     private

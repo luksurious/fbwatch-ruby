@@ -19,3 +19,15 @@ $(document).ready ->
       options.dropdownCssClass = "bigdrop"
 
     select.select2(options)
+
+  $('.network-graph-canvas').each (i, e) =>
+    sigInst = sigma.init(e).drawingProperties({
+      defaultLabelColor: '#fff',
+      defaultEdgeType: 'curve'
+    }).graphProperties({
+      minNodeSize: 1,
+      maxNodeSize: 10
+    });
+
+    sigInst.parseJson($(e).attr('data-graph-url'));
+    sigInst.draw();

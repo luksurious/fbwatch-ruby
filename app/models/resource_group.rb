@@ -9,7 +9,7 @@ class ResourceGroup < ActiveRecord::Base
     res = []
     Metrics::MetricBase.group_metrics.each do |group_metric|
       klass = Metrics::ModelHelper.make_klass(group_metric)
-      next unless klass.show_in_overview
+      next unless klass.show_in_overview?
 
       klass.set_options(resource_group: self)
       
@@ -21,7 +21,7 @@ class ResourceGroup < ActiveRecord::Base
 
       metrics = GroupMetric.where(options).sort_by(&:sort_value).reverse
       klass.set(metrics.map do |metric|
-        next if klass.self_referencing?(metric)
+        next if metric.self_referencing?
         metric
       end.compact)
 

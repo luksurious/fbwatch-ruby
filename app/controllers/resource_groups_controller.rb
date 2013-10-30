@@ -1,5 +1,5 @@
 class ResourceGroupsController < ApplicationController
-  before_action :set_resource_group, only: [:update, :destroy, :details, :activate, :deactivate, :remove_resource, :add_resource]
+  before_action :set_resource_group, only: [:update, :destroy, :details, :activate, :deactivate, :remove_resource, :add_resource, :network_graph]
 
   def details
     @tasks = Task.where(resource_group_id: @resource_group.id, running: true)
