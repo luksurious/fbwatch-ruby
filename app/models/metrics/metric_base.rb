@@ -2,8 +2,9 @@ module Metrics
   class MetricBase
     @@resource_metrics = ['ResourceStats', 'SingleUsersMetric', 'FeedTimeline'
     ]
-    @@group_metrics = [#'SharedResourcesMetric', 
-      #'GroupMentions', 'GoogleMentions', 
+    @@group_metrics = ['SharedResourcesMetric', 
+      'GroupWeightedOverlap',
+      'GroupMentions', 'GoogleMentions', 
       'Scoring', 'NetworkGraph'
     ]
 

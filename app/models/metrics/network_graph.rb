@@ -60,7 +60,7 @@ module Metrics
     end
 
     def sort_value(value)
-      ''
+      value
     end
   end
 end

@@ -23,7 +23,7 @@ module Metrics
     def vars_for_render
       if @vars_for_render.nil?
         custom_vars = klass.vars_for_render(value: self.value, name: self.name) if klass.class.method_defined? :vars_for_render
-
+byebug if custom_vars.is_a?(String)
         @vars_for_render = {
           name: self.name,
           value: self.value

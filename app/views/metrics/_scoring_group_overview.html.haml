@@ -8,4 +8,4 @@ Relationship Score (Top 10)
         <--
         = raw print_res_list(metric.vars_for_render[:involved_resources])
         %small= "(#{metric.sort_value})"
-        = pie_chart({'mentions' => metric.value['mentions'], 'shared' => metric.value['shared']}, height: "#{klass.pie_chart_size(metric.sort_value)}px", library: {legend: 'none'})
+        = pie_chart({'mentions' => metric.value['mentions'], 'shared' => metric.value['shared'], 'weighted' => metric.value['weighted']}, height: "#{klass.pie_chart_size(metric.sort_value)}px", library: {legend: 'none'})
