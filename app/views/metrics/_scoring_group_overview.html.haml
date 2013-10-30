@@ -1,6 +1,7 @@
 Relationship Score (Top 10)
 %ul.score-charts
   - klass.metrics[0..9].each do |metric|
+    - next if metric.sort_value == 0
     %li
       %p{class: "metric-key-#{metric.vars_for_render[:name]}"}
         = link_to metric.resource.name, resource_overview_path(metric.resource.username)
