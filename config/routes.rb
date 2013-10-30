@@ -20,16 +20,17 @@ Fbwatch::Application.routes.draw do
   get 'resources(/:p)' => 'resources#index', as: 'resources_index', constraints: { p: /[0-9]+/ }
 
   resources :resources, only: [:create, :destroy, :update]
-  get "resource/:username/disable",       to: 'resources#disable', :constraints => { :username => /[^\/]+/ }, as: 'sync_disable'
-  get "resource/:username/enable",        to: 'resources#enable', :constraints => { :username => /[^\/]+/ }, as: 'sync_enable'
-  get 'resource/:username/details(/:p)',  to: 'resources#details', :constraints => { :username => /[^\/]+/, :p => /[0-9]+/ }, as: 'resource_details'
-  get 'resource/:username',               to: 'resources#overview', :constraints => { :username => /[^\/]+/}, as: 'resource_overview'
-  post 'resource/:id/groups',             to: 'resources#add_to_group', as: 'add_resource_to_group'
-  patch 'resource/:id/clear_last_synced', to: 'resources#clear_last_synced', as: 'clear_last_synced'
-  get 'resources/search/name',            to: 'resources#search_for_name', as: 'search_resource_names'
-  patch 'resource/:id/keywords',          to: 'resources#change_keywords', as: 'keywords'
-  get 'resource/:username/clean',         to: 'resources#show_clean_up', :constraints => { :username => /[^\/]+/ }, as: 'clean_up_resource'
-  patch 'resource/:username/clean',       to: 'resources#do_clean_up', :constraints => { :username => /[^\/]+/ }, as: 'do_clean_up'
+  get   'resource/:username/disable',       to: 'resources#disable',            as: 'sync_disable',       :constraints => { :username => /[^\/]+/ }
+  get   'resource/:username/enable',        to: 'resources#enable',             as: 'sync_enable',        :constraints => { :username => /[^\/]+/ }
+  get   'resource/:username/details(/:p)',  to: 'resources#details',            as: 'resource_details',   :constraints => { :username => /[^\/]+/, :p => /[0-9]+/ }
+  get   'resource/:username',               to: 'resources#overview',           as: 'resource_overview',  :constraints => { :username => /[^\/]+/}
+  post  'resource/:id/groups',              to: 'resources#add_to_group',       as: 'add_resource_to_group'
+  patch 'resource/:id/clear_last_synced',   to: 'resources#clear_last_synced',  as: 'clear_last_synced'
+  get   'resources/search/name',            to: 'resources#search_for_name',    as: 'search_resource_names'
+  patch 'resource/:id/keywords',            to: 'resources#change_keywords',    as: 'keywords'
+  get   'resource/:username/clean',         to: 'resources#show_clean_up',      as: 'clean_up_resource',  :constraints => { :username => /[^\/]+/ }
+  patch 'resource/:username/clean',         to: 'resources#do_clean_up',        as: 'do_clean_up',        :constraints => { :username => /[^\/]+/ }
+  get   'resource/:id/graph',               to: 'network_graph#for_resource',   as: 'resource_graph'
 
   # metrics
   patch 'resource/:username/metrics', to: 'metrics#resource', :constraints => { :username => /[^\/]+/ }, as: 'run_metrics'
@@ -42,15 +43,15 @@ Fbwatch::Application.routes.draw do
   
   # group actions
   resources :resource_groups, only: [:create, :destroy, :update]
-  get 'group/:id', to: 'resource_groups#details', as: 'resource_group_details'
-  post 'group/mass', to: 'resource_groups#mass_assign', as: 'resource_group_mass_assign'
-  patch 'group/:id/activate', to: 'resource_groups#activate', as: 'activate_group'
-  patch 'group/:id/deactivate', to: 'resource_groups#deactivate', as: 'deactivate_group'
-  patch 'group/:id/clear', to: 'sync#clear_group', as: 'clear_group'
-  patch 'group/:id/sync', to: 'sync#group', as: 'sync_group'
-  delete 'group/:id/resource/:resource_id', to: 'resource_groups#remove_resource', as: 'remove_resource_from_group'
-  post 'group/:id/add', to: 'resource_groups#add_resource', as: 'resource_group_add_resource'
-
+  get     'group/:id',                        to: 'resource_groups#details',          as: 'resource_group_details'
+  post    'group/mass',                       to: 'resource_groups#mass_assign',      as: 'resource_group_mass_assign'
+  patch   'group/:id/activate',               to: 'resource_groups#activate',         as: 'activate_group'
+  patch   'group/:id/deactivate',             to: 'resource_groups#deactivate',       as: 'deactivate_group'
+  patch   'group/:id/clear',                  to: 'sync#clear_group',                 as: 'clear_group'
+  patch   'group/:id/sync',                   to: 'sync#group',                       as: 'sync_group'
+  delete  'group/:id/resource/:resource_id',  to: 'resource_groups#remove_resource',  as: 'remove_resource_from_group'
+  post    'group/:id/add',                    to: 'resource_groups#add_resource',     as: 'resource_group_add_resource'
+  get     'group/:id/graph',                  to: 'network_graph#for_resource_group', as: 'resource_group_graph'
 
   mount Sidekiq::Web, at: '/sidekiq'
 end

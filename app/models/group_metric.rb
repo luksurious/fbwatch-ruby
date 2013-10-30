@@ -20,4 +20,8 @@ class GroupMetric < ActiveRecord::Base
       owner: self.resource
     }.merge(super)
   end
+
+  def self_referencing?
+    self.resource == self.resources.first and self.resources.length == 1
+  end
 end
