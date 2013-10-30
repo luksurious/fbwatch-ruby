@@ -62,11 +62,5 @@ module Metrics
     def sort_value(value)
       ''
     end
-
-    def graph_url
-      return resource_graph_path(self.resource, :json) if resource_metric?
-
-      return resource_group_graph_path(self.resource_group, :json) if group_metric?
-    end
   end
 end
