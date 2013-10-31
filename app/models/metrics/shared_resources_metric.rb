@@ -6,20 +6,20 @@ module Metrics
       resource_combinations(2).each do |combination|
 
         # users posting on or posted on by owner for both resources
-        post_result = (Resource.find_by_sql [post_intersection_sql, combination[0].id, combination[1].id]).map { |x| {'id' => x.id} }
-        make_mutual_group_metric_model(name: 'shared_resources', value: post_result, resources: combination)
+        post_result = Resource.find_by_sql [post_intersection_sql, combination[0].id, combination[1].id]
+        make_mutual_group_metric_model(name: 'shared_resources', value: post_result.map { |x| x.id }, resources: combination)
 
         # users having liked a post/comment on both feeds
         like_result = Resource.find_by_sql [like_intersection_sql, combination[0].id, combination[1].id]
-        make_mutual_group_metric_model(name: 'shared_resources_likes', value: like_result.map { |x| {'id' => x.id} }, resources: combination)
+        make_mutual_group_metric_model(name: 'shared_resources_likes', value: like_result.map { |x| x.id }, resources: combination)
 
         # users having liked a post/comment on both feeds
         tag_result = Resource.find_by_sql [tag_intersection_sql, combination[0].id, combination[1].id]
-        make_mutual_group_metric_model(name: 'shared_resources_tagged', value: tag_result.map { |x| {'id' => x.id} }, resources: combination)
+        make_mutual_group_metric_model(name: 'shared_resources_tagged', value: tag_result.map { |x| x.id }, resources: combination)
 
         # intersection of users having either liked on or posted on (or being posted on) both feeds
         mixed_result = Resource.find_by_sql [any_intersection_sql, combination[0].id, combination[0].id, combination[0].id, combination[1].id, combination[1].id, combination[1].id]
-        make_mutual_group_metric_model(name: 'shared_resources_any', value: mixed_result.map { |x| {'id' => x.id} }, resources: combination)
+        make_mutual_group_metric_model(name: 'shared_resources_any', value: mixed_result.map { |x| x.id }, resources: combination)
       end
     end
 
@@ -27,8 +27,17 @@ module Metrics
       if @vars_for_render.nil?
         value = options[:value] || []
 
-        ids_to_load = value.map { |hash| hash['id'] }
-        shared_resources = Resource.find(ids_to_load)
+        ids_to_load = value.map { |hash| 
+          # backward compatibility
+          if hash.is_a?(Array)
+            hash.first
+          elsif hash.is_a?(Hash)
+            hash['id']
+          else
+            hash
+          end
+        }
+        shared_resources = Resource.find(ids_to_load.compact)
 
         # return a hash
         @vars_for_render = {
@@ -40,6 +49,7 @@ module Metrics
     end
 
     def sort_value(value)
+      return 0 if value.first.is_a?(Hash)
       res_array = value || []
       res_array.size 
     end

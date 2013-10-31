@@ -4,12 +4,12 @@ module Metrics
       clear
 
       # bi-directional scoring
-      all_metrics = GroupMetric.where(resource_group_id: @resource_group.id).where.not(metric_class: 'scoring').
+      all_metrics = GroupMetric.where(resource_group_id: @resource_group.id).where.not(metric_class: ['scoring', 'network_graph']).
                                 # group by source
-                                order(:resource_id).group_by(&:resource_id)
+                                order(:resource_id)
       # calc relationship score
 
-      all_metrics.each do |res_id, group|
+      all_metrics.group_by(&:resource_id).each do |res_id, group|
         metrics_by_target = {}
         # group by target
         group.each do |metric|
@@ -58,6 +58,8 @@ module Metrics
           case metric_class
             when 'shared_resources_metric'
               analyze_shared_metrics(values)
+            when 'group_weighted_overlap'
+              analyze_weighted_overlap(values)
             when 'group_mentions'
               analyze_mentions(values)
           end
@@ -67,11 +69,16 @@ module Metrics
           @score[:aggregate] += score
         end 
 
+        @score[:aggregate] = @score[:aggregate].round(2)
         @score
       end
 
       def analyze_shared_metrics(values)
         @score[:shared] = Stats.geometric_mean(values.map { |item| item.sort_value }).round(2)
+      end
+
+      def analyze_weighted_overlap(values)
+        @score[:weighted] = values.first.sort_value
       end
 
       def analyze_mentions(values)
