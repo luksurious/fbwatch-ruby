@@ -78,8 +78,10 @@ module Tasks
       end
 
       def save_metric_models(collection)
-        collection.each do |obj| 
-          Utility.save_resource_gracefully(obj)
+        ActiveRecord::Base.transaction do 
+          collection.each do |obj| 
+            Utility.save_resource_gracefully(obj)
+          end
         end
 
         collection.clear

@@ -41,8 +41,10 @@ module Metrics
     end
 
     def clear
-      Metric.where(metric_class: self.class_name, resource_id: @resource.id).destroy_all if @resource.is_a?(Resource)
-      GroupMetric.where(metric_class: self.class_name, resource_group_id: @resource_group.id).destroy_all if @resource_group.is_a?(ResourceGroup)
+      ActiveRecord::Base.transaction do
+        Metric.where(metric_class: self.class_name, resource_id: @resource.id).destroy_all if @resource.is_a?(Resource)
+        GroupMetric.where(metric_class: self.class_name, resource_group_id: @resource_group.id).destroy_all if @resource_group.is_a?(ResourceGroup)
+      end
     end
 
     def set_options(options)
@@ -97,7 +99,7 @@ module Metrics
 
         involved = options[:resources].to_a.dup
         involved.delete(resource)
-Rails.logger.debug "making model for #{resource.id} and #{involved.inspect}"
+
         make_group_metric_model({
           owner: resource.id,
           resources: involved,

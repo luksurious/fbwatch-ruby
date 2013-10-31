@@ -57,7 +57,7 @@ module Metrics
 
           case metric_class
             when 'shared_resources_metric'
-              analyze_shared_metrics(values)
+              #analyze_shared_metrics(values)
             when 'group_weighted_overlap'
               analyze_weighted_overlap(values)
             when 'group_mentions'

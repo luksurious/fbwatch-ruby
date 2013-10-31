@@ -6,4 +6,10 @@ Weighted Overlap
         with
         = raw print_res_list(metric.resources)
         = metric.sort_value
-        = metric.value
+        %ul
+          - klass.sorted_values(metric.value).each do |user_id, shared|
+            %li
+              = shared['total']
+              - res = Resource.find(user_id)
+              = link_to res.name, resource_overview_path(res.username)
+              = "(posts score: #{shared['posts']}, likes score: #{shared['likes']}, tag score: #{shared['tags']})"
