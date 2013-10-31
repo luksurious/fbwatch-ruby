@@ -60,8 +60,7 @@ module Metrics
         end
 
         all_likes = Like.includes(:feed).where(feeds: {resource_id: combination.map {|x| x.id}}, resource_id: like_result).
-                                         where.not(feeds: {data_type: 'story'}).group_by(&:resource_id)
-                                         # skip stories
+                                         group_by(&:resource_id)
 
         likes_weighted = calc_weighted_feed_addon(all_likes, {
           owner_post: 3,
@@ -71,7 +70,7 @@ module Metrics
         })
 
         all_tags = FeedTag.includes(:feed).where(feeds: {resource_id: combination.map {|x| x.id}}, resource_id: tag_result).
-                                           where.not(feeds: {data_type: 'story'}).group_by(&:resource_id)
+                                           group_by(&:resource_id)
 
         tags_weighted = calc_weighted_feed_addon(all_tags, {
           owner_post: 2,
@@ -84,12 +83,17 @@ module Metrics
         weighted_result = {}
         mixed_result.each do |res_id|
           posts_score = posts_weighted[res_id][:score] unless posts_weighted[res_id].nil?
+          likes_score = likes_weighted[res_id][:score] unless likes_weighted[res_id].nil?
+          tags_score = tags_weighted[res_id][:score] unless tags_weighted[res_id].nil?
+
+          # weigh direct interaction twice as important
+          modifier = combination.map(&:id).include?(res_id) ? 2 : 1
 
           weighted_result[res_id] = {
             posts: posts_weighted[res_id] || 0,
-            likes: likes_weighted[res_id].to_f.round(2),
-            tags: tags_weighted[res_id].to_f.round(2),
-            total: (posts_score.to_f * 5 + likes_weighted[res_id].to_f * 3 + tags_weighted[res_id].to_f * 1).round(2)
+            likes: likes_weighted[res_id] || 0,
+            tags: tags_weighted[res_id] || 0,
+            total: (posts_score.to_f * 5 + likes_score.to_f * 3 + tags_score.to_f * 1).round(2) * modifier
           }
         end
 
@@ -113,7 +117,7 @@ module Metrics
       def average_over_set(set)
         Stats.geometric_mean(set.map { |x|
           [x, positive_value_indicator(set)].max
-        })
+        }).round(2)
       end
 
       def positive_value_indicator(array)
@@ -121,6 +125,7 @@ module Metrics
       end
 
       def calc_weighted_feed_addon(collection, weights)
+        story_weight = 0.5
         weighted = {}
 
         collection.each do |res_id, addons|
@@ -129,10 +134,11 @@ module Metrics
           addons.each do |addon|
             # skip likes/tags on own wall
             next if res_id == addon.feed.resource_id
-
             addon_detail[addon.feed.resource_id] ||= 0
 
-            if addon.feed.parent_id.nil?
+            if addon.feed.data_type == 'story'
+              addon_detail[addon.feed.resource_id] += story_weight
+            elsif addon.feed.parent_id.nil?
               if addon.feed.from_id == addon.feed.resource_id
                 addon_detail[addon.feed.resource_id] += weights[:owner_post]
               else
@@ -147,7 +153,10 @@ module Metrics
             end
           end
 
-          weighted[res_id] = average_over_set(addon_detail.map { |type, weight| weight })
+          weighted[res_id] = {
+            data: addon_detail,
+            score: average_over_set(addon_detail.map { |type, weight| weight })
+          }
         end
 
         weighted

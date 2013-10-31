@@ -7,17 +7,17 @@ module Tasks
     def init_data
     end
 
-    attr_writer :resource_metrics, :group_metrics
+    attr_accessor :resource_metrics, :group_metrics
+
+    def resource_metrics
+      @resource_metrics ||= Metrics::MetricBase.single_metrics
+    end
+
+    def group_metrics
+      @group_metrics ||= Metrics::MetricBase.group_metrics
+    end
 
     protected
-      def resource_metrics
-        @resource_metrics ||= Metrics::MetricBase.single_metrics
-      end
-
-      def group_metrics
-        @group_metrics ||= Metrics::MetricBase.group_metrics
-      end
-
       def task_run
 
         if @task.resource.is_a?(Resource)
@@ -60,6 +60,8 @@ module Tasks
         end
 
         collection.each do |metric_class|
+          Rails.logger.debug "running metric class #{metric_class}"
+          
           metric_class = "Metrics::#{metric_class}"
           klass = metric_class.constantize.new(options)
 

@@ -29,6 +29,7 @@ class MetricsController < ApplicationController
     else
       metric_task.group_metrics = Metrics::MetricBase.group_metrics(params[:group_metrics].split(',').map(&:to_i)) if params[:group_metrics]
       metric_task.resource_metrics = Metrics::MetricBase.single_metrics(params[:group_metrics].split(',').map(&:to_i)) if params[:resource_metrics]
+      Rails.logger.debug metric_task.group_metrics.inspect
       metric_task.run
     end
 
