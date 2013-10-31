@@ -5,7 +5,9 @@ module Metrics
 
       shared_metrics = GroupMetric.where(metric_class: 'shared_resources_metric', resource_group_id: self.resource_group.id)
 
-      shared_metrics.group_by { |item| item.resources.map(&:id).sort.join('_') }.each do |key, metrics|
+      grouped_metrics = shared_metrics.group_by { |item| item.resources.to_a.map(&:id).push(item.resource_id).uniq.sort.join('_') }
+      
+      grouped_metrics.each do |key, metrics|
         post_result = []
         like_result = []
         tag_result = []
@@ -26,7 +28,7 @@ module Metrics
               mixed_result = metric.value if mixed_result.empty?
           end
 
-          combination = metric.resources if combination.nil?
+          combination = metric.resources.to_a.dup.push(metric.resource) if combination.nil?
         end
 
         if mixed_result.empty?
@@ -74,9 +76,9 @@ module Metrics
         weighted_result = {}
         mixed_result.each do |res_id|
           posts_score = posts_weighted[res_id][:score] unless posts_weighted[res_id].nil?
-          
+
           weighted_result[res_id] = {
-            posts: posts_weighted[res_id],
+            posts: posts_weighted[res_id] || 0,
             likes: likes_weighted[res_id].to_f.round(2),
             tags: tags_weighted[res_id].to_f.round(2),
             total: (posts_score.to_f * 5 + likes_weighted[res_id].to_f * 3 + tags_weighted[res_id].to_f * 1).round(2)
@@ -87,33 +89,8 @@ module Metrics
       end
     end
 
-    def vars_for_renderx(options)
-      if @vars_for_render.nil?
-        value = options[:value] || []
-
-        ids_to_load = value.map { |hash| 
-          # backward compatibility
-          if hash.is_a?(Array)
-            hash.first
-          elsif hash.is_a?(Hash)
-            hash['id']
-          else
-            hash
-          end
-        }
-        shared_resources = Resource.find(ids_to_load.compact)
-
-        # return a hash
-        @vars_for_render = {
-          friendly_name: @@friendly_names[options[:name]],
-          shared_resources: shared_resources
-        }
-      end
-      @vars_for_render
-    end
-
     def sort_value(value)
-      value.map { |k,v| v['total'] }.reduce(&:+)
+      value.map { |k,v| v['total'] }.reduce(&:+).round(2)
     end
 
     def empty?(value)

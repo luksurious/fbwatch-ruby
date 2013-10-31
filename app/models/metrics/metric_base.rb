@@ -8,12 +8,20 @@ module Metrics
       'Scoring', 'NetworkGraph'
     ]
 
-    def self.single_metrics
-      @@resource_metrics
+    def self.single_metrics(ids = nil)
+      if ids.nil?
+        @@resource_metrics
+      else
+        @@resource_metrics.values_at(*ids)
+      end
     end
 
-    def self.group_metrics
-      @@group_metrics
+    def self.group_metrics(ids = nil)
+      if ids.nil?
+        @@group_metrics
+      else
+        @@group_metrics.values_at(*ids)
+      end
     end
 
     attr_accessor :metrics, :resource, :resource_group
@@ -87,9 +95,9 @@ module Metrics
     def make_mutual_group_metric_model(options)
       options[:resources].each do |resource|
 
-        involved = options[:resources].dup
+        involved = options[:resources].to_a.dup
         involved.delete(resource)
-
+Rails.logger.debug "making model for #{resource.id} and #{involved.inspect}"
         make_group_metric_model({
           owner: resource.id,
           resources: involved,

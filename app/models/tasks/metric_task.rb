@@ -7,13 +7,15 @@ module Tasks
     def init_data
     end
 
+    attr_writer :resource_metrics, :group_metrics
+
     protected
       def resource_metrics
-        Metrics::MetricBase.single_metrics
+        @resource_metrics ||= Metrics::MetricBase.single_metrics
       end
 
       def group_metrics
-        Metrics::MetricBase.group_metrics
+        @group_metrics ||= Metrics::MetricBase.group_metrics
       end
 
       def task_run

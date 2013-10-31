@@ -2,7 +2,7 @@ module Metrics
   class SharedResourcesMetric < MetricBase
     def analyze
       clear
-      
+
       resource_combinations(2).each do |combination|
 
         # users posting on or posted on by owner for both resources
@@ -67,7 +67,7 @@ module Metrics
           group.each { |item| aggregate += item.sort_value }
 
           @metrics_by_token[token] = {
-            involved: group[0].resources,
+            involved: group[0].resources.dup,
             aggregate: aggregate,
             details: group
           }
