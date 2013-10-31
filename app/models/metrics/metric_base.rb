@@ -8,12 +8,20 @@ module Metrics
       'Scoring', 'NetworkGraph'
     ]
 
-    def self.single_metrics
-      @@resource_metrics
+    def self.single_metrics(ids = nil)
+      if ids.nil?
+        @@resource_metrics
+      else
+        @@resource_metrics.values_at(*ids)
+      end
     end
 
-    def self.group_metrics
-      @@group_metrics
+    def self.group_metrics(ids = nil)
+      if ids.nil?
+        @@group_metrics
+      else
+        @@group_metrics.values_at(*ids)
+      end
     end
 
     attr_accessor :metrics, :resource, :resource_group
@@ -33,8 +41,10 @@ module Metrics
     end
 
     def clear
-      Metric.where(metric_class: self.class_name, resource_id: @resource.id).destroy_all if @resource.is_a?(Resource)
-      GroupMetric.where(metric_class: self.class_name, resource_group_id: @resource_group.id).destroy_all if @resource_group.is_a?(ResourceGroup)
+      ActiveRecord::Base.transaction do
+        Metric.where(metric_class: self.class_name, resource_id: @resource.id).destroy_all if @resource.is_a?(Resource)
+        GroupMetric.where(metric_class: self.class_name, resource_group_id: @resource_group.id).destroy_all if @resource_group.is_a?(ResourceGroup)
+      end
     end
 
     def set_options(options)
@@ -87,7 +97,7 @@ module Metrics
     def make_mutual_group_metric_model(options)
       options[:resources].each do |resource|
 
-        involved = options[:resources].dup
+        involved = options[:resources].to_a.dup
         involved.delete(resource)
 
         make_group_metric_model({

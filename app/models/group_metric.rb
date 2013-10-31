@@ -16,7 +16,7 @@ class GroupMetric < ActiveRecord::Base
 
   def vars_for_render
     {
-      involved_resources: self.resources,
+      involved_resources: self.resources.to_a.dup,
       owner: self.resource
     }.merge(super)
   end
