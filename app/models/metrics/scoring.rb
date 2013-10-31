@@ -66,7 +66,7 @@ module Metrics
         end
 
         @score.each do |key, score|
-          @score[:aggregate] += score
+          @score[:aggregate] += score.to_f
         end 
 
         @score[:aggregate] = @score[:aggregate].round(2)
@@ -86,12 +86,10 @@ module Metrics
         metric = values.first
         
         @score[:mentions] = metric.value.map do |k, x|
-          modifier = 1
-
-          modifier = 2 if k == '__tagged__' 
-
-          modifier * x
-        end.reduce(&:+)
+          next if k == '__tagged__' 
+          # tags are scored via weighted overlap
+          x * 2
+        end.compact.reduce(&:+)
       end
   end
 end

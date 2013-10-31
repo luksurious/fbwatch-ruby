@@ -93,7 +93,7 @@ module Metrics
             posts: posts_weighted[res_id] || 0,
             likes: likes_weighted[res_id] || 0,
             tags: tags_weighted[res_id] || 0,
-            total: (posts_score.to_f * 5 + likes_score.to_f * 3 + tags_score.to_f * 1).round(2) * modifier
+            total: (posts_score.to_f * 5 + likes_score.to_f * 3 + tags_score.to_f * 1).round(2) * modifier / 10
           }
         end
 
