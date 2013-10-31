@@ -73,11 +73,13 @@ module Metrics
         # now combine all
         weighted_result = {}
         mixed_result.each do |res_id|
+          posts_score = posts_weighted[res_id][:score] unless posts_weighted[res_id].nil?
+          
           weighted_result[res_id] = {
             posts: posts_weighted[res_id],
             likes: likes_weighted[res_id].to_f.round(2),
             tags: tags_weighted[res_id].to_f.round(2),
-            total: (posts_weighted[res_id][:score].to_f * 5 + likes_weighted[res_id].to_f * 3 + tags_weighted[res_id].to_f * 1).round(2)
+            total: (posts_score.to_f * 5 + likes_weighted[res_id].to_f * 3 + tags_weighted[res_id].to_f * 1).round(2)
           }
         end
 
