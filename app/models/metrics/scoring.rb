@@ -78,7 +78,11 @@ module Metrics
       end
 
       def analyze_weighted_overlap(values)
-        @score[:weighted] = values.first.sort_value
+        @score[:weighted] = normalize_weight(values.first.sort_value).round(2)
+      end
+
+      def normalize_weight(value)
+        value + 0.8 * Math.sqrt(2* (250**2)) - 0.8 * Math.sqrt((value - 250) ** 2 + (250 ** 2))
       end
 
       def analyze_mentions(values)
