@@ -60,9 +60,14 @@ module Tasks
         end
 
         collection.each do |metric_class|
+          if metric_class.blank?
+            Rails.logger.warn "empty metric_class value"
+            next
+          end
           Rails.logger.debug "running metric class #{metric_class}"
           
           metric_class = "Metrics::#{metric_class}"
+
           klass = metric_class.constantize.new(options)
 
           begin
