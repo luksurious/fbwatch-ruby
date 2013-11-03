@@ -82,7 +82,7 @@ module Metrics
       end
 
       def normalize_weight(value)
-        value + 0.8 * Math.sqrt(2* (250**2)) - 0.8 * Math.sqrt((value - 250) ** 2 + (250 ** 2))
+        value + Math.sqrt(2* (250**2)) - Math.sqrt((value - 250) ** 2 + (250 ** 2))
       end
 
       def analyze_mentions(values)
@@ -90,9 +90,7 @@ module Metrics
         metric = values.first
         
         @score[:mentions] = metric.value.map do |k, x|
-          next if k == '__tagged__' 
-          # tags are scored via weighted overlap
-          x * 2
+          x * 5
         end.compact.reduce(&:+)
       end
   end
