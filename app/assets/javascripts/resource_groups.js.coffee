@@ -32,7 +32,6 @@ $(document).ready ->
     sigInst.parseJson($(e).attr('data-graph-url'));
     sigInst.draw();
 
-    edgesCount = sigInst.getEdgesCount()
 
     hideSmallEdges = (x) ->
       visible = 0
@@ -47,6 +46,7 @@ $(document).ready ->
       return visible
 
     $('#network-graph-filter-edges').change ->
+      edgesCount = sigInst.getEdgesCount()
       if $(this).is(':checked')
         weight = 5
         while hideSmallEdges(weight) < (edgesCount / 10)
