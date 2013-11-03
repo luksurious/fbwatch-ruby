@@ -6,12 +6,25 @@ module Metrics
     def analyze
       clear
 
+      base_value = 0
+      mentions = {}
       resource_combinations(2).each do |combination|
 
         # calc shared resources
         web_results = query_google_keywords(keywords_for(combination))
 
         make_mutual_group_metric_model(name: 'google_mentions', value: web_results, resources: combination)
+
+        mentions[combination[0].id] ||= {}
+        mentions[combination[0].id][combination[1].id] = web_results
+
+        base_value = web_results if base_value < web_results
+      end
+
+      mentions.each do |first_id, second_level|
+        second_level.each do |second_id, value|
+          make_mutual_group_metric_model(name: 'google_edges', value: (value / base_value).ceil * 100, resources: [Resource.find(first_id), Resource.find(second_id)])
+        end
       end
     end
 

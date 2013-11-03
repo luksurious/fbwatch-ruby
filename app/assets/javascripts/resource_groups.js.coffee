@@ -32,17 +32,27 @@ $(document).ready ->
     sigInst.parseJson($(e).attr('data-graph-url'));
     sigInst.draw();
 
-    #theEdges = sigInst.getEdges()
-    #theNodes = sigInst.getNodes()
+    edgesCount = sigInst.getEdgesCount()
+
+    hideSmallEdges = (x) ->
+      visible = 0
+      sigInst.iterEdges (e) =>
+        weight = e.weight || e.size
+        if weight < x
+          e.hidden = 1
+        else
+          e.hidden = 0
+          visible += 1
+      sigInst.draw()
+      return visible
 
     $('#network-graph-filter-edges').change ->
       if $(this).is(':checked')
-        sigInst.iterEdges (e) =>
-          weight = e.weight || e.size
-          if weight < 5
-            e.hidden = 1
+        weight = 5
+        while hideSmallEdges(weight) < (edgesCount / 10)
+          weight -= 1
       else
         sigInst.iterEdges (e) =>
           e.hidden = 0
-
-      sigInst.draw()
+        sigInst.draw()
+      return
