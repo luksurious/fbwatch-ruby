@@ -14,16 +14,19 @@ module Metrics
         web_results = query_google_keywords(keywords_for(combination))
 
         make_mutual_group_metric_model(name: 'google_mentions', value: web_results, resources: combination)
+        Rails.logger.debug "-- count #{web_results}"
 
         mentions[combination[0].id] ||= {}
         mentions[combination[0].id][combination[1].id] = web_results
 
         base_value = web_results if base_value < web_results
       end
-
+Rails.logger.debug "found highest connection at #{base_value}"
       mentions.each do |first_id, second_level|
         second_level.each do |second_id, value|
-          make_mutual_group_metric_model(name: 'google_edges', value: (value / base_value).ceil * 100, resources: [Resource.find(first_id), Resource.find(second_id)])
+          relative_score = (value / base_value).ceil * 100
+          Rails.logger.debug "edge #{first_id}-#{second_id} ffrom value #{value} to #{relative_score}"
+          make_mutual_group_metric_model(name: 'google_edges', value: relative_score, resources: [Resource.find(first_id), Resource.find(second_id)])
         end
       end
     end

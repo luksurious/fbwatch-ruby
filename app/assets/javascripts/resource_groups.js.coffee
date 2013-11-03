@@ -51,6 +51,8 @@ $(document).ready ->
         weight = 5
         while hideSmallEdges(weight) < (edgesCount / 10)
           weight -= 1
+          if weight <= 1
+            break
       else
         sigInst.iterEdges (e) =>
           e.hidden = 0
