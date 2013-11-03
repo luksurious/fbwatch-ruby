@@ -6,7 +6,7 @@ module Metrics
     def analyze
       clear
 
-      base_value = 0
+      base_value = 1
       mentions = {}
       resource_combinations(2).each do |combination|
 
@@ -21,11 +21,10 @@ module Metrics
 
         base_value = web_results if base_value < web_results
       end
-Rails.logger.debug "found highest connection at #{base_value}"
+      
       mentions.each do |first_id, second_level|
         second_level.each do |second_id, value|
           relative_score = (value / base_value).ceil * 100
-          Rails.logger.debug "edge #{first_id}-#{second_id} ffrom value #{value} to #{relative_score}"
           make_mutual_group_metric_model(name: 'google_edges', value: relative_score, resources: [Resource.find(first_id), Resource.find(second_id)])
         end
       end
