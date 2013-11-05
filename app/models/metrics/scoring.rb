@@ -28,10 +28,6 @@ module Metrics
       end
     end
 
-    def show_in_overview?
-      true
-    end
-
     def sort_value(value)
       value['aggregate']
     end

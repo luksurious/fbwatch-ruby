@@ -4,8 +4,8 @@ module Metrics
     ]
     @@group_metrics = ['SharedResourcesMetric', 
       'GroupWeightedOverlap',
-      'GroupMentions', 'GoogleMentions', 'NetworkGraphGoogle',
-      'Scoring', 'NetworkGraph'
+      'GroupMentions', 'GoogleMentions',
+      'Scoring', 'NetworkGraph', 'NetworkGraphGoogle'
     ]
 
     def self.single_metrics(ids = nil)
