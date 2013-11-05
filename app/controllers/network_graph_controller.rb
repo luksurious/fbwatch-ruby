@@ -40,4 +40,36 @@ class NetworkGraphController < ApplicationController
       format.json { render json: json }
     end
   end
+
+  def google_for_resource_group
+    resource_group = ResourceGroup.find(params[:id])
+    json = {
+      nodes: [],
+      edges: []
+    }
+
+    GroupMetric.where(resource_group_id: params[:id], metric_class: 'network_graph_google', name: 'graph_node').each do |metric|
+      json[:nodes] << {
+        id: metric.resource.username,
+        label: metric.resource.name,
+        size: [metric.value, 1].max,
+        color: random_color,
+        forceLabel: metric.value > 5
+      }
+    end
+
+    GroupMetric.where(resource_group_id: params[:id], metric_class: 'network_graph_google', name: 'graph_edge').each do |metric|
+      next if metric.resources.empty?
+      json[:edges] << {
+        source: metric.resources.first.username,
+        target: metric.resource.username,
+        weight: [metric.value, 1].max
+      }
+    end
+
+    respond_to do |format|
+      format.html { redirect_to resource_group_details_path(resource_group) }
+      format.json { render json: json }
+    end
+  end
 end
