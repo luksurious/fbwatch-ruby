@@ -1,8 +1,8 @@
-%div
+%div.network-graph
   %h2 Network Graph
   .network-graph-container
     .network-graph-canvas{'data-graph-url' => resource_group_graph_path(klass.resource_group, :json)}
   %p
-    %input#network-graph-filter-edges{type: 'checkbox'}
+    %input#network-graph-filter-edges.network-graph-filter{type: 'checkbox'}
     %label{for: 'network-graph-filter-edges'} Show only important edges
   %small If no graph is showing try dragging the canvas.

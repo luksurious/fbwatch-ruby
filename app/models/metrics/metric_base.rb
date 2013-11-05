@@ -4,7 +4,7 @@ module Metrics
     ]
     @@group_metrics = ['SharedResourcesMetric', 
       'GroupWeightedOverlap',
-      'GroupMentions', 'GoogleMentions', 
+      'GroupMentions', 'GoogleMentions', 'NetworkGraphGoogle',
       'Scoring', 'NetworkGraph'
     ]
 

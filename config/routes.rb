@@ -43,15 +43,16 @@ Fbwatch::Application.routes.draw do
   
   # group actions
   resources :resource_groups, only: [:create, :destroy, :update]
-  get     'group/:id',                        to: 'resource_groups#details',          as: 'resource_group_details'
-  post    'group/mass',                       to: 'resource_groups#mass_assign',      as: 'resource_group_mass_assign'
-  patch   'group/:id/activate',               to: 'resource_groups#activate',         as: 'activate_group'
-  patch   'group/:id/deactivate',             to: 'resource_groups#deactivate',       as: 'deactivate_group'
-  patch   'group/:id/clear',                  to: 'sync#clear_group',                 as: 'clear_group'
-  patch   'group/:id/sync',                   to: 'sync#group',                       as: 'sync_group'
-  delete  'group/:id/resource/:resource_id',  to: 'resource_groups#remove_resource',  as: 'remove_resource_from_group'
-  post    'group/:id/add',                    to: 'resource_groups#add_resource',     as: 'resource_group_add_resource'
-  get     'group/:id/graph',                  to: 'network_graph#for_resource_group', as: 'resource_group_graph'
+  get     'group/:id',                        to: 'resource_groups#details',                  as: 'resource_group_details'
+  post    'group/mass',                       to: 'resource_groups#mass_assign',              as: 'resource_group_mass_assign'
+  patch   'group/:id/activate',               to: 'resource_groups#activate',                 as: 'activate_group'
+  patch   'group/:id/deactivate',             to: 'resource_groups#deactivate',               as: 'deactivate_group'
+  patch   'group/:id/clear',                  to: 'sync#clear_group',                         as: 'clear_group'
+  patch   'group/:id/sync',                   to: 'sync#group',                               as: 'sync_group'
+  delete  'group/:id/resource/:resource_id',  to: 'resource_groups#remove_resource',          as: 'remove_resource_from_group'
+  post    'group/:id/add',                    to: 'resource_groups#add_resource',             as: 'resource_group_add_resource'
+  get     'group/:id/graph',                  to: 'network_graph#for_resource_group',         as: 'resource_group_graph'
+  get     'group/:id/google_graph',           to: 'network_graph#google_for_resource_group',  as: 'resource_group_google_graph'
 
   mount Sidekiq::Web, at: '/sidekiq'
 end
