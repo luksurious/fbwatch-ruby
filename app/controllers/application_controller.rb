@@ -16,6 +16,11 @@ class ApplicationController < ActionController::Base
   
   def redirect_to(*args)
     flash.keep
+
+    if args.first == :back and request.env["HTTP_REFERER"].blank?
+      args[0] = root_path
+    end
+
     super
   end
 

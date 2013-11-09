@@ -24,10 +24,6 @@ class ResourcesController < ApplicationController
       flash[:alert] << "Resource #{params[:username]} not found"
       return redirect_to :back
     end
-    
-    respond_to do |format|
-      format.html
-    end
   end
   
   # GET /resources/1
