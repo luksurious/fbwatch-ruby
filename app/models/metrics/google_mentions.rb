@@ -22,15 +22,15 @@ module Metrics
       keywords = []
       resources.each do |res|
         # self.keywords is defined in MetricBase
-        keywords << self.keywords[res.id]
+        keywords << self.keywords[res.id][0..-2] # dont use the facebook id as a keyword, it might skew the results
       end
 
       keywords
     end
 
     def sort_value(value)
-      if value.class.method_defined? :to_i
-        value.to_i
+      if value.has_key?('count') && value['count'].class.method_defined? :to_i
+        value['count'].to_i
       else
         value
       end
@@ -55,7 +55,7 @@ module Metrics
 
       return 0 if inner_html.nil? or inner_html.length == 0
       
-      inner_html[0].gsub(/[,\.]/, '').to_i
+      { count: inner_html[0].gsub(/[,\.]/, '').to_i, query: query_parameter }
     end
   end
 end
