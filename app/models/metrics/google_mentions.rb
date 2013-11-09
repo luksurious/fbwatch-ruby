@@ -29,7 +29,9 @@ module Metrics
     end
 
     def sort_value(value)
-      if value.has_key?('count') && value['count'].class.method_defined? :to_i
+      if value.is_a?(Fixnum)
+        value
+      elsif value.has_key?('count') and value['count'].class.method_defined? :to_i
         value['count'].to_i
       else
         value
