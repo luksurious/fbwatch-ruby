@@ -65,10 +65,13 @@ $(document).ready ->
 
       do ->
         popUp = null
+        keepPopUp = false
+        onTarget = false
      
         sigInst.bind('overnodes', (event) ->
           nodes = event.content
           neighborEdges = []
+          onTarget = true
 
           sigInst.iterEdges( (e) ->
             if nodes.indexOf(e.source) >= 0 || nodes.indexOf(e.target) >= 0
@@ -90,7 +93,9 @@ $(document).ready ->
           )
 
           detailList = $('<ul>').append(
-            $('<li>').text('Username: ' + node.id)
+            $('<li>').append(
+              $('<a>').attr('href', '/resource/' + node.id).text('Username: ' + node.id)
+            )
           ).append(
             $('<li>').text('Node size: ' + node.size)
           )
@@ -104,6 +109,12 @@ $(document).ready ->
           popUp = $(
             '<div class="node-info-popup"></div>'
           ).append(
+            $('<button type="button" class="close">&times;</button>').click(->
+              popUp && popUp.remove()
+              popUp = false
+              keepPopUp = false
+            )
+          ).append(
             detailList
           ).attr(
             'id',
@@ -115,10 +126,19 @@ $(document).ready ->
      
           $(theContainer).append(popUp)
         ).bind('outnodes', (event) ->
-          popUp && popUp.remove()
-          popUp = false
+          if !keepPopUp
+            popUp && popUp.remove()
+            popUp = false
+          onTarget = false
 
           sigInst.iterEdges( (e) ->
             e.hidden = 0
           ).draw(2, 2, 2)
+        ).bind('downnodes', (e) ->
+          keepPopUp = true
+        ).bind('downgraph', (e) ->
+          if !onTarget
+            keepPopUp = false
+            popUp && popUp.remove()
+            popUp = false
         ).draw()
