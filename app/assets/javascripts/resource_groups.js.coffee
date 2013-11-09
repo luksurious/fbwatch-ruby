@@ -22,7 +22,9 @@ $(document).ready ->
 
   $('.network-graph').each ->
     theGraph = this
-    $(theGraph).find('.network-graph-canvas').each (i, e) =>
+    $(theGraph).find('.network-graph-canvas').each (i, e) ->
+      theContainer = this
+
       sigInst = sigma.init(e).drawingProperties({
         defaultLabelColor: '#fff',
         defaultEdgeType: 'curve'
@@ -31,8 +33,9 @@ $(document).ready ->
         maxNodeSize: 10
       });
 
-      sigInst.parseJson($(e).attr('data-graph-url'));
-      sigInst.draw();
+      sigInst.parseJson($(e).attr('data-graph-url'), ->
+        sigInst.draw()
+      )
 
       hideSmallEdges = (x) ->
         visible = 0
@@ -59,3 +62,83 @@ $(document).ready ->
             e.hidden = 0
           sigInst.draw()
         return
+
+      do ->
+        popUp = null
+        keepPopUp = false
+        onTarget = false
+     
+        sigInst.bind('overnodes', (event) ->
+          nodes = event.content
+          neighborEdges = []
+          onTarget = true
+
+          sigInst.iterEdges( (e) ->
+            if nodes.indexOf(e.source) >= 0 || nodes.indexOf(e.target) >= 0
+              neighborEdges.push(
+                to: if nodes.indexOf(e.source) >= 0 then e.target else e.source
+                size: e.size
+              )
+            else
+              e.hidden = 1
+          ).draw(2, 2, 2)
+
+          popUp && popUp.remove()
+
+          node = false
+          sigInst.iterNodes(
+            (n) ->
+              node = n
+            [event.content[0]]
+          )
+
+          detailList = $('<ul>').append(
+            $('<li>').append(
+              $('<a>').attr('href', '/resource/' + node.id).text('Username: ' + node.id)
+            )
+          ).append(
+            $('<li>').text('Node size: ' + node.size)
+          )
+
+          $.each(neighborEdges, (index, value) ->
+            detailList.append(
+              $('<li>').text('Edge to: ' + value.to + ', weight: ' + value.size)
+            )
+          )
+
+          popUp = $(
+            '<div class="node-info-popup"></div>'
+          ).append(
+            $('<button type="button" class="close">&times;</button>').click(->
+              popUp && popUp.remove()
+              popUp = false
+              keepPopUp = false
+            )
+          ).append(
+            detailList
+          ).attr(
+            'id',
+            'node-info' + sigInst.getID()
+          ).css(
+            'left': node.displayX
+            'top': node.displayY + 15
+          )
+     
+          $(theContainer).append(popUp)
+        ).bind('outnodes', (event) ->
+          if !keepPopUp
+            popUp && popUp.remove()
+            popUp = false
+          onTarget = false
+
+          sigInst.iterEdges( (e) ->
+            e.hidden = 0
+          ).draw(2, 2, 2)
+        ).bind('downnodes', (e) ->
+          keepPopUp = true
+        ).bind('downgraph', (e) ->
+          if !onTarget
+            keepPopUp = false
+            popUp && popUp.remove()
+            popUp = false
+        ).draw()

@@ -30,7 +30,7 @@ Fbwatch::Application.routes.draw do
   patch 'resource/:id/keywords',            to: 'resources#change_keywords',    as: 'keywords'
   get   'resource/:username/clean',         to: 'resources#show_clean_up',      as: 'clean_up_resource',  :constraints => { :username => /[^\/]+/ }
   patch 'resource/:username/clean',         to: 'resources#do_clean_up',        as: 'do_clean_up',        :constraints => { :username => /[^\/]+/ }
-  get   'resource/:id/graph',               to: 'network_graph#for_resource',   as: 'resource_graph'
+  get   'resource/:id/graph/:group_id',     to: 'network_graph#for_resource',   as: 'resource_graph'
 
   # metrics
   patch 'resource/:username/metrics', to: 'metrics#resource', :constraints => { :username => /[^\/]+/ }, as: 'run_metrics'
