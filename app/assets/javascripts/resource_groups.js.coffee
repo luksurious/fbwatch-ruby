@@ -100,6 +100,8 @@ $(document).ready ->
             $('<li>').text('Node size: ' + node.size)
           )
 
+          neighborEdges.sort (a, b) ->
+            b.size - a.size
           $.each(neighborEdges, (index, value) ->
             detailList.append(
               $('<li>').text('Edge to: ' + value.to + ', weight: ' + value.size)
