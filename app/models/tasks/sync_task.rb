@@ -117,7 +117,7 @@ module Tasks
         end
 
         save_time = time do
-          Sync::DataSaver.new(FEED_KEY_PREV, FEED_KEY_LAST).save_resource(resource, result)
+          Sync::UserDataSaver.new(FEED_KEY_PREV, FEED_KEY_LAST).save_resource(resource, result)
         end
         if result.is_a?(Hash)
           part_done
@@ -147,10 +147,10 @@ module Tasks
           # i.e. not during the loop of getting the feed, this is important because if an error occurs during said loop
           # we want to be able to resume getting data at the point where it occured and not have to reload everything
           # this usually occurs if the request limit is reached (#17) or for any other permanent error
-          Utility.log_exception(e, mail: @send_mail, info: "A connection error occured in task #{@task.inspect}")
+          Utility.log_exception(e, mail: @send_mail, info: @task)
           return RetriableError.new(cause: e, task: @task)
         rescue => exception
-          Utility.log_exception(exception, mail: @send_mail, info: "A connection error occured in task #{@task.inspect}")
+          Utility.log_exception(exception, mail: @send_mail, info: @task)
           return BreakingError.new(cause: exception, task: @task)
         end
 

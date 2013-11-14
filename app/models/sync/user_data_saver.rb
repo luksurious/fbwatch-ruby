@@ -1,7 +1,7 @@
 require 'active_support'
 
 module Sync
-  class DataSaver
+  class UserDataSaver
 
     def initialize(prev_link, last_link)
       @@feed_prev_link_key = prev_link
@@ -54,7 +54,6 @@ module Sync
       ActiveRecord::Base.transaction do 
         @more_transaction.each { |res| Utility.save_resource_gracefully(res) }
       end
-
     end
     
     def update_resource
@@ -138,7 +137,6 @@ module Sync
         
         @feed_transaction.push({entity: feed, item: item})
       end
-      
     end
     
     def save_comments_for_feed(feed, comments)

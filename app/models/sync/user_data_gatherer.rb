@@ -69,7 +69,7 @@ module Sync
         end
 
         if result.nil?
-          result = { 'error' => { 'message' => "Empty result object" } }
+          result = { 'error' => { 'message' => "Empty result object", 'type' => 'strange-error' } }
         end
 
         if result.has_key?('error')
@@ -158,7 +158,8 @@ module Sync
 
     def is_strange_facebook_error?(error)
       (error.has_key?('type') and error['type'] == 'OAuthException' and error.has_key?('code') and error['code'] == 1) or
-      (error['message'].nil?) # we have encountered a strange issue where simply the request fails. this can be due to a too high item "limit"
+      (error['message'].nil?) or # we have encountered a strange issue where simply the request fails. this can be due to a too high item "limit"
+      (error['type'] == 'strange-error')
     end
 
     def get_all_comments_and_likes_for(data)
