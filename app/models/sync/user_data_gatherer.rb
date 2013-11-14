@@ -111,7 +111,10 @@ module Sync
         result = dispatch_api_query(fb_graph_call)
 
         # query issue
-        resume_query = fb_graph_call if result == false
+        if result == false
+          Rails.logger.warn "Query issue for call '#{fb_graph_call}'"
+          resume_query = fb_graph_call 
+        end
 
         unless @error.nil?
           if is_strange_facebook_error?(@error)
