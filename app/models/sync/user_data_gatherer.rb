@@ -86,9 +86,10 @@ module Sync
           my_logger.debug "Received: " + result.to_s[0..100]
 
           return result
+        else
+          return false
         end
       end
-      return false
     end
     
     private
