@@ -6,8 +6,9 @@ require 'uri'
 module Sync
   class UserDataGatherer
 
-    def initialize(username, facebook)
-      @username = username
+    def initialize(resource, facebook)
+      @resource = resource
+      @username = resource.username
       @facebook = facebook
       @no_of_queries = 0
       
@@ -41,7 +42,7 @@ module Sync
       @prev_feed_link = @prev_feed_link[ @prev_feed_link.index('?')+1..-1 ] if !@prev_feed_link.nil? and @prev_feed_link.index('?') > 0
       data = {
         basic_data: basic_data,
-        feed: fetch_data("#{@username}/feed", @prev_feed_link, pages)
+        feed: fetch_data("#{@resource.facebook_id}/feed", @prev_feed_link, pages)
       }
 
       #results = RubyProf.stop

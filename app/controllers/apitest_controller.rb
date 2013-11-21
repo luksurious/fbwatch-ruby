@@ -4,7 +4,11 @@ class ApitestController < ApplicationController
   def index  
     if params.has_key?(:query)
       @query = params[:query]
-      fetcher = Sync::UserDataGatherer.new("apitest", session[:facebook])
+
+      tester = Resource.new
+      tester.username = "apitest"
+
+      fetcher = Sync::UserDataGatherer.new(tester, session[:facebook])
       begin
         @result = fetcher.dispatch_api_query(@query)
       rescue => e

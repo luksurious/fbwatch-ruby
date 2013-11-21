@@ -158,7 +158,7 @@ module Tasks
       end
 
       def setup_gatherer(resource)
-        @gatherer = Sync::UserDataGatherer.new(resource.username, @koala)
+        @gatherer = Sync::UserDataGatherer.new(resource, @koala)
 
         # set query to resume; might be best to push to resource table
         resource_config = Basicdata.where({ resource_id: resource, key: [FEED_KEY_PREV, FEED_KEY_LAST] })
