@@ -1,6 +1,6 @@
 module Sync
   class FacebookPaging < FacebookGraph
-    attr_reader :base, :query_count
+    attr_reader :base, :query_count, :forward
       
     MAX_LIMIT = 900
 
@@ -17,8 +17,7 @@ module Sync
 
       @page_limit = options[:page_limit] || MAX_LIMIT
 
-      @call_history = {default: []}
-      @call_history_index = :default
+      @call_history = []
 
       logger = options[:logger] if options[:logger]
     end
@@ -33,6 +32,10 @@ module Sync
 
     def next_path
       "/#{@base}?" + next_parameters
+    end
+
+    def last_path
+      @call_history.last
     end
 
     private

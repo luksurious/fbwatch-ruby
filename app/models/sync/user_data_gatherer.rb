@@ -1,10 +1,12 @@
 require 'json'
 require 'cgi'
 require 'uri'
-#require 'ruby-prof'
+require 'date'
 
 module Sync
   class UserDataGatherer < FacebookGraph
+    attr_writer :page_limit
+    attr_reader :no_of_queries, :username
 
     def initialize(resource, facebook)
       super(facebook)
@@ -15,40 +17,52 @@ module Sync
       @no_of_queries = 0
       
       @page_limit = nil
+      @error = nil
 
       logger = Logger.new("#{Rails.root}/log/#{@username}.log")
     end
-    attr_writer :prev_feed_link, :page_limit
-    attr_reader :no_of_queries, :username
 
     def flash
       @flash ||= {alert: [], notice: []}
     end
 
-    def save_basic_data(basic_data)
+    def fetch(pages = nil)
+      fetch_basic_data
 
-    end
-    
-    def start_fetch(pages = nil)
-      #RubyProf.start
-      basic_data = self.facebook.get_object(@username)
-
-      if basic_data.empty?
-          # TODO
-          return
-      end
-
-      feed_data = scan_feed(graph_link: @prev_feed_link, pages: pages)
+      fetch_feed
 
       {
-        basic_data: basic_data,
-        feed: feed_data[:data],
-        error: @error,
-        resume_path: @resume_path
+        basic_data: @basic_data,
+        feed: @posts,
+        resume_path: @resume_path,
+        error: @error
       }
     end
 
     private
+    def fetch_feed
+      resume_query = @resource.resume_query
+
+      # if error in comments or likes construct
+
+      scan_feed(graph_link: , pages: pages) if @error.nil?
+    end
+
+    def fetch_basic_data
+      begin
+        basic_data = self.facebook.get_object(@username)
+      rescue => exception
+        @error = exception
+      end
+      
+      if basic_data.empty?
+        error_msg = "Unable to retrieve basic information for #{@username}, result was empty" 
+        logger.warn error_msg
+        @error = StandardError.new(error_msg)
+      end
+
+      @basic_data = basic_data
+    end
 
     def save_post(post)
       @posts ||= []
@@ -61,7 +75,7 @@ module Sync
     end
 
     def scan_feed(options)
-      pager = FacebookPaging.new(start: options[:graph_link] || '', base: "#{@resource.facebook_id}/feed", koala: facebook, logger: logger, page_limit: @page_limit)
+      @feed_pager = FacebookPaging.new(start: options[:graph_link] || '', base: "#{@resource.facebook_id}/feed", koala: facebook, logger: logger, page_limit: @page_limit)
       
       pages = options[:pages] || -1
 
@@ -69,19 +83,19 @@ module Sync
       @error = nil
       
       while true
-        page_result = fetch_feed_page(pager)
+        page_result = fetch_feed_page
 
         break if page_result[:status] != QUERY_SUCCESS
 
         pages -= 1
         if pages == 0
           # save the next call to resume sync
-          set_graph_path_to_resume(pager.next_path)
+          set_graph_path_to_resume(@feed_pager.next_path)
           break
         end
       end
 
-      @no_of_queries += pager.query_count
+      @no_of_queries += @feed_pager.query_count
       
       {
         data: @posts,
@@ -93,15 +107,15 @@ module Sync
     QUERY_ERROR = "QUERY_ERROR"
     QUERY_END = "QUERY_END"
 
-    def fetch_feed_page(pager)
+    def fetch_feed_page
       status = nil
 
-      result = pager.next
+      result = @feed_pager.next
 
       # query issue
       if result.is_a?(StandardError)
-        Rails.logger.warn "Query issue for call '#{feed_path}'"
-        set_graph_path_to_resume(feed_path)
+        Rails.logger.warn "Query issue for call '#{@feed_pager.last_path}'"
+        set_graph_path_to_resume(@feed_pager.last_path)
         @error = result
         status = QUERY_ERROR
       end
@@ -124,16 +138,8 @@ module Sync
       }
     end
 
-    def parse_previous_link(result)
-      if result['paging'].has_key?('previous')
-        result['paging']['previous']
-      else
-        ""
-      end
-    end
-
     def scan_post_attribute(base, parameters)
-      pager = FacebookPaging.new(start: parameters, base: base, koala: facebook, logger: logger, page_limit: @page_limit)
+      pager = FacebookPaging.new(start: parameters, base: base, koala: facebook, logger: logger, page_limit: FacebookPaging.MAX_LIMIT)
 
       attributes = []
 
@@ -160,12 +166,14 @@ module Sync
         comments = get_all_comments(entry)
         if comments.is_a?(StandardError)
           error = comments
+          build_resume_path_from_entry(entry)
           break
         end
 
         likes = get_all_likes(entry)
         if likes.is_a?(StandardError)
           error = likes
+          build_resume_path_from_entry(entry)
           break
         end
 
@@ -178,20 +186,20 @@ module Sync
       error
     end
 
-    def fetch_connected_data(query, parameter)
-      # fetch data for likes & comments as fast as possible
-      custom_limit = @page_limit
-      @page_limit = @@MAX_LIMIT
+    def build_resume_path_from_entry(entry)
+      entry_time = DateTime.strptime(entry['created_time'], "%Y-%m-%dT%H:%M:%S%z")
 
+      time_modifier = @feed_pager.forward ? "since" : "until"
+
+      set_graph_path_to_resume("/#{@resource.facebook_id}/feed?#{time_modifier}=#{entry_time.strftime("%s")}")
+    end
+
+    def fetch_connected_data(query, parameter)
       result = scan_post_attribute(query, parameter, nil)
 
       if result.is_a?(StandardError)
         logger.debug "Stopping querying because encountered an error in sub-query"
-        
-        set_graph_path_to_resume(query)
       end
-      
-      @page_limit = custom_limit
 
       return result
     end

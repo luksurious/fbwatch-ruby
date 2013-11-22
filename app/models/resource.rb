@@ -27,11 +27,14 @@ class Resource < ActiveRecord::Base
   end
 
   def sync_complete?
-    resume_query = Basicdata.where({resource_id: self.id, key: Tasks::SyncTask::FEED_KEY_LAST}).first
     last_query = Basicdata.where({resource_id: self.id, key: Tasks::SyncTask::FEED_KEY_PREV}).first
 
     !resume_query.nil? and resume_query.value.blank? and 
       !last_query.nil? and !last_query.value.blank?
+  end
+
+  def resume_query
+    Basicdata.where({resource_id: self.id, key: Tasks::SyncTask::FEED_KEY_LAST}).first
   end
 
   def dummy?
