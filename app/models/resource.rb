@@ -40,7 +40,7 @@ class Resource < ActiveRecord::Base
     newest_post = Feed.select(:created_time).where(resource_id: self.id, parent_id: nil).order("created_time DESC").limit(1).first
     return nil if newest_post.nil?
 
-    "/#{@resource.facebook_id}/feed?since=#{newest_post.created_time.strftime("%s")}"
+    "/#{self.facebook_id}/feed?since=#{newest_post.created_time.strftime("%s")}"
   end
 
   def resume_query=(query)
