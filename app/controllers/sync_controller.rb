@@ -63,7 +63,7 @@ class SyncController < ApplicationController
 
     def sync(options = {})
       entity_name = get_entity_name(options)
-
+      
       sync_task = Tasks::SyncTask.new(session[:facebook], options)
 
       SyncTaskWorker.perform_async('token' => session[:facebook].access_token, 'task' => sync_task.task.id)

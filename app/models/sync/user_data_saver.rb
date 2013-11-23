@@ -3,11 +3,6 @@ require 'active_support'
 module Sync
   class UserDataSaver
 
-    def initialize(prev_link, last_link)
-      @@feed_prev_link_key = prev_link
-      @@feed_last_link_key = last_link
-    end
-
     # normally expect result to be the result hash
     # in case of sync errors it can either be nil or an Error class
     def save_resource(resource, result)
@@ -57,8 +52,6 @@ module Sync
     end
     
     def update_resource
-      @resource.last_synced = DateTime.now
-
       if @result.is_a?(Hash) and @result.has_key?(:basic_data)
         @resource.facebook_id = @result[:basic_data]['id']
         @resource.name = @result[:basic_data]['name']
@@ -85,10 +78,6 @@ module Sync
           @more_transaction.push(item)
 
           new_data.delete(item.key)
-        elsif item.key == @@feed_prev_link_key
-          feed_prev_link = item
-        elsif item.key == @@feed_last_link_key
-          feed_last_link = item
         end
       end
       
@@ -106,29 +95,15 @@ module Sync
       end
       
       # save special fields
-      if feed_prev_link.nil?
-        feed_prev_link = Basicdata.new
-        feed_prev_link.key = @@feed_prev_link_key
-        feed_prev_link.resource = @resource
-      end
-      feed_prev_link.value = @result[:feed][:previous_link] if @result[:feed][:previous_link] != ""
-      @more_transaction.push(feed_prev_link)
-
-      if feed_last_link.nil?
-        feed_last_link = Basicdata.new
-        feed_last_link.key = @@feed_last_link_key
-        feed_last_link.resource = @resource
-      end
-      feed_last_link.value = @result[:feed][:resume_query]
-      @more_transaction.push(feed_last_link)
+      @resource.resume_query = @result[:resume_path]
     end
     
     def save_feed
-      return unless @result.is_a?(Hash)
+      return unless @result.is_a?(Hash) and @result[:feed].is_a?(Array)
       
       feeds = @result[:feed]
       
-      feeds[:data].each do |item|
+      feeds.each do |item|
         feed = build_feed_out_of_item(item)
         
         if item.has_key?('comments') and item['comments'].has_key?('count')
@@ -193,7 +168,7 @@ module Sync
       feed.feed_type = item['type']
       feed.created_time = item['created_time']
       feed.updated_time = item['updated_time']
-      feed.like_count = item['likes']['count'] if item.has_key?('likes')
+      feed.like_count = item['likes']['count'] if item.has_key?('likes') and item['likes'].is_a?(Hash)
       
       # get comment count
       if item.has_key?('comments')
@@ -268,6 +243,8 @@ module Sync
     end
     
     def get_or_make_resource(resource)
+      return nil if resource.nil?
+
       if @res_transaction.has_key?(resource['id'])
         res = @res_transaction[ resource['id'] ] 
       else

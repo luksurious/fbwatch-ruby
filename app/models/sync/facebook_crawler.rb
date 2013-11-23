@@ -1,5 +1,5 @@
 module Sync
-  class FacebookPaging < FacebookGraph
+  class FacebookCrawler < FacebookGraph
     attr_reader :base, :query_count, :forward
       
     MAX_LIMIT = 900
@@ -7,11 +7,15 @@ module Sync
     def initialize(options)
       super(options[:koala])
 
-      @start = parameters_from_url(options[:start])
+      start = options[:start] || ""
+      if options[:start].is_a?(Basicdata)
+        start = start.value
+      end
+      @start = parameters_from_url(start)
       @base = options[:base]
 
       # if the given start link contains the keyword since, we go back in time
-      @forward = @start.index('since').nil?
+      @forward = @start.key('since').nil?
 
       @query_count = 0
 
@@ -22,10 +26,14 @@ module Sync
       logger = options[:logger] if options[:logger]
     end
 
+    def on_posts?
+      @base.match(/(?:feed|comments)/) != nil
+    end
+
     def next
       result = dispatch_api_query(next_path)
 
-      @paging = result['paging']
+      @paging = result.is_a?(Hash) ? result['paging'] : nil
 
       result
     end
@@ -41,7 +49,7 @@ module Sync
     private
 
       def next_link
-        return nil if @paging.is_a?('Hash')
+        return nil unless @paging.is_a?(Hash)
 
         if @forward
           @paging['next']
@@ -50,7 +58,7 @@ module Sync
         end
       end
 
-      def next_parameters(base_query)
+      def next_parameters(base_query = "")
         uri = parameters_from_url(next_link)
 
         uri.delete('access_token')
@@ -125,7 +133,7 @@ module Sync
 
         orig_page_limit = @page_limit
         @page_limit = 25
-        new_query = uri.path + "?" + next_parameters(nil, uri.query)
+        new_query = uri.path + "?" + next_parameters(uri.query)
         @page_limit = orig_page_limit
 
         return new_query
