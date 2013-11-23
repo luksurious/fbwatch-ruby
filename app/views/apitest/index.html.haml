@@ -2,13 +2,14 @@
 %div
   %p
     %b Logged in user: 
-    = @user
+    %pre
+      = @user.to_yaml
   %p
     %b Access Token: 
     = @token
 
 - if @query
-  %b Query run: 
+  %h2 Query run: 
   = @query
   %br
   %b Result:

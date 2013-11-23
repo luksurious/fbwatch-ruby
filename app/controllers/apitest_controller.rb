@@ -1,20 +1,15 @@
 class ApitestController < ApplicationController
   before_action :assert_auth
   
-  def index  
+  def index
+    fetcher = Sync::FacebookGraph.new(session[:facebook])
     if params.has_key?(:query)
       @query = params[:query]
-      fetcher = Sync::UserDataGatherer.new("apitest", session[:facebook])
-      begin
-        @result = fetcher.dispatch_api_query(@query)
-      rescue => e
-        flash[:alert] << e.message
-      end
-      flash[:alert].concat(fetcher.flash[:alert])
-      flash[:notice].concat(fetcher.flash[:notice])
+
+      @result = fetcher.query(@query)
     end
     
-    @user = session[:facebook].get_object('me')
+    @user = fetcher.query('/me')
     @token = session[:facebook].access_token
   end
 end

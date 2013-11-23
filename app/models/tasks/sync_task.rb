@@ -117,7 +117,14 @@ module Tasks
         end
 
         save_time = time do
-          Sync::DataSaver.new(FEED_KEY_PREV, FEED_KEY_LAST).save_resource(resource, result)
+          begin
+            Sync::UserDataSaver.new.save_resource(resource, result)
+          rescue => exception
+            resource.last_synced = DateTime.now
+            resource.save
+
+            raise exception, exception.message, exception.backtrace
+          end
         end
         if result.is_a?(Hash)
           part_done
@@ -128,6 +135,9 @@ module Tasks
         @task.data[DATA_TIME] += data_time
         @task.data[SAVE_TIME] += save_time
         @task.save!
+
+        resource.last_synced = DateTime.now
+        resource.save
 
         return result
       end
@@ -141,16 +151,16 @@ module Tasks
         @gatherer.page_limit = options["page_limit"] unless options["page_limit"].blank?
 
         begin
-          result = @gatherer.start_fetch((options["pages"] || -1).to_i)
+          result = @gatherer.fetch((options["pages"] || -1).to_i)
         rescue Koala::Facebook::APIError => e
           # if we reach this point the exception was thrown at the first call to get the basic information for a resource
           # i.e. not during the loop of getting the feed, this is important because if an error occurs during said loop
           # we want to be able to resume getting data at the point where it occured and not have to reload everything
           # this usually occurs if the request limit is reached (#17) or for any other permanent error
-          Utility.log_exception(e, mail: @send_mail, info: "A connection error occured in task #{@task.inspect}")
+          Utility.log_exception(e, mail: @send_mail, info: @task)
           return RetriableError.new(cause: e, task: @task)
         rescue => exception
-          Utility.log_exception(exception, mail: @send_mail, info: "A connection error occured in task #{@task.inspect}")
+          Utility.log_exception(exception, mail: @send_mail, info: @task)
           return BreakingError.new(cause: exception, task: @task)
         end
 
@@ -158,19 +168,7 @@ module Tasks
       end
 
       def setup_gatherer(resource)
-        @gatherer = Sync::UserDataGatherer.new(resource.username, @koala)
-
-        # set query to resume; might be best to push to resource table
-        resource_config = Basicdata.where({ resource_id: resource, key: [FEED_KEY_PREV, FEED_KEY_LAST] })
-        link_set = false
-        resource_config.each do |link_hash|
-          if link_hash.key == FEED_KEY_LAST and link_hash.value != ""
-            @gatherer.prev_feed_link = link_hash.value
-            link_set = true
-          elsif link_hash.key == FEED_KEY_PREV and link_set == false
-            @gatherer.prev_feed_link = link_hash.value
-          end
-        end
+        @gatherer = Sync::UserDataGatherer.new(resource, @koala)
       end
 
       def resource_currently_syncing?(resource)

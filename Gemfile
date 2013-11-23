@@ -35,7 +35,6 @@ group :development, :test do
   gem 'sqlite3'
   gem 'rspec-rails'
   gem 'guard-rspec'
-#  gem 'spork-rails', github: 'sporkrb/spork-rails'
   gem 'guard-spork'
   gem 'childprocess'
 end
@@ -57,11 +56,8 @@ group :test do
   gem 'factory_girl_rails'
 end
 
-# enable on production to make error hunting easier
-gem "better_errors"
-
 group :development do
-#  gem "better_errors"
+  gem "better_errors"
   gem "binding_of_caller"
   gem 'bullet'
   gem 'flay'

@@ -104,14 +104,21 @@
       .heading
         %span.sender
           - if !item.from.nil?
-            = link_to item.from.name, resource_details_path(item.from.username)
+            = link_to item.from.name, resource_overview_path(item.from.username)
           - if !item.to.nil?
             = raw "to #{link_to item.to.name, resource_details_path(item.to.username)}"
-        %span.date= item['updated_time'].localtime.to_formatted_s(:long)
-      .data= item['data']
+        %span.date= item['updated_time'].localtime.to_formatted_s(:long) if item['updated_time'].is_a?(Time)
+      .data
+        = item['data']
       .footer
         %span.likes= "#{item['like_count'] || 0} likes"
         %span.comments= "#{item['comment_count'] || 0} comments"
         %span.type= " (#{item['data_type']}: #{item['feed_type']})"
+        - if item.feed_tags.length > 0
+          %br
+          tags:
+          - item.feed_tags.each do |x| 
+            = link_to x.resource.name, resource_overview_path(x.resource.username)
+            ,
 
 = render 'resources/feeds_paging', offset: @offset, username: @resource.username, filter: @filter, total_pages: @total_pages

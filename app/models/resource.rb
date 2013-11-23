@@ -27,11 +27,27 @@ class Resource < ActiveRecord::Base
   end
 
   def sync_complete?
-    resume_query = Basicdata.where({resource_id: self.id, key: Tasks::SyncTask::FEED_KEY_LAST}).first
-    last_query = Basicdata.where({resource_id: self.id, key: Tasks::SyncTask::FEED_KEY_PREV}).first
+    last_q = Basicdata.where({resource_id: self.id, key: Tasks::SyncTask::FEED_KEY_LAST}).first
 
-    !resume_query.nil? and resume_query.value.blank? and 
-      !last_query.nil? and !last_query.value.blank?
+    !resume_query.nil? and last_q.is_a?(Basicdata) and last_q.value.blank?
+  end
+
+  def resume_query
+    last_q = Basicdata.where({resource_id: self.id, key: Tasks::SyncTask::FEED_KEY_LAST}).first
+
+    return last_q if last_q.is_a?(Basicdata) and !last_q.value.blank?
+
+    newest_post = Feed.select(:created_time).where(resource_id: self.id, parent_id: nil).order("created_time DESC").limit(1).first
+    return nil if newest_post.nil?
+
+    entry_time = DateTime.strptime(newest_post.created_time, "%Y-%m-%dT%H:%M:%S%z")
+    "/#{@resource.facebook_id}/feed?since=#{entry_time.strftime("%s")}"
+  end
+
+  def resume_query=(query)
+    entry = Basicdata.where({resource_id: self.id, key: Tasks::SyncTask::FEED_KEY_LAST}).first_or_initialize
+    entry.value = query
+    entry.save
   end
 
   def dummy?

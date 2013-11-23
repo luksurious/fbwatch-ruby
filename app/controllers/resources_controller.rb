@@ -200,7 +200,7 @@ class ResourcesController < ApplicationController
         filter_hash[:parent_id] = nil
       end
 
-      @feeds = Feed.includes(:to, :from).order("updated_time DESC").where(filter_hash).page(@offset+1).per(100)
+      @feeds = Feed.includes(:to, :from).order("created_time DESC").where(filter_hash).page(@offset+1).per(100)
       @filter_count = Feed.where(filter_hash).count
       @total_pages = (@filter_count / 100.0).ceil
 
