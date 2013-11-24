@@ -161,3 +161,6 @@ $(document).ready ->
 
       $(theGraph).find('.circular-layout').click ->
         sigInst.myCircularLayout()
+        
+      $(theGraph).find('.spiral-layout').click ->
+        sigInst.starWeightedLayout()
