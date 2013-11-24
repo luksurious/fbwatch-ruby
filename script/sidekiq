@@ -21,8 +21,9 @@ GEMFILE="$APP_DIR/Gemfile"
 SIDEKIQ="sidekiq"
 APP_ENV="production"
 BUNDLE="bundle"
+WORKERS="10"
 
-START_CMD="$BUNDLE exec $SIDEKIQ -e $APP_ENV -P $PID_FILE"
+START_CMD="$BUNDLE exec $SIDEKIQ -e $APP_ENV -P $PID_FILE -c $WORKERS"
 RETVAL=0
 
 

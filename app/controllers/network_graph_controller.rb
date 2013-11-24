@@ -39,7 +39,7 @@ class NetworkGraphController < ApplicationController
       json[:edges] << {
         source: metric.resources.first.username,
         target: metric.resource.username,
-        weight: [metric.value, 1].max
+        weight: [metric.value, 0].max
       }
     end
 
