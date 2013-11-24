@@ -102,7 +102,7 @@ sigma.publicPrototype.starWeightedLayout = function() {
       if (xT == -yT && xT > 0) {
         console.log("x: " + xT + ", y: " + yT)
         ring++;
-        ringDistance = ringDistance + (1 - ring / (maxRings - 1) * ringDistanceStep);
+        ringDistance = ringDistance + (1 - ring * ringDistanceStep);
         console.log("d: " + ringDistance);
 
         scalingFactor = ringDistance / (ring + 1);
