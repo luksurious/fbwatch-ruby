@@ -1,0 +1,8 @@
+%div.network-graph
+  %h2 Network Graph from Google Relations for a User
+  .network-graph-container
+    .network-graph-canvas{'data-graph-url' => resource_google_graph_path(@resource.id, klass.resource_group.id, :json)}
+  %p
+    %input#network-graph-filter-edges-google.network-graph-filter{type: 'checkbox'}
+    %label{for: 'network-graph-filter-edges-google'} Show only important edges
+  %a.btn-small.toggle-layout Start Layout
