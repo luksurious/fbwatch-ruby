@@ -12,14 +12,14 @@
 
 #Variable Set
 APP="fbwatch"
-APP_DIR="/var/pockettaxi/lukas/fbwatch-ruby"
+APP_DIR="/home/lukas/Studium/fbwatch-ruby"
 APP_CONFIG="${APP_DIR}/config"
 LOG_FILE="$APP_DIR/log/sidekiq.log"
 LOCK_FILE="$APP_DIR/${APP}-sidekiq-lock"
 PID_FILE="$APP_DIR/${APP}-sidekiq.pid"
 GEMFILE="$APP_DIR/Gemfile"
 SIDEKIQ="sidekiq"
-APP_ENV="production"
+APP_ENV="development"
 BUNDLE="bundle"
 WORKERS="10"
 
