@@ -150,8 +150,14 @@ $(document).ready ->
         if isRunning
           isRunning = false;
           sigInst.stopForceAtlas2();
-          $(this).text('Start Layout');
+          $(this).text('Start ForceAtlast Layout');
         else
           isRunning = true;
           sigInst.startForceAtlas2();
-          $(this).text('Start Layout');
+          $(this).text('Stop ForceAtlast Layout');
+
+      $(theGraph).find('.random-layout').click ->
+        sigInst.myRandomLayout()
+
+      $(theGraph).find('.circular-layout').click ->
+        sigInst.myCircularLayout()
