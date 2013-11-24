@@ -79,6 +79,8 @@ sigma.publicPrototype.starWeightedLayout = function() {
     return [newX, newY]
   };
 
+  var scalingFactor = 1;
+
   (function() {
     if (gridSize < 4) {
       return;
@@ -88,7 +90,6 @@ sigma.publicPrototype.starWeightedLayout = function() {
     var maxRings = (gridSize - 1) / 2;
     var ringDistanceStep = 0.5 / (maxRings - 1)
     var ringDistance = 1;
-    var scalingFactor = 1;
 
     positions = positions.map(function(coord) {
       console.log("scale: " + scalingFactor);
@@ -122,13 +123,13 @@ sigma.publicPrototype.starWeightedLayout = function() {
     }
   });
   this.addNode('padding-top', {
-    x: rotatePoint(0.4, 0.4)[0],
-    y: rotatePoint(0.4, 0.4)[1],
+    x: rotatePoint(0.4 - gridSize/2, 0.4 - gridSize/2)[0] * scalingFactor + gridSize/2,
+    y: rotatePoint(0.4 - gridSize/2, 0.4 - gridSize/2)[1] * scalingFactor + gridSize/2,
     size: 0
   });
   this.addNode('padding-bottom', {
-    x: rotatePoint(gridSize-0.4, gridSize-0.4)[0],
-    y: rotatePoint(gridSize-0.4, gridSize-0.4)[1],
+    x: rotatePoint(gridSize-0.4, gridSize-0.4)[0] * scalingFactor,
+    y: rotatePoint(gridSize-0.4, gridSize-0.4)[1] * scalingFactor,
     size: 0
   });
 
