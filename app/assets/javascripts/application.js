@@ -14,4 +14,6 @@
 //= require jquery_ujs
 //= require bootstrap
 //= require select2
+//= require sigma.min
+//= require sigma.forceatlas2
 //= require_tree .
