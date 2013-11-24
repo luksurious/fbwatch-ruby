@@ -29,7 +29,7 @@ $(document).ready ->
         defaultLabelColor: '#fff',
         defaultEdgeType: 'curve'
       }).graphProperties({
-        minNodeSize: 1,
+        minNodeSize: 0.1,
         maxNodeSize: 10
       });
 

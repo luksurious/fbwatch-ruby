@@ -47,7 +47,7 @@ class NetworkGraphController < ApplicationController
       json[:nodes] << {
         id: metric.resource.username,
         label: metric.resource.name,
-        size: [metric.value, 1].max,
+        size: [metric.value, 0.1].max,
         color: random_color,
         forceLabel: metric.value > 5
       }
