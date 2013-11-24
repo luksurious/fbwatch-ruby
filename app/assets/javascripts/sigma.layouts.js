@@ -68,7 +68,6 @@ sigma.publicPrototype.starWeightedLayout = function() {
     }
   })();
 
-
   var rotateAngle = 10;
   var rotatePoint = function(x, y) {
     var rad = rotateAngle * Math.PI / 180;

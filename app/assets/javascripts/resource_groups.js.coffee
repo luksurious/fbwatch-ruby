@@ -46,13 +46,16 @@ $(document).ready ->
           else
             e.hidden = 0
             visible += 1
+            sigInst._core.graph.nodesIndex[e.source].forceLabel = true
+            sigInst._core.graph.nodesIndex[e.target].forceLabel = true
+              
         sigInst.draw()
         return visible
 
       $(theGraph).find('.network-graph-filter').change ->
         edgesCount = sigInst.getEdgesCount()
         if $(this).is(':checked')
-          weight = 5
+          weight = 9
           while hideSmallEdges(weight) < (edgesCount / 10)
             weight -= 1
             if weight <= 1
@@ -60,6 +63,8 @@ $(document).ready ->
         else
           sigInst.iterEdges (e) =>
             e.hidden = 0
+          sigInst.iterNodes (n) =>
+            n.forceLabel = false
           sigInst.draw()
         return
 
