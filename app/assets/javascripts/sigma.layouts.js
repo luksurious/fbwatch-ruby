@@ -122,14 +122,22 @@ sigma.publicPrototype.starWeightedLayout = function() {
       }
     }
   });
+
+  var rotateAndScalePadding = function(point) {
+    var pointT = point - gridSize/2;
+    var pointScaled = pointT * scalingFactor + gridSize/2;
+
+    return rotatePoint(pointScaled, pointScaled);
+  };
+
   this.addNode('padding-top', {
-    x: rotatePoint(0.4 - gridSize/2, 0.4 - gridSize/2)[0] * scalingFactor + gridSize/2,
-    y: rotatePoint(0.4 - gridSize/2, 0.4 - gridSize/2)[1] * scalingFactor + gridSize/2,
+    x: rotateAndScalePadding(0.4)[0],
+    y: rotateAndScalePadding(0.4)[1],
     size: 0
   });
   this.addNode('padding-bottom', {
-    x: rotatePoint(gridSize-0.4, gridSize-0.4)[0] * scalingFactor,
-    y: rotatePoint(gridSize-0.4, gridSize-0.4)[1] * scalingFactor,
+    x: rotateAndScalePadding(gridSize-0.4)[0],
+    y: rotateAndScalePadding(gridSize-0.4)[1],
     size: 0
   });
 
