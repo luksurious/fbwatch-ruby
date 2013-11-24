@@ -79,6 +79,7 @@ sigma.publicPrototype.starWeightedLayout = function() {
     return [newX, newY]
   };
 
+  var wideScreenScaling = parseInt(this._core.domRoot.clientWidth) * 1.0 / parseInt(this._core.domRoot.clientHeight);
   var scalingFactor = 1;
 
   (function() {
@@ -97,7 +98,7 @@ sigma.publicPrototype.starWeightedLayout = function() {
       var xT = coord[0] - gridSize/2;
       var yT = coord[1] - gridSize/2;
 
-      var x = xT * scalingFactor + gridSize/2;
+      var x = xT * scalingFactor * wideScreenScaling + gridSize/2;
       var y = yT * scalingFactor + gridSize/2;
 
       if (xT == -yT && xT > 0) {
