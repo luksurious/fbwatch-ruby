@@ -16,6 +16,13 @@ class NetworkGraphController < ApplicationController
     group_graph(group, 'network_graph', resource)
   end
 
+  def google_for_resource
+    resource = Resource.find(params[:id])
+    group = ResourceGroup.find(params[:group_id])
+
+    group_graph(group, 'network_graph_google', resource)
+  end
+
   def for_resource_group
     group_graph(ResourceGroup.find(params[:id]), 'network_graph')
   end

@@ -144,3 +144,14 @@ $(document).ready ->
             popUp && popUp.remove()
             popUp = false
         ).draw()
+
+      isRunning = false;
+      $(theGraph).find('.toggle-layout').click ->
+        if isRunning
+          isRunning = false;
+          sigInst.stopForceAtlas2();
+          $(this).text('Start Layout');
+        else
+          isRunning = true;
+          sigInst.startForceAtlas2();
+          $(this).text('Start Layout');
