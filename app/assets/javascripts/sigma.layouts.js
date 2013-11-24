@@ -42,31 +42,20 @@ sigma.publicPrototype.starWeightedLayout = function() {
     return a.size > b.size ? -1 : 1;
   });
 
-  var rotateAngle = 10;
-  var rotatePoint = function(x, y) {
-    var rad = rotateAngle * Math.PI / 180;
-
-    newX = x * Math.cos(rad) - y * Math.sin(rad);
-    newY = y * Math.cos(rad) + x * Math.sin(rad);
-
-    return [newX, newY]
-  };
-
   var positions = [];
 
   var gridSize = Math.ceil(Math.sqrt(nodes.length));
+  gridSize = gridSize % 2 == 0 ? gridSize + 1 : gridSize;
   (function() {
 
     var x = 0, y = 0, dx = 0, dy = -1;
     var X = gridSize, Y = gridSize;
     var t = Math.max(X, Y);
     var maxI = t * t;
-    var sizeMod = 0;
-    var corners = -2;
 
     for (i = 0; i < maxI; i++) {
         if ((-X/2 <= x) && (x <= X/2) && (-Y/2 <= y) && (y <= Y/2)) {
-            positions.push(rotatePoint(x + gridSize/2, y + gridSize/2));
+            positions.push([x + gridSize/2, y + gridSize/2]);
         }
 
         if( (x == y) || ((x < 0) && (x == -y)) || ((x > 0) && (x == 1-y))) {
@@ -77,6 +66,50 @@ sigma.publicPrototype.starWeightedLayout = function() {
         x += dx;
         y += dy;
     }
+  })();
+
+
+  var rotateAngle = 10;
+  var rotatePoint = function(x, y) {
+    var rad = rotateAngle * Math.PI / 180;
+
+    newX = x * Math.cos(rad) - y * Math.sin(rad);
+    newY = y * Math.cos(rad) + x * Math.sin(rad);
+
+    return [newX, newY]
+  };
+
+  (function() {
+    if (gridSize < 4) {
+      return;
+    }
+
+    var ring = 0;
+    var maxRings = (gridSize - 1) / 2;
+    var ringDistanceStep = 0.5 / (maxRings - 1)
+    var ringDistance = 1;
+    var scalingFactor = 1;
+
+    positions = positions.map(function(coord) {
+      console.log("scale: " + scalingFactor);
+
+      var xT = coord[0] - gridSize/2;
+      var yT = coord[1] - gridSize/2;
+
+      var x = xT * scalingFactor + gridSize/2;
+      var y = yT * scalingFactor + gridSize/2;
+
+      if (xT == -yT && xT > 0) {
+        console.log("x: " + xT + ", y: " + yT)
+        ring++;
+        ringDistance = ringDistance + (1 - ring / (maxRings - 1) * ringDistanceStep);
+        console.log("d: " + ringDistance);
+
+        scalingFactor = ringDistance / (ring + 1);
+      }
+
+      return rotatePoint(x, y);
+    });
   })();
 
   this.iterNodes(function(n) {
