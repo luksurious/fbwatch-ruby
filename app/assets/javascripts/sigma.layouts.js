@@ -42,6 +42,16 @@ sigma.publicPrototype.starWeightedLayout = function() {
     return a.size > b.size ? -1 : 1;
   });
 
+  var rotateAngle = 10;
+  var rotatePoint = function(x, y) {
+    var rad = rotateAngle * Math.PI / 180;
+
+    newX = x * Math.cos(rad) - y * Math.sin(rad);
+    newY = y * Math.cos(rad) + x * Math.sin(rad);
+
+    return [newX, newY]
+  };
+
   var positions = [];
 
   var gridSize = Math.ceil(Math.sqrt(nodes.length));
@@ -51,18 +61,20 @@ sigma.publicPrototype.starWeightedLayout = function() {
     var X = gridSize, Y = gridSize;
     var t = Math.max(X, Y);
     var maxI = t * t;
+    var sizeMod = 0;
+    var corners = -2;
 
     for (i = 0; i < maxI; i++) {
         if ((-X/2 <= x) && (x <= X/2) && (-Y/2 <= y) && (y <= Y/2)) {
-            positions.push([x + gridSize/2, y + gridSize/2]);
+            positions.push(rotatePoint(x + gridSize/2, y + gridSize/2));
         }
 
         if( (x == y) || ((x < 0) && (x == -y)) || ((x > 0) && (x == 1-y))) {
-            t = dx; 
-            dx =- dy; 
+            t = dx;
+            dx =- dy;
             dy = t;
-        }   
-        x += dx; 
+        }
+        x += dx;
         y += dy;
     }
   })();
@@ -77,13 +89,13 @@ sigma.publicPrototype.starWeightedLayout = function() {
     }
   });
   this.addNode('padding-top', {
-    x: 0.25,
-    y: 0.25,
+    x: rotatePoint(0.4, 0.4)[0],
+    y: rotatePoint(0.4, 0.4)[1],
     size: 0
   });
   this.addNode('padding-bottom', {
-    x: gridSize-0.25,
-    y: gridSize-0.25,
+    x: rotatePoint(gridSize-0.4, gridSize-0.4)[0],
+    y: rotatePoint(gridSize-0.4, gridSize-0.4)[1],
     size: 0
   });
 
