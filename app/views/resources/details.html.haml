@@ -107,7 +107,7 @@
             = link_to item.from.name, resource_overview_path(item.from.username)
           - if !item.to.nil?
             = raw "to #{link_to item.to.name, resource_details_path(item.to.username)}"
-        %span.date= item['updated_time'].localtime.to_formatted_s(:long) if item['updated_time'].is_a?(Time)
+        %span.date= item['created_time'].localtime.to_formatted_s(:long) if item['created_time'].is_a?(Time)
       .data
         = item['data']
       .footer
