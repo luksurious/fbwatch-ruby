@@ -56,7 +56,7 @@ $(document).ready ->
         edgesCount = sigInst.getEdgesCount()
         if $(this).is(':checked')
           weight = 9
-          while hideSmallEdges(weight) < (edgesCount / 10)
+          while hideSmallEdges(weight) < Math.min(edgesCount / 10, 20)
             weight -= 1
             if weight <= 1
               break
