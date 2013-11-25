@@ -1,4 +1,5 @@
 class TasksController < ApplicationController
+  before_action :assert_auth
   before_action :set_task_by_id, only: [:resume_task, :mark_error]
 
   def index

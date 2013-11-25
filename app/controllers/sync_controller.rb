@@ -1,4 +1,3 @@
-
 class SyncController < ApplicationController
   before_action :assert_auth
   

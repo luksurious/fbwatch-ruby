@@ -1,6 +1,7 @@
 require 'uri'
 
 class ResourcesController < ApplicationController
+  before_action :assert_auth
   before_action :set_resource_by_id, only: [:add_to_group, :update, :destroy, :clear_last_synced, :change_keywords]
   before_action :set_resource_by_username, only: [:details, :disable, :enable, :update, :show_clean_up, :do_clean_up, :overview]
 
@@ -246,8 +247,10 @@ class ResourcesController < ApplicationController
       success = false
       begin
         success = @resource.save
-        group = ResourceGroup.find(params[:resource][:resource_groups])
-        @resource.resource_groups << group unless group.nil?
+        if params[:resource][:resource_groups]
+          group = ResourceGroup.find(params[:resource][:resource_groups])
+          @resource.resource_groups << group unless group.nil?
+        end
       rescue => e
         if e.is_a? ActiveRecord::RecordNotUnique
           alert = 'This resource seems to be already in the database!'

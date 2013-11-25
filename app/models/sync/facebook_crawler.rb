@@ -23,7 +23,7 @@ module Sync
 
       @call_history = []
 
-      logger = options[:logger] if options[:logger]
+      self.logger = options[:logger] if options[:logger]
     end
 
     def on_posts?

@@ -21,7 +21,7 @@ module Sync
 
       @resume_path = ""
 
-      logger = Logger.new("#{Rails.root}/log/#{@username}.log")
+      self.logger = Logger.new("#{Rails.root}/log/#{@username}.log")
     end
 
     def flash
@@ -34,6 +34,8 @@ module Sync
       fetch_basic_data
 
       fetch_feed if @error.nil?
+
+      self.logger.info "** Finished syncing with #{@no_of_queries} calls, error: #{@error.inspect}, resume path: #{resume_path.inspect}, no of posts: #{@posts.length}"
 
       {
         basic_data: @basic_data,
@@ -55,7 +57,7 @@ module Sync
           @error = exception
         end
         
-        if basic_data.empty?
+        if basic_data.blank?
           error_msg = "Unable to retrieve basic information for #{@username}, result was empty" 
           logger.warn error_msg
           @error = StandardError.new(error_msg)
@@ -75,7 +77,7 @@ module Sync
       end
 
       def scan_feed(options)
-        @feed_pager = FacebookCrawler.new(start: options[:graph_link] || '', base: "#{@resource.facebook_id}/feed", koala: facebook, logger: logger, page_limit: @page_limit)
+        @feed_pager = FacebookCrawler.new(start: options[:graph_link] || '', base: "#{@resource.facebook_id}/feed", koala: facebook, logger: self.logger, page_limit: @page_limit)
         
         pages = options[:pages] || -1
 
@@ -199,7 +201,7 @@ module Sync
       end
 
       def scan_post_attribute(base, parameters)
-        pager = FacebookCrawler.new(start: parameters, base: base, koala: facebook, logger: logger, page_limit: FacebookCrawler::MAX_LIMIT)
+        pager = FacebookCrawler.new(start: parameters, base: base, koala: facebook, logger: self.logger, page_limit: FacebookCrawler::MAX_LIMIT)
 
         attributes = []
 

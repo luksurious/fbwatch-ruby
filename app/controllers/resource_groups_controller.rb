@@ -1,4 +1,5 @@
 class ResourceGroupsController < ApplicationController
+  before_action :assert_auth
   before_action :set_resource_group, only: [:update, :destroy, :details, :activate, :deactivate, :remove_resource, :add_resource, :network_graph]
 
   def details
