@@ -35,7 +35,7 @@ module Sync
 
       fetch_feed if @error.nil?
 
-      self.logger.info "** Finished syncing with #{@no_of_queries} calls, error: #{@error.inspect}, resume path: #{resume_path.inspect}, no of posts: #{@posts.length}"
+      self.logger.info "** Finished syncing with #{@no_of_queries} calls, error: #{@error.inspect}, resume path: #{@resume_path.inspect}, no of posts: #{@posts.length}"
 
       {
         basic_data: @basic_data,
