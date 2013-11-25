@@ -60,7 +60,7 @@ module Sync
         if basic_data.blank?
           error_msg = "Unable to retrieve basic information for #{@username}, result was empty" 
           logger.warn error_msg
-          @error = StandardError.new(error_msg)
+          @error = StandardError.new(error_msg) if @error.nil?
         end
 
         @basic_data = basic_data
