@@ -20,6 +20,8 @@ module Sync
       @error = nil
 
       @resume_path = ""
+      
+      @posts = []  
 
       self.logger = Logger.new("#{Rails.root}/log/#{@username}.log")
     end
@@ -67,8 +69,6 @@ module Sync
       end
 
       def save_post(post)
-        @posts ||= []
-        
         @posts << post
       end
 
