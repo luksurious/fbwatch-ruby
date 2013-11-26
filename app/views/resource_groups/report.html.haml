@@ -28,7 +28,7 @@
     %th Network Node Size
     %th Google Node Size
   - counter = 0
-  - resources.each do |res|
+  - @resource_group.resources.each do |res|
     %tr
       %td= counter += 1
       %td= link_to "#{res.facebook_id}", resource_overview_path(res.username)
