@@ -34,7 +34,7 @@
       %td= link_to "#{res.facebook_id}", resource_overview_path(res.username)
       %td= res.username
       %td= res.name
-      %td= res.link
+      %td= link_to res.link, res.link
       %td= res.basicdata.where(key: 'likes').first.value                if res.basicdata and res.basicdata.where(key: 'likes').length > 0
       %td= res.basicdata.where(key: 'talking_about_count').first.value  if res.basicdata and res.basicdata.where(key: 'talking_about_count').length > 0
       %td= res.last_synced
