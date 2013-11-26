@@ -54,6 +54,7 @@ Fbwatch::Application.routes.draw do
   post    'group/:id/add',                    to: 'resource_groups#add_resource',             as: 'resource_group_add_resource'
   get     'group/:id/graph',                  to: 'network_graph#for_resource_group',         as: 'resource_group_graph'
   get     'group/:id/google_graph',           to: 'network_graph#google_for_resource_group',  as: 'resource_group_google_graph'
+  get     'group/:id/report',                 to: 'resource_groups#report',                   as: 'resource_group_report'
 
   mount Sidekiq::Web, at: '/sidekiq'
 end

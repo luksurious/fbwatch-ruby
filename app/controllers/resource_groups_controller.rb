@@ -1,6 +1,6 @@
 class ResourceGroupsController < ApplicationController
   before_action :assert_auth
-  before_action :set_resource_group, only: [:update, :destroy, :details, :activate, :deactivate, :remove_resource, :add_resource, :network_graph]
+  before_action :set_resource_group, only: [:update, :destroy, :details, :activate, :deactivate, :remove_resource, :add_resource, :network_graph, :report]
 
   def details
     @tasks = Task.where(resource_group_id: @resource_group.id, running: true)
@@ -11,6 +11,10 @@ class ResourceGroupsController < ApplicationController
     if @resource_group.currently_syncing?
       flash[:info] << "This group is currently syncing"
     end
+  end
+
+  def report
+    
   end
 
   def remove_resource
