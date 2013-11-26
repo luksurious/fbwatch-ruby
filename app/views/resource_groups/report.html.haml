@@ -43,7 +43,7 @@
       %td= res.metrics.where(name: 'latest_feed_post').first.value      if res.metrics and res.metrics.where(name: 'latest_feed_post').length > 0
       %td= res.metrics.where(name: 'posts_by_owner').first.value        if res.metrics and res.metrics.where(name: 'posts_by_owner').length > 0
       %td= res.metrics.where(name: 'posts_by_others').first.value       if res.metrics and res.metrics.where(name: 'posts_by_others').length > 0
-      %td= res.metrics.where(name: 'total_comments').first.value        if res.metrics and res.metrics.where(name: 'total_comments').length > 0
+      %td= res.metrics.where(name: 'total_comment').first.value         if res.metrics and res.metrics.where(name: 'total_comment').length > 0
       %td= res.metrics.where(name: 'story_count').first.value           if res.metrics and res.metrics.where(name: 'story_count').length > 0
       %td= res.metrics.where(name: 'total_likes').first.value           if res.metrics and res.metrics.where(name: 'total_likes').length > 0
       %td= res.metrics.where(name: 'resources_on_feed').first.value     if res.metrics and res.metrics.where(name: 'resources_on_feed').length > 0
