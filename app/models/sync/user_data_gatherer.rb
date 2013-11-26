@@ -98,11 +98,6 @@ module Sync
         end
 
         @no_of_queries += @feed_pager.query_count
-        
-        {
-          data: @posts,
-          error: @error
-        }
       end
 
       QUERY_SUCCESS = "QUERY_SUCCESS"
