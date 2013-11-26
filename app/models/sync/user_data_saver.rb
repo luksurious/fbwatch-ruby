@@ -52,7 +52,7 @@ module Sync
     end
     
     def update_resource
-      if @result.is_a?(Hash) and @result.has_key?(:basic_data)
+      if @result.is_a?(Hash) and @result.has_key?(:basic_data) and @result[:basic_data].is_a?(Hash)
         @resource.facebook_id = @result[:basic_data]['id']
         @resource.name = @result[:basic_data]['name']
         @resource.username = @result[:basic_data]['username'] || @result[:basic_data]['id']
@@ -63,7 +63,7 @@ module Sync
     end
     
     def save_basic_data
-      return unless @result.is_a?(Hash)
+      return unless @result.is_a?(Hash) and @result.has_key?(:basic_data) and @result[:basic_data].is_a?(Hash)
 
       new_data = @result[:basic_data].clone
       existing_data = Basicdata.where(resource_id: @resource.id)
