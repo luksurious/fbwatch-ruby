@@ -54,7 +54,7 @@ module Sync
 
       def fetch_basic_data
         begin
-          basic_data = self.facebook.get_object(@username)
+          basic_data = self.facebook.get_object(@resource.facebook_id)
         rescue => exception
           @error = exception
         end
