@@ -22,7 +22,7 @@ class TaskWorker
   end
 
   sidekiq_retries_exhausted do |msg|
-    logger.warn "Failed #{msg['class']} with #{msg['args']}: #{msg['error_message']}"
+    Sidekiq.logger.warn "Failed #{msg['class']} with #{msg['args']}: #{msg['error_message']}"
 
     task = Task.find(msg['args'][0]['task'])
     task.running = false
