@@ -24,5 +24,7 @@ config/database.yml
 /log
 fbwatch.sublime-workspace
 fbwatch.sublime-project
+fbwatch-sidekiq-lock
+fbwatch-sidekiq.pid
 
 script/sidekiq
