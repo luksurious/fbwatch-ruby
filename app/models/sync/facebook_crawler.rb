@@ -101,7 +101,8 @@ module Sync
 
           if is_strange_facebook_error?(result)
             # unknown FB error, try changing the query
-            result = dispatch_api_query(change_query_for_unknown_error(fb_graph_call))
+            new_query = change_query_for_unknown_error(fb_graph_call)
+            result = query(new_query) unless api_query_already_sent?(new_query)
           end
 
           if @last_result != result
@@ -112,6 +113,7 @@ module Sync
         end
         # sent the same query twice or
         # received the same result twice in succession
+        logger.info "Query #{fb_graph_call} already sent, stopping"
         return false
       end
 
