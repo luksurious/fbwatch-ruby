@@ -27,6 +27,7 @@ gem 'sinatra', require: false
 gem 'slim'
 gem 'kaminari'
 gem 'chartkick'
+gem 'sanitize'
 
 gem 'exception_notification'
 

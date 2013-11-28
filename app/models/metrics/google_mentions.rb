@@ -1,18 +1,28 @@
 require "net/http"
 require "uri"
+require 'sanitize'
 
 module Metrics
   class GoogleMentions < MetricBase
     def analyze
       clear
+      @logger = Logger.new("#{Rails.root}/log/resources/#{@username}.log")
 
       resource_combinations(2).each do |combination|
 
         # calc shared resources
-        web_results = query_google_keywords(keywords_for(combination))
+        combi_keywords = keywords_for(combination)
+
+        for i in 0..10
+          web_results = query_google_keywords(combi_keywords)
+
+          break if web_results[:count] > 0
+          # if absolutely no results were found wait a second and try again, there seem to be some limits for automating queries
+          sleep 1
+        end
 
         make_mutual_group_metric_model(name: 'google_mentions', value: web_results, resources: combination)
-        Rails.logger.debug "-- count #{web_results}"
+        @logger.debug "-- count #{web_results[:count]}"
       end
     end
 
@@ -39,25 +49,35 @@ module Metrics
     end
 
     def query_google_keywords(keywords)
+      count = nil
+
       query_parameter = ""
       keywords.each do |group|
         query_parameter << '("' << group.join('"|"') << '") '
       end
 
-      Rails.logger.debug("Calling google with query: #{query_parameter}")
+      @logger.debug("Calling google with query: #{query_parameter}")
 
       uri = URI.parse("http://www.google.com/search?hl=en&q=#{URI.escape(query_parameter)}&filter=0")
       response = Net::HTTP.get_response(uri)
 
       html_count = response.body.match(/id\=\"resultStats\"\>[^\<]+/)
 
-      return 0 if html_count.nil? or html_count.length == 0
-
-      inner_html = html_count[0].match(/[0-9,\.]+/)
-
-      return 0 if inner_html.nil? or inner_html.length == 0
+      if html_count.nil? or html_count.length == 0
+        count = 0
+        @logger.debug(Sanitize.clean(response, {:remove_contents => ["script","style"]})[0..1000])
+      else
+        inner_html = html_count[0].match(/[0-9,\.]+/)
+        
+        if inner_html.nil? or inner_html.length == 0
+          count = 0 
+          @logger.debug(Sanitize.clean(response, {:remove_contents => ["script","style"]})[0..1000])
+        else
+          count = inner_html[0].gsub(/[,\.]/, '').to_i
+        end
+      end
       
-      { count: inner_html[0].gsub(/[,\.]/, '').to_i, query: query_parameter }
+      { count: count, query: query_parameter }
     end
   end
 end
