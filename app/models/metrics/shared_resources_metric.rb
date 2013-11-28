@@ -25,24 +25,9 @@ module Metrics
 
     def vars_for_render(options)
       if @vars_for_render.nil?
-        value = options[:value] || []
-
-        ids_to_load = value.map { |hash| 
-          # backward compatibility
-          if hash.is_a?(Array)
-            hash.first
-          elsif hash.is_a?(Hash)
-            hash['id']
-          else
-            hash
-          end
-        }
-        shared_resources = Resource.find(ids_to_load.compact)
-
         # return a hash
         @vars_for_render = {
-          friendly_name: @@friendly_names[options[:name]],
-          shared_resources: shared_resources
+          friendly_name: @@friendly_names[options[:name]]
         }
       end
       @vars_for_render

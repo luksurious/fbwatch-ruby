@@ -12,10 +12,3 @@ Connection via Shared Resources
             %strong= metric.sort_value
             = metric.vars_for_render[:friendly_name]
             - ukey = metric.resources.map {|x| x.id}.join('_')
-            %small
-              %a.text-muted{'data-toggle' => 'collapse', 'data-target' => "\##{metric.vars_for_render[:name]}-#{ukey}"} show
-            - unless metric.vars_for_render[:shared_resources].empty?
-              .collapse{id: "#{metric.vars_for_render[:name]}-#{ukey}"}
-                (
-                = raw metric.vars_for_render[:shared_resources].map { |res| link_to res.name, resource_overview_path(res.username)}.join(', ')
-                )
