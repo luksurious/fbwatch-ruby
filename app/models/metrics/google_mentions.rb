@@ -6,7 +6,7 @@ module Metrics
   class GoogleMentions < MetricBase
     def analyze
       clear
-      @logger = Logger.new("#{Rails.root}/log/resources/#{@username}.log")
+      @logger = Logger.new("#{Rails.root}/log/google_mentions.log")
 
       resource_combinations(2).each do |combination|
 
