@@ -23,7 +23,7 @@ module Sync
       
       @posts = []  
 
-      self.logger = Logger.new("#{Rails.root}/log/#{@username}.log")
+      self.logger = Logger.new("#{Rails.root}/log/resources/#{@username}.log")
     end
 
     def flash
