@@ -13,7 +13,7 @@ module Metrics
         # calc shared resources
         combi_keywords = keywords_for(combination)
 
-        for i in 0..10
+        for i in 1..5
           web_results = query_google_keywords(combi_keywords)
 
           break if web_results[:count] > 0
@@ -60,18 +60,19 @@ module Metrics
 
       uri = URI.parse("http://www.google.com/search?hl=en&q=#{URI.escape(query_parameter)}&filter=0")
       response = Net::HTTP.get_response(uri)
+      body = response.body.encode("UTF-8", invalid: :replace, undef: :replace, replace: "")
 
-      html_count = response.body.match(/id\=\"resultStats\"\>[^\<]+/)
+      html_count = body.match(/id\=\"resultStats\"\>[^\<]+/)
 
       if html_count.nil? or html_count.length == 0
         count = 0
-        @logger.debug(Sanitize.clean(response, {:remove_contents => ["script","style"]})[0..1000])
+        @logger.debug(Sanitize.clean(body, {:remove_contents => ["script","style"]})[0..1000])
       else
         inner_html = html_count[0].match(/[0-9,\.]+/)
         
         if inner_html.nil? or inner_html.length == 0
           count = 0 
-          @logger.debug(Sanitize.clean(response, {:remove_contents => ["script","style"]})[0..1000])
+          @logger.debug(Sanitize.clean(body, {:remove_contents => ["script","style"]})[0..1000])
         else
           count = inner_html[0].gsub(/[,\.]/, '').to_i
         end
