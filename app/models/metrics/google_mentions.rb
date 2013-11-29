@@ -1,6 +1,7 @@
 require "net/http"
 require "uri"
 require 'sanitize'
+require 'watir-webdriver'
 
 module Metrics
   class GoogleMentions < MetricBase
@@ -62,7 +63,36 @@ module Metrics
 
       @logger.debug("Calling google with query: #{query_parameter}")
 
-      response = fetch("http://www.google.com/search?hl=en&q=#{URI.escape(query_parameter)}&filter=0&ie=utf-8&oe=utf-8")
+      url = "http://www.google.com/search?hl=en&q=#{URI.escape(query_parameter)}&filter=0&ie=utf-8&oe=utf-8"
+
+      # count = get_hits_directly(url)
+      count = get_hits_from_browser(url)
+
+      { count: count, query: query_parameter }
+    end
+
+    def get_hits_from_browser(url)
+      b = self.watir_browser
+      b.goto url
+      b.div(id: "resultStats").text.gsub(/[,\.]/, '').to_i
+    end
+
+    def watir_browser
+      if @watir_browser.nil?
+        begin
+          require 'headless'
+          headless = Headless.new
+        rescue LoadError => e
+        end
+
+        @watir_browser = Watir::Browser.new
+      end
+
+      @watir_browser
+    end
+
+    def get_hits_directly(url)
+      response = fetch(url)
 
       body = response.body.encode("UTF-8", invalid: :replace, undef: :replace, replace: "")
 
@@ -81,8 +111,8 @@ module Metrics
           count = inner_html[0].gsub(/[,\.]/, '').to_i
         end
       end
-      
-      { count: count, query: query_parameter }
+
+      count
     end
 
     def fetch(uri_str, limit = 10)

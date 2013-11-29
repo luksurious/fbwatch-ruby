@@ -10,7 +10,7 @@ gem 'coffee-rails', '>= 3.2.1'
 gem 'uglifier', '>= 1.0.3'
 gem 'jquery-rails'
 gem 'select2-rails'
-gem 'bootstrap-sass', github: 'thomas-mcdonald/bootstrap-sass'
+gem 'bootstrap-sass', '>= 3.0.2.0'
 gem 'haml-rails', '>= 0.3.4'
 gem 'haml'
 gem 'simple_form', '>= 3.0.0.rc'
@@ -29,6 +29,10 @@ gem 'kaminari'
 gem 'chartkick'
 gem 'sanitize'
 
+gem 'watir-webdriver', '>= 0.6.4'
+gem 'selenium-webdriver', '>= 2.37.0'
+gem 'headless', :platform => :ruby
+
 gem 'exception_notification'
 
 group :development, :test do
@@ -41,8 +45,7 @@ group :development, :test do
 end
 
 group :test do
-  gem 'selenium-webdriver', '2.0.0'
-  gem 'capybara', '2.1.0'
+  # gem 'capybara', '2.1.0'
 
   # Uncomment this line on OS X.
   # gem 'growl', '1.0.3'
