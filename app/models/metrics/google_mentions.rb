@@ -58,8 +58,8 @@ module Metrics
 
       @logger.debug("Calling google with query: #{query_parameter}")
 
-      uri = URI.parse("http://www.google.com/search?hl=en&q=#{URI.escape(query_parameter)}&filter=0")
-      response = Net::HTTP.get_response(uri)
+      response = fetch("http://www.google.com/search?hl=en&q=#{URI.escape(query_parameter)}&filter=0")
+
       body = response.body.encode("UTF-8", invalid: :replace, undef: :replace, replace: "")
 
       html_count = body.match(/id\=\"resultStats\"\>[^\<]+/)
@@ -79,6 +79,25 @@ module Metrics
       end
       
       { count: count, query: query_parameter }
+    end
+
+    def fetch(uri_str, limit = 10)
+      # You should choose a better exception.
+      raise ArgumentError, 'too many HTTP redirects' if limit == 0
+
+      response = Net::HTTP.get_response(URI(uri_str))
+
+      case response
+      when Net::HTTPSuccess then
+        response
+      when Net::HTTPRedirection then
+        location = response['location']
+        @logger.warn "redirected to #{location}"
+        fetch(location, limit - 1)
+      else
+        @logger.warn "-- Unknown response status: #{response.class}"
+        response
+      end
     end
   end
 end
