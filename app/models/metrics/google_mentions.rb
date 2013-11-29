@@ -30,6 +30,10 @@ module Metrics
         # wait for some time to avoid detection
         sleep Random.rand(0..30)
       end
+      
+      unless @watir_browser.nil?
+        @watir_browser.close
+      end
     end
 
     def keywords_for(resources)
