@@ -19,6 +19,7 @@ module Metrics
       @logger = Logger.new("#{Rails.root}/log/google_mentions.log")
 
       resource_combinations(2).each do |combination|
+        @retries = 0
 
         # calc shared resources
         web_results = query_google_keywords(keywords_for(combination))
@@ -74,7 +75,19 @@ module Metrics
     def get_hits_from_browser(url)
       b = self.watir_browser
       b.goto url
-      b.div(id: "resultStats").text.gsub(/[,\.]/, '').to_i
+
+      if b.div(id: "resultStats").exists?
+        return b.div(id: "resultStats").text.gsub(/[,\.]/, '').to_i
+      
+      if b.url.index("sorry/IndexRedirect")
+        # bot activity detected
+        @logger.warn "-- google detected bot activity, pause for #{wait_time} minutes"
+        sleep wait_time * 60
+        @retries += 1
+        return get_hits_from_browser(url)
+      end
+
+      0
     end
 
     def watir_browser
@@ -140,16 +153,29 @@ module Metrics
 
         if location.index('sorry/IndexRedirect')
           # was detected
-          @logger.warn "-- google detected bot activity, pause for 5 minutes"
-          sleep 5 * 60
+          @logger.warn "-- google detected bot activity, pause for #{wait_time} minutes"
+          sleep wait_time * 60
+          @retries += 1
           fetch(uri_str)
         else
           @logger.warn "redirected to #{location}"
-          fetch(location, limit - 1)          
+          fetch(location, limit - 1)
         end
       else
         @logger.warn "-- Unknown response status: #{response.class}"
         response
+      end
+    end
+
+    def wait_time
+      @retries ||= 1
+      case @retries
+      when <= 1
+        30
+      when <= 5
+        10
+      when > 5
+        5
       end
     end
   end
