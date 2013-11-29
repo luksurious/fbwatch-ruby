@@ -83,6 +83,7 @@ module Metrics
 
       if b.div(id: "resultStats").exists?
         return b.div(id: "resultStats").text.gsub(/[,\.]/, '').to_i
+      end
       
       if b.url.index("sorry/IndexRedirect")
         # bot activity detected
