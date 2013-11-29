@@ -33,6 +33,7 @@ module Metrics
       
       unless @watir_browser.nil?
         @watir_browser.close
+        @headless.destroy if @headless
       end
     end
 
@@ -98,7 +99,8 @@ module Metrics
       if @watir_browser.nil?
         begin
           require 'headless'
-          headless = Headless.new
+          @headless = Headless.new
+          @headless.start
         rescue LoadError => e
         end
 
