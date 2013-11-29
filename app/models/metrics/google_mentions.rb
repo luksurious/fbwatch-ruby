@@ -175,12 +175,11 @@ module Metrics
 
     def wait_time
       @retries ||= 1
-      case @retries
-      when <= 1
+      if @retries <= 1
         30
-      when <= 5
+      elsif @retries <= 5
         10
-      when > 5
+      else
         5
       end
     end
