@@ -13,7 +13,7 @@ module Metrics
         all_scores << metric.sort_value if metric.sort_value >= 1
       end
 
-      upper_boundary = 10 ** Math.log(all_scores.max, 10).round() * 1.0
+      upper_boundary = all_scores.max + 1
       @clusters = [
         {
           max: upper_boundary - 1,
