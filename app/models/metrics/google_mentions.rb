@@ -128,7 +128,7 @@ module Metrics
         captcha_helper = GoogleCaptchaHelper.new(self.watir_browser)
         captcha_helper.solve_captcha
 
-        count = get_hits_from_browser(urL)
+        count = get_hits_from_browser(url)
       end
 
       { count: count, query: query_parameter }
