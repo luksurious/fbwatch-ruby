@@ -12,6 +12,7 @@
 .btn-group
   = link_to 'Sync this group', sync_group_path(@resource_group), method: :patch, class: "btn btn-primary #{@resource_group.currently_syncing? ? 'disabled' : ''}"
   = link_to 'Calculate Metrics', group_metrics_path(@resource_group), method: :patch, class: 'btn btn-info'
+  = link_to 'Compare with Google', google_metrics_path(@resource_group, 'sync' => 1), method: :patch, class: 'btn btn-default'
 .btn-group
   %button.btn.btn-default.dropdown-toggle{type: 'button', 'data-toggle' => 'dropdown'}
     Edit group

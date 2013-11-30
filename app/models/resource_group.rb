@@ -7,7 +7,7 @@ class ResourceGroup < ActiveRecord::Base
 
   def metric_overview_classes(resource = nil)
     res = []
-    Metrics::MetricBase.group_metrics.each do |group_metric|
+    Metrics::MetricBase.group_metrics.concat(Metrics::MetricBase::visualization_metrics).each do |group_metric|
       klass = Metrics::ModelHelper.make_klass(group_metric)
       next unless klass.show_in_overview?
 

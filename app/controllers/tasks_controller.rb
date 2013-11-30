@@ -21,14 +21,15 @@ class TasksController < ApplicationController
 
   # this should be refactored
   def resume_task
-    # check if resumable
-    if @task.type != 'sync' or # right now only sync is possible
-       @task.progress >= 1
-      flash[:warning] << "Cannot resume task \##{@task.id}, not resumable"
-      redirect_to tasks_path and return
-    end
+    background = params[:sync] != '1'
 
-    SyncTaskWorker.perform_async('token' => session[:facebook].access_token, 'task' => @task.id)
+    if background
+      SyncTaskWorker.perform_async('token' => session[:facebook].access_token, 'task' => @task.id)
+    else
+      task_class = "Tasks::" << "#{@task.type}_task".camelize
+      klass = task_class.constantize.new(task: @task, send_mail: false)
+      klass.run
+    end
     
     flash[:notice] << 'This task is now resumed.'
     redirect_to tasks_path and return

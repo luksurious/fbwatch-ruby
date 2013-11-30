@@ -2,50 +2,87 @@ require "net/http"
 require "uri"
 require 'sanitize'
 require 'watir-webdriver'
+require 'open-uri'
 
 module Metrics
+  class GoogleCaptchaError < StandardError
+    def initialize(message = "", resume_pairs = nil)
+      super(message)
+
+      @resume_pairs = resume_pairs
+    end
+
+    def resume_pairs
+      @resume_pairs
+    end
+  end
+
   class GoogleMentions < MetricBase
-    user_agents = [
-      'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0',
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1664.3 Safari/537.36',
-      'Mozilla/5.0 (Windows NT 6.0) yi; AppleWebKit/345667.12221 (KHTML, like Gecko) Chrome/23.0.1271.26 Safari/453667.1221',
-      'Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; Trident/6.0)',
-      'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0; chromeframe/13.0.782.215)',
-      'Opera/12.80 (Windows NT 5.1; U; en) Presto/2.10.289 Version/12.02'
-    ]
+    def initialize(options)
+      super(options)
+      
+      @combinations = options['resume']
+
+      @is_resuming = !@combinations.blank?
+    end
 
     def analyze
-      clear
+      clear unless @is_resuming
       @logger = Logger.new("#{Rails.root}/log/google_mentions.log")
 
+      resume_pairs = []
+      halt = false
 
-      counter = 0
-      resource_combinations(2).each do |combination|
-        @retries = 0
-        counter += 1
-
-        if counter > 50
-          counter = 0
-          sleep 3 * 60
+      combinations.each do |combination|
+        if halt
+          resume_pairs << combination.map(&:id)
+        else
+          # calc shared resources
+          begin
+            web_results = query_google_keywords(keywords_for(combination))
+          rescue GoogleCaptchaError => e
+            @logger.warn "-- google detected bot activity, halting task"
+            halt = true
+            resume_pairs << combination.map(&:id)
+          end
         end
 
-        # calc shared resources
-        web_results = query_google_keywords(keywords_for(combination))
+        unless halt
+          make_mutual_group_metric_model(name: 'google_mentions', value: web_results, resources: combination)
+          @logger.debug "-- count #{web_results[:count]}"
 
-        make_mutual_group_metric_model(name: 'google_mentions', value: web_results, resources: combination)
-        @logger.debug "-- count #{web_results[:count]}"
-
-        # wait for some time to avoid detection, not really helping
-        # sleep Random.rand(0..30)
+          # wait for some time to avoid detection, not really helping
+          # sleep Random.rand(0..30)
+        end
       end
       
       clear_browser
+
+      if halt
+        raise GoogleCaptchaError.new("", resume_pairs)
+      end
+    end
+
+    def combinations
+      if @combinations.blank?
+        resource_combinations(2)
+      else
+        @combinations.map do |array|
+          [
+            Resource.find(array.first),
+            Resource.find(array.second)
+          ]
+        end
+      end
     end
 
     def clear_browser
       unless @watir_browser.nil?
         @watir_browser.close
         @headless.destroy if @headless
+
+        @watir_browser = nil
+        @headless = nil
       end
     end
 
@@ -92,7 +129,13 @@ module Metrics
     def get_hits_from_browser(url)
       b = self.watir_browser
       @logger.debug "-- opening #{url}"
-      b.goto url
+
+      begin
+        b.goto url
+      rescue Errno::ECONNREFUSED => exception
+        clear_browser
+        return get_hits_from_browser(url)
+      end
 
       if b.div(id: "resultStats").exists?
         count_human = b.div(id: "resultStats").text.match(/[0-9,\.]+/)
@@ -101,12 +144,7 @@ module Metrics
       end
       
       if b.url.index("sorry/IndexRedirect")
-        # bot activity detected
-        @retries += 1
-        @logger.warn "-- google detected bot activity, pause for #{wait_time} minutes"
-        clear_browser
-        sleep wait_time * 60
-        return get_hits_from_browser(url)
+        raise GoogleCaptchaError
       end
 
       0
@@ -119,6 +157,7 @@ module Metrics
           @headless = Headless.new
           @headless.start
         rescue LoadError => e
+        rescue Headless::Exception => e
         end
 
         @watir_browser = Watir::Browser.new
@@ -177,7 +216,6 @@ module Metrics
 
         if location.index('sorry/IndexRedirect')
           # was detected
-          @retries += 1
           @logger.warn "-- google detected bot activity, pause for #{wait_time} minutes"
           sleep wait_time * 60
           fetch(uri_str)
@@ -192,14 +230,7 @@ module Metrics
     end
 
     def wait_time
-      @retries ||= 1
-      if @retries <= 1
-        30
-      elsif @retries <= 5
-        10
-      else
-        5
-      end
+      5
     end
   end
 end

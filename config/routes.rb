@@ -7,9 +7,9 @@ Fbwatch::Application.routes.draw do
   get "apitest", to: 'apitest#index'
 
   # index
-  get "tasks", to: 'tasks#index', as: 'tasks'
-  patch 'tasks/:id/resume', to: 'tasks#resume_task', as: 'resume_task'
-  patch 'tasks/:id/error', to: 'tasks#mark_error', as: 'mark_task_error'
+  get   "tasks",            to: 'tasks#index',        as: 'tasks'
+  patch 'tasks/:id/resume', to: 'tasks#resume_task',  as: 'resume_task'
+  patch 'tasks/:id/error',  to: 'tasks#mark_error',   as: 'mark_task_error'
 
   # sync actions
   get "sync/all", to: 'sync#all', as: 'sync_all'
@@ -34,8 +34,12 @@ Fbwatch::Application.routes.draw do
   get   'resource/:id/google_graph/:group_id', to: 'network_graph#google_for_resource', as: 'resource_google_graph'
 
   # metrics
-  patch 'resource/:username/metrics', to: 'metrics#resource', :constraints => { :username => /[^\/]+/ }, as: 'run_metrics'
-  patch 'group/:id/metrics', to: 'metrics#group', as: 'group_metrics'
+  patch 'resource/:username/metrics',   to: 'metrics#resource',             as: 'run_metrics',    :constraints => { :username => /[^\/]+/ }
+  patch 'group/:id/metrics',            to: 'metrics#group',                as: 'group_metrics'
+  patch 'group/:id/google_metrics',     to: 'metrics#google',               as: 'google_metrics'
+  get   'google_captcha',               to: 'metrics#solve_captcha',        as: 'solve_captcha'
+  get   'google_captcha/code',          to: 'metrics#show_google_captcha',  as: 'show_captcha'
+  post  'google_captcha/code',          to: 'metrics#save_google_captcha',  as: 'save_captcha'
 
   # login actions
   get "login", to: 'sessions#login'

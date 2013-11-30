@@ -1,12 +1,12 @@
 module Metrics
   class MetricBase
-    @@resource_metrics = ['ResourceStats', 'SingleUsersMetric', 'FeedTimeline'
-    ]
+    @@resource_metrics = ['ResourceStats', 'SingleUsersMetric', 'FeedTimeline']
     @@group_metrics = ['SharedResourcesMetric', 
       'GroupWeightedOverlap',
-      'GroupMentions', 'GoogleMentions',
-      'Scoring', 'NetworkGraph', 'NetworkGraphGoogle'
+      'GroupMentions', 
+      'Scoring', 'NetworkGraph'
     ]
+    @@visualization_metrics = ['NetworkGraphGoogle']
 
     def self.single_metrics(ids = nil)
       if ids.nil?
@@ -22,6 +22,10 @@ module Metrics
       else
         @@group_metrics.values_at(*ids)
       end
+    end
+
+    def self.visualization_metrics
+      @@visualization_metrics
     end
 
     attr_accessor :metrics, :resource, :resource_group
