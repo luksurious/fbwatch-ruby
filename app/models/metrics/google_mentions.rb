@@ -27,10 +27,14 @@ module Metrics
         make_mutual_group_metric_model(name: 'google_mentions', value: web_results, resources: combination)
         @logger.debug "-- count #{web_results[:count]}"
 
-        # wait for some time to avoid detection
-        sleep Random.rand(0..30)
+        # wait for some time to avoid detection, not really helping
+        # sleep Random.rand(0..30)
       end
       
+      clear_browser
+    end
+
+    def clear_browser
       unless @watir_browser.nil?
         @watir_browser.close
         @headless.destroy if @headless
@@ -82,14 +86,17 @@ module Metrics
       b.goto url
 
       if b.div(id: "resultStats").exists?
-        return b.div(id: "resultStats").text.gsub(/[,\.]/, '').to_i
+        count_human = b.div(id: "resultStats").text.match(/[0-9,\.]+/)
+
+        return count_human[0].gsub(/[,\.]/, '').to_i if count_human.length > 0
       end
       
       if b.url.index("sorry/IndexRedirect")
         # bot activity detected
-        @logger.warn "-- google detected bot activity, pause for #{wait_time} minutes"
-        sleep wait_time * 60
         @retries += 1
+        @logger.warn "-- google detected bot activity, pause for #{wait_time} minutes"
+        clear_browser
+        sleep wait_time * 60
         return get_hits_from_browser(url)
       end
 
@@ -160,9 +167,9 @@ module Metrics
 
         if location.index('sorry/IndexRedirect')
           # was detected
+          @retries += 1
           @logger.warn "-- google detected bot activity, pause for #{wait_time} minutes"
           sleep wait_time * 60
-          @retries += 1
           fetch(uri_str)
         else
           @logger.warn "redirected to #{location}"
