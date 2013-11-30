@@ -63,7 +63,7 @@ module Metrics
       b.text_field(name: 'captcha').set code
       b.button(name: 'submit').click
       b.wait
-
+b.screenshot.save "#{Rails.root}/public/google-screen.png"
       Rails.logger.info "After code submit on URL #{b.url}"
       b.url.index('sorry').nil?
     end
