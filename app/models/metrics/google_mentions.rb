@@ -18,8 +18,16 @@ module Metrics
       clear
       @logger = Logger.new("#{Rails.root}/log/google_mentions.log")
 
+
+      counter = 0
       resource_combinations(2).each do |combination|
         @retries = 0
+        counter += 1
+
+        if counter > 50
+          counter = 0
+          sleep 3 * 60
+        end
 
         # calc shared resources
         web_results = query_google_keywords(keywords_for(combination))
