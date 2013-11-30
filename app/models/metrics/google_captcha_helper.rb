@@ -4,8 +4,8 @@ require 'open-uri'
 
 module Metrics
   class GoogleCaptchaHelper
-    def initialize(session)
-      @session = session
+    def initialize(browser = nil)
+      @watir_browser = browser
     end
 
     def solve_captcha
@@ -20,7 +20,7 @@ module Metrics
         counter += 1
 
         code = File.read("#{Rails.root}/tmp/captcha-code.txt")
-        break unless code.blank? or code.length < 5
+        break unless code.blank? or code.length < 60
       end while counter <= 5
 
       success = false
@@ -35,20 +35,20 @@ module Metrics
     end
 
     def load_form(b)
-      b.goto 'http://www.google.com/search?q=Memes'
+      b.goto 'http://www.google.com/search?q=Memes' if b.url.index('sorry').nil?
 
       if b.url.index('sorry').nil? and b.div(id: 'resultStats').exists?
         raise 'Not on captcha page'
       end
 
       form_id = b.input(name: 'id').value
-
+=begin
       @session[:captcha] ||= {}
       @session[:captcha][:form_id] = form_id
       @session[:captcha][:cookies] = b.cookies.to_a
       @session[:captcha][:user_agent] = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:25.0) Gecko/20100101 Firefox/25.0"
-
-      local_path = "/google-captcha-#{@session[:captcha][:form_id]}.png"
+=end
+      local_path = "/google-captcha-#{form_id}.png"
       b.screenshot.save "#{Rails.root}/public/#{local_path}"
 
       File.open("#{Rails.root}/tmp/captcha-image.txt", "w") do |io|
@@ -78,6 +78,7 @@ b.screenshot.save "#{Rails.root}/public/google-screen.png"
       end
     end
 
+=begin
     def post(code)
       #response = RestClient.get 'http://ipv4.google.com/sorry/CaptchaRedirect', params: { captcha: code, 
       #  id: @session[:captcha_form_id], continue: 'http://www.google.com/', submit: 'Submit'}
@@ -107,7 +108,6 @@ b.screenshot.save "#{Rails.root}/public/google-screen.png"
       rescue RestClient::ServiceUnavailable => exception
         success = false
       end
-=begin
       b = watir_browser
       b.goto 'http://ipv4.google.com/sorry/CaptchaRedirect'
 
@@ -123,12 +123,12 @@ b.screenshot.save "#{Rails.root}/public/google-screen.png"
 
       b.button(name: 'submit').click
       success = b.url.include?('sorry').nil?
-=end
       File.delete("#{Rails.root}/public/google-captcha-#{@session[:captcha][:form_id]}.png")
       
       clear_browser
       success
     end
+=end
 
     def watir_browser
       if @watir_browser.nil?

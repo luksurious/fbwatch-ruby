@@ -21,7 +21,7 @@ module Metrics
     def initialize(options)
       super(options)
       
-      @combinations = options['resume']
+      @combinations = options[:resume]
 
       @is_resuming = !@combinations.blank?
     end
@@ -41,7 +41,7 @@ module Metrics
           begin
             web_results = query_google_keywords(keywords_for(combination))
           rescue GoogleCaptchaError => e
-            @logger.warn "-- google detected bot activity, halting task"
+            @logger.warn "-- google detected bot activity, pausing task"
             halt = true
             resume_pairs << combination.map(&:id)
           end
@@ -120,8 +120,16 @@ module Metrics
 
       url = "http://www.google.com/search?hl=en&q=#{URI.escape(query_parameter)}&filter=0&ie=utf-8&oe=utf-8"
 
-      # count = get_hits_directly(url)
-      count = get_hits_from_browser(url)
+      begin
+        # count = get_hits_directly(url)
+        count = get_hits_from_browser(url)
+      rescue GoogleCaptchaError => e
+        Utility.log_exception(e)
+        captcha_helper = GoogleCaptchaHelper.new(self.watir_browser)
+        captcha_helper.solve_captcha
+
+        count = get_hits_from_browser(urL)
+      end
 
       { count: count, query: query_parameter }
     end
