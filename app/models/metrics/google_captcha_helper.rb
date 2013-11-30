@@ -20,8 +20,8 @@ module Metrics
         counter += 1
 
         code = File.read("#{Rails.root}/tmp/captcha-code.txt")
-        break unless code.blank? or code.length < 60
-      end while counter <= 5
+        break unless code.blank? or code.length < 5
+      end while counter <= 60
 
       success = false
       unless code.blank? or code.length < 5
