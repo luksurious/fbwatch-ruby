@@ -56,7 +56,7 @@ class MetricsController < ApplicationController
   end
 
   def solve_captcha
-    captcha_helper = Metrics::GoogleCaptchaHelper.new(session)
+    captcha_helper = Metrics::GoogleCaptchaHelper.new
     if captcha_helper.solve_captcha
       flash[:info] << "Successfully solved the captcha"
     else
@@ -67,13 +67,13 @@ class MetricsController < ApplicationController
   end
 
   def show_google_captcha
-    captcha_helper = Metrics::GoogleCaptchaHelper.new(session)
+    captcha_helper = Metrics::GoogleCaptchaHelper.new
 
     @image_src = captcha_helper.load_image
   end
 
   def save_google_captcha
-    captcha_helper = Metrics::GoogleCaptchaHelper.new(session)
+    captcha_helper = Metrics::GoogleCaptchaHelper.new
     captcha_helper.save_code(params[:code])
 
     flash[:info] << "Code saved. After about one minute the captcha should be solved."
