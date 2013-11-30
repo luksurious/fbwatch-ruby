@@ -83,6 +83,7 @@ module Metrics
 
     def get_hits_from_browser(url)
       b = self.watir_browser
+      @logger.debug "-- opening #{url}"
       b.goto url
 
       if b.div(id: "resultStats").exists?
@@ -146,6 +147,7 @@ module Metrics
       # You should choose a better exception.
       raise ArgumentError, 'too many HTTP redirects' if limit == 0
 
+      @logger.debug "-- opening #{uri_str}"
       uri = URI(uri_str)
       req = Net::HTTP::Get.new(uri)
 
