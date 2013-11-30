@@ -20,10 +20,18 @@ module Metrics
   class GoogleMentions < MetricBase
     def initialize(options)
       super(options)
-      
-      @combinations = options[:resume]
 
-      @is_resuming = !@combinations.blank?
+      @is_resuming = false
+      if options[:resume]
+        @combinations = options[:resume].map do |array|
+          [
+            Resource.find(array.first),
+            Resource.find(array.second)
+          ]
+        end
+        @is_resuming = true
+      end
+
     end
 
     def analyze
@@ -65,15 +73,10 @@ module Metrics
 
     def combinations
       if @combinations.blank?
-        resource_combinations(2)
-      else
-        @combinations.map do |array|
-          [
-            Resource.find(array.first),
-            Resource.find(array.second)
-          ]
-        end
+        @combinations = resource_combinations(2)
       end
+
+      @combinations
     end
 
     def clear_browser
