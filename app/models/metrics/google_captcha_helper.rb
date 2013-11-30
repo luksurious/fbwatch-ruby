@@ -35,7 +35,12 @@ module Metrics
     end
 
     def load_form(b)
-      b.goto 'http://ipv4.google.com/sorry/CaptchaRedirect'
+      b.goto 'http://www.google.com/search?q=Memes'
+
+      if b.url.index('sorry').nil? and b.div(id: 'resultStats').exists?
+        raise 'Not on captcha page'
+      end
+
       form_id = b.input(name: 'id').value
 
       @session[:captcha] ||= {}
@@ -59,7 +64,8 @@ module Metrics
       b.button(name: 'submit').click
       b.wait
 
-      b.url.include?('sorry').nil?
+      Rails.logger.info "After code submit on URL #{b.url}"
+      b.url.index('sorry').nil?
     end
 
     def load_image
