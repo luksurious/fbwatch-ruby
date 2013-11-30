@@ -61,6 +61,8 @@ module Tasks
       end
 
       def resume
+        start = Time.now
+
         if @task.resource.is_a?(Resource)
           # syncing of a single resource failed. just do it again
           sync_resource(@task.resource, @task.data)
@@ -72,10 +74,13 @@ module Tasks
 
           # remove resume data
           @task.data[DATA_KEY_RESUME] = nil
-          @task.save!
 
           result = sync_resource_collection(resources)
         end
+
+
+        @task.data[TIME_SPLIT].push('%.2f' % (Time.now - start))
+        @task.save!
       end
 
       def sync_resource_collection(collection)
