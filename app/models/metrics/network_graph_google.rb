@@ -110,7 +110,7 @@ module Metrics
           end
         end
 
-        value == 0 ? 0.1 : 1.0
+        0.1
       end
 
       def confidence_deviation(values, geometric_mean)
