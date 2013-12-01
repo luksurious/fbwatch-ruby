@@ -6,7 +6,7 @@ module Metrics
       'GroupMentions', 
       'Scoring', 'NetworkGraph'
     ]
-    @@visualization_metrics = ['NetworkGraphGoogle']
+    @@visualization_metrics = ['NetworkGraph', 'NetworkGraphGoogle']
 
     def self.single_metrics(ids = nil)
       if ids.nil?

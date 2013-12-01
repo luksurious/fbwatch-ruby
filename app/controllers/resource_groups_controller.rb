@@ -14,7 +14,6 @@ class ResourceGroupsController < ApplicationController
   end
 
   def report
-    
   end
 
   def remove_resource
