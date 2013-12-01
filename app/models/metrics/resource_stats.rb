@@ -23,6 +23,9 @@ module Metrics
       resource_like_count = Like.joins(:feed).where(feeds: {resource_id: self.resource.id}).distinct.count(:resource_id)
       make_metric_model('resource_like_count', resource_like_count)
 
+      resource_tag_count = FeedTag.joins(:feed).where(feeds: {resource_id: self.resource.id}).distinct.count(:resource_id)
+      make_metric_model('resource_tag_count', resource_tag_count)
+
       total_likes = Like.joins(:feed).where(feeds: {resource_id: self.resource.id}).count
       make_metric_model('total_likes', total_likes)
 
