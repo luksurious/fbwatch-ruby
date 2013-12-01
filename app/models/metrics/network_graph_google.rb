@@ -22,13 +22,13 @@ module Metrics
           score_min: 5
         },
         {
-          max: upper_boundary / 10 - 1,
+          max: (upper_boundary - 1) / 10,
           min: upper_boundary / 100,
           score_max: 5,
           score_min: 2.5
         },
         {
-          max: upper_boundary / 100 - 1,
+          max: (upper_boundary - 1) / 100,
           min: upper_boundary / 1000,
           score_max: 2.5,
           score_min: 1
