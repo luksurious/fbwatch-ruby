@@ -121,7 +121,7 @@ module Metrics
 
       @logger.debug("Calling google with query: #{query_parameter}")
 
-      url = "http://www.google.com/search?hl=en&q=#{URI.escape(query_parameter)}&filter=0&ie=utf-8&oe=utf-8"
+      url = "http://www.google.com/search?hl=en&q=#{URI.escape(query_parameter)}&filter=0&ie=utf-8&oe=utf-8&start=990"
 
       #begin
       count = get_hits_directly(url)
@@ -149,9 +149,9 @@ module Metrics
       end
 
       if b.div(id: "resultStats").exists?
-        count_human = b.div(id: "resultStats").text.match(/[0-9,\.]+/)
+        count_human = b.div(id: "resultStats").text.scan(/[0-9,\.]+/)
 
-        return count_human[0].gsub(/[,\.]/, '').to_i if count_human.length > 0
+        return inner_html.map { |x| x.gsub(/[,\.]/, '').to_i }.max if count_human.length > 1
       end
       
       if b.url.index("sorry/IndexRedirect")
@@ -188,13 +188,13 @@ module Metrics
         count = 0
         @logger.debug(Sanitize.clean(body, {:remove_contents => ["script","style"]})[0..1000])
       else
-        inner_html = html_count[0].match(/[0-9,\.]+/)
+        inner_html = html_count[0].scan(/[0-9,\.]+/)
         
         if inner_html.nil? or inner_html.length == 0
           count = 0 
           @logger.debug(Sanitize.clean(body, {:remove_contents => ["script","style"]})[0..1000])
         else
-          count = inner_html[0].gsub(/[,\.]/, '').to_i
+          count = inner_html.map { |x| x.gsub(/[,\.]/, '').to_i }.max
         end
       end
 
