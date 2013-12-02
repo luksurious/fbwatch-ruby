@@ -10,7 +10,7 @@
         = render 'tasks/task', task: task
   
 .btn-group
-  = link_to 'Show report', resource_group_report_path(@resource_group), lass: "btn btn-success"
+  = link_to 'Show report', resource_group_report_path(@resource_group), class: "btn btn-success"
   = link_to 'Sync this group', sync_group_path(@resource_group), method: :patch, class: "btn btn-primary #{@resource_group.currently_syncing? ? 'disabled' : ''}"
   = link_to 'Calculate Metrics', group_metrics_path(@resource_group), method: :patch, class: 'btn btn-info'
   = link_to 'Compare with Google', google_metrics_path(@resource_group, 'sync' => 1), method: :patch, class: 'btn btn-default'
