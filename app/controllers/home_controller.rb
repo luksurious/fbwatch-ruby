@@ -1,5 +1,5 @@
 class HomeController < ApplicationController
-  before_action :assert_auth
+  #before_action :assert_auth
 
   def index
     index_groups
