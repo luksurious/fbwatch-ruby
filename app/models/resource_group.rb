@@ -19,12 +19,6 @@ class ResourceGroup < ActiveRecord::Base
       }
       options[:resource_id] = resource.id unless resource.nil?
 
-      metrics = GroupMetric.where(options).sort_by(&:sort_value).reverse
-      klass.set(metrics.map do |metric|
-        next if metric.self_referencing?
-        metric
-      end.compact)
-
       res << klass
     end
 
