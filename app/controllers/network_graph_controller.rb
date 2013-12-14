@@ -38,8 +38,8 @@ class NetworkGraphController < ApplicationController
       nodes: [],
       edges: []
     }
-
-    GroupMetric.where(resource_group_id: resource_group.id, metric_class: metric_class, name: 'graph_edge').each do |metric|
+e_start = Time.now
+    GroupMetric.includes(:resources, :resource).where(resource_group_id: resource_group.id, metric_class: metric_class, name: 'graph_edge').each do |metric|
       # skip malformed items
       next if metric.resources.empty?
       # if getting the graph for a specific resource skip unrelated edges
@@ -51,7 +51,8 @@ class NetworkGraphController < ApplicationController
         weight: [metric.value, 0].max
       }
     end
-
+Rails.logger.info "edges duration #{Time.now - e_start}"
+n_start = Time.now
     GroupMetric.where(resource_group_id: resource_group.id, metric_class: metric_class, name: 'graph_node').each do |metric|
       json[:nodes] << {
         id: metric.resource.username,
@@ -61,7 +62,7 @@ class NetworkGraphController < ApplicationController
         forceLabel: metric.value > 5
       }
     end
-
+Rails.logger.info "nodes duration #{Time.now - n_start}"
     respond_to do |format|
       format.html { redirect_to resource_group_details_path(resource_group) }
       format.json { render json: json }
