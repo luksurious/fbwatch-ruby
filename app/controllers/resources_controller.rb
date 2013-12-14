@@ -86,6 +86,9 @@ class ResourcesController < ApplicationController
     end
   end
 
+  def show_change_color_batch  
+  end
+
   ##############
   # edit methods
   ##############
@@ -152,6 +155,27 @@ class ResourcesController < ApplicationController
     color.save!
 
     flash[:notice] << "Color updated"
+    redirect_to :back
+  end
+
+  def change_color_batch
+    require 'json'
+
+    color_hash = JSON.parse(params[:array])
+
+    color_hash.each do |res_color|
+      res = Resource.where(facebook_id: res_color["facebook_id"]).first
+      if res.nil?
+        flash[:warn] << "Facebook user with id #{res_color['facebook_id']} not found"
+        return
+      end
+
+      color = Basicdata.where(resource_id: res.id, key: 'node_color').first_or_initialize
+      color.value = res_color['color']
+      color.save
+    end
+
+    flash[:notice] << "Colors updated"
     redirect_to :back
   end
   
