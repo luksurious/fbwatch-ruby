@@ -167,7 +167,7 @@ class ResourcesController < ApplicationController
       res = Resource.where(facebook_id: res_color["facebook_id"]).first
       if res.nil?
         flash[:warning] << "Facebook user with id #{res_color['facebook_id']} not found"
-        return
+        next
       end
 
       color = Basicdata.where(resource_id: res.id, key: 'node_color').first_or_initialize
