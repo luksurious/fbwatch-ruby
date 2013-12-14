@@ -2,7 +2,7 @@ require 'uri'
 
 class ResourcesController < ApplicationController
   before_action :assert_auth, except: [:details, :overview]
-  before_action :set_resource_by_id, only: [:add_to_group, :update, :destroy, :clear_last_synced, :change_keywords]
+  before_action :set_resource_by_id, only: [:add_to_group, :update, :destroy, :clear_last_synced, :change_keywords, :change_color]
   before_action :set_resource_by_username, only: [:details, :disable, :enable, :update, :show_clean_up, :do_clean_up, :overview]
 
   # GET /resources
@@ -146,6 +146,15 @@ class ResourcesController < ApplicationController
     redirect_to :back
   end
   
+  def change_color
+    color = Basicdata.where(resource_id: @resource.id, key: 'node_color').first_or_initialize
+    color.value = params[:basicdata][:value]
+    color.save!
+
+    flash[:notice] << "Color updated"
+    redirect_to :back
+  end
+  
   def disable
     @resource.deactivate
     @resource.save
@@ -218,6 +227,8 @@ class ResourcesController < ApplicationController
       flash[:info] << "This resource is currently syncing" if @resource.currently_syncing?
 
       @keywords = Basicdata.where(key: 'keywords', resource_id: @resource.id).first_or_initialize
+
+      @color = Basicdata.where(key: 'node_color', resource_id: @resource.id).first_or_initialize
     end
 
     def create_for(username)

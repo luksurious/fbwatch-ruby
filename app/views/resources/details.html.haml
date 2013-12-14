@@ -53,6 +53,12 @@
           = f.input :key, as: :hidden
           = f.input :value, as: :string, label: 'Modify keywords (comma seperated)'
           = f.button :submit, 'Save', class: 'btn-default'
+      %p
+        = simple_form_for(@color, url: node_color_path(@resource), method: :patch) do |f|
+          = f.error_notification
+          = f.input :key, as: :hidden
+          = f.input :value, as: :string, label: 'Network node color (HTML hex format)'
+          = f.button :submit, 'Save', class: 'btn-default'
 
 
 %h2 
