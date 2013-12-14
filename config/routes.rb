@@ -19,7 +19,6 @@ Fbwatch::Application.routes.draw do
   # resource actions
   get 'resources(/:p)' => 'resources#index', as: 'resources_index', constraints: { p: /[0-9]+/ }
 
-  resources :resources, only: [:create, :destroy, :update]
   get   'resource/:username/disable',       to: 'resources#disable',            as: 'sync_disable',       :constraints => { :username => /[^\/]+/ }
   get   'resource/:username/enable',        to: 'resources#enable',             as: 'sync_enable',        :constraints => { :username => /[^\/]+/ }
   get   'resource/:username/details(/:p)',  to: 'resources#details',            as: 'resource_details',   :constraints => { :username => /[^\/]+/, :p => /[0-9]+/ }
@@ -28,10 +27,14 @@ Fbwatch::Application.routes.draw do
   patch 'resource/:id/clear_last_synced',   to: 'resources#clear_last_synced',  as: 'clear_last_synced'
   get   'resources/search/name',            to: 'resources#search_for_name',    as: 'search_resource_names'
   patch 'resource/:id/keywords',            to: 'resources#change_keywords',    as: 'keywords'
+  patch 'resource/:id/color',               to: 'resources#change_color',       as: 'node_color'
   get   'resource/:username/clean',         to: 'resources#show_clean_up',      as: 'clean_up_resource',  :constraints => { :username => /[^\/]+/ }
   patch 'resource/:username/clean',         to: 'resources#do_clean_up',        as: 'do_clean_up',        :constraints => { :username => /[^\/]+/ }
   get   'resource/:id/graph/:group_id',     to: 'network_graph#for_resource',   as: 'resource_graph'
   get   'resource/:id/google_graph/:group_id', to: 'network_graph#google_for_resource', as: 'resource_google_graph'
+  patch 'resources/color',                  to: 'resources#change_color_batch', as: 'node_color_batch'
+  get   'resources/color',                  to: 'resources#show_change_color_batch', as: 'show_node_color_batch'
+  resources :resources, only: [:create, :destroy, :update]
 
   # metrics
   patch 'resource/:username/metrics',   to: 'metrics#resource',             as: 'run_metrics',    :constraints => { :username => /[^\/]+/ }

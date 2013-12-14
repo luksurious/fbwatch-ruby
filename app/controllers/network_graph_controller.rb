@@ -57,7 +57,7 @@ class NetworkGraphController < ApplicationController
         id: metric.resource.username,
         label: metric.resource.name,
         size: [metric.value, 0.1].max,
-        color: random_color,
+        color: metric.resource.color ? metric.resource.color : random_color,
         forceLabel: metric.value > 5
       }
     end

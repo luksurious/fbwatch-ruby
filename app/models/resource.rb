@@ -53,6 +53,11 @@ class Resource < ActiveRecord::Base
     self.feed.count == 0
   end
 
+  def color
+    color = Basicdata.where(resource_id: self.id, key: 'node_color').first
+    return color.value unless color.nil?
+  end
+
   def currently_syncing?
     self.last_synced.is_a?(Time) and self.last_synced > DateTime.now
   end
