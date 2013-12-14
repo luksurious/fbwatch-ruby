@@ -166,7 +166,7 @@ class ResourcesController < ApplicationController
     color_hash.each do |res_color|
       res = Resource.where(facebook_id: res_color["facebook_id"]).first
       if res.nil?
-        flash[:warn] << "Facebook user with id #{res_color['facebook_id']} not found"
+        flash[:warning] << "Facebook user with id #{res_color['facebook_id']} not found"
         return
       end
 
@@ -176,7 +176,7 @@ class ResourcesController < ApplicationController
     end
 
     flash[:notice] << "Colors updated"
-    redirect_to :back
+    redirect_to root_path
   end
   
   def disable
