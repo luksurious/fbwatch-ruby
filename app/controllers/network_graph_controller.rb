@@ -6,7 +6,8 @@ class NetworkGraphController < ApplicationController
                     '#FF4500', '#BF5730', '#A62D00', '#FF7340', '#FF9973',
                     '#0A64A4', '#24577B', '#03406A', '#3E94D1', '#65A5D1',
                     '#00A8C6', '#A7DBD8', '#F9F2E7', '#AEE239', '#8FBE00',
-                    '#E0E4CC', '#F38630', '#ECD078', '#C02942', '#542437', '#53777A']
+                    #'#E0E4CC', '#ECD078', 
+                    '#F38630', '#C02942', '#542437', '#53777A']
 
     @color_map.sample
   end

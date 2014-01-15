@@ -26,7 +26,7 @@ $(document).ready ->
       theContainer = this
 
       sigInst = sigma.init(e).drawingProperties({
-        defaultLabelColor: '#fff',
+        defaultLabelColor: '#000',
         defaultEdgeType: 'curve'
       }).graphProperties({
         minNodeSize: 0.1,
